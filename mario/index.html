@@ -329,13 +329,16 @@ function drawTile(id,sx,sy){
       ctx.fillStyle=C.bLine; ctx.fillRect(sx,sy+7,TILE,1); ctx.fillRect(sx+8,sy,1,7); ctx.fillRect(sx,sy+9,8,1);
       ctx.fillStyle=C.bShine; ctx.fillRect(sx,sy,TILE,1); ctx.fillRect(sx,sy,1,7);
       break;
-    case T.QCOIN: case T.QITEM:
-      ctx.fillStyle=C.qMain; ctx.fillRect(sx,sy,TILE,TILE);
+    case T.QCOIN: case T.QITEM:{
+      const qf=Math.floor(frameTick/8)%4;
+      const qcols=['#e8a000','#f8c000','#f8e840','#f8c000'];
+      ctx.fillStyle=qcols[qf]; ctx.fillRect(sx,sy,TILE,TILE);
       ctx.fillStyle=C.qShine; ctx.fillRect(sx+1,sy+1,TILE-2,2); ctx.fillRect(sx+1,sy+1,2,TILE-2);
       ctx.fillStyle=C.qDark; ctx.fillRect(sx+TILE-2,sy,2,TILE); ctx.fillRect(sx,sy+TILE-2,TILE,2);
       ctx.fillStyle='#fff';
       ctx.fillRect(sx+4,sy+3,7,2); ctx.fillRect(sx+9,sy+5,2,3); ctx.fillRect(sx+4,sy+7,7,2); ctx.fillRect(sx+6,sy+10,3,3);
       break;
+    }
     case T.Q1UP: // green ? block — 1-up mushroom
       ctx.fillStyle='#00b800'; ctx.fillRect(sx,sy,TILE,TILE);
       ctx.fillStyle='#00e800'; ctx.fillRect(sx+1,sy+1,TILE-2,2); ctx.fillRect(sx+1,sy+1,2,TILE-2);
@@ -498,10 +501,14 @@ function buildLevel(){
     {type:'k',col:158,row:12},
     {type:'g',col:167,row:12},{type:'g',col:168,row:12},
   ];
-  // Piranha plants (pipeCol, pipeTopRow)
-  // pipe(28,2)→top row 11; pipe(38,3)→top row 10; pipe(46,4)→top row 9; pipe(57,4)→top row 9
+  // Piranha plants
   const pipePlants=[{c:38,r:10},{c:46,r:9},{c:57,r:9},{c:150,r:11},{c:156,r:11}];
-  return {d,w:W,h:H,spawns,pipePlants};
+  // Firebars in castle (cx=tile col, cy=tile row, len=balls, spd=rad/frame)
+  const firebarsData=[
+    {cx:204,cy:11,len:3,spd:0.05},
+    {cx:208,cy:9, len:3,spd:-0.07},
+  ];
+  return {d,w:W,h:H,spawns,pipePlants,firebars:firebarsData};
 }
 
 // ─── WORLD 1-2 (UNDERGROUND) ─────────────────────────────────────────────────
@@ -578,7 +585,11 @@ function buildLevel2(){
   ];
   // Piranha plants in underground pipes: pipe(8,3)→row10; pipe(44,4)→row9; pipe(110,3)→row10; pipe(143,2)→row11
   const pipePlants=[{c:44,r:9},{c:110,r:10},{c:143,r:11}];
-  return {d,w:W,h:H,spawns,pipePlants};
+  const firebarsData=[
+    {cx:190,cy:11,len:3,spd:0.06},
+    {cx:193,cy:9, len:3,spd:-0.08},
+  ];
+  return {d,w:W,h:H,spawns,pipePlants,firebars:firebarsData};
 }
 
 // ─── PHYSICS ─────────────────────────────────────────────────────────────────
@@ -722,6 +733,22 @@ class Koopa extends Enemy{
     spr(this.sh?SPR.kS:this.ft===0?SPR.k1:SPR.k2, this.x-cx-1, this.y-2, !this.fR);
   }
 }
+
+// ─── FIREBAR ─────────────────────────────────────────────────────────────────
+class Firebar{
+  constructor(cx,cy,len,speed){ this.cx=cx; this.cy=cy; this.len=len; this.angle=0; this.speed=speed; }
+  _balls(){
+    const b=[];
+    for(let i=1;i<=this.len;i++) b.push({x:this.cx+Math.cos(this.angle)*i*8, y:this.cy+Math.sin(this.angle)*i*8});
+    return b;
+  }
+  update(){ this.angle+=this.speed; }
+  draw(cx){ for(const b of this._balls()) spr(SPR.fb,b.x-cx-4,b.y-4); }
+  hits(m){ for(const b of this._balls()) if(m.right>b.x&&m.left<b.x+8&&m.bottom>b.y&&m.top<b.y+8) return true; return false; }
+}
+const firebars=[];
+function updateFirebars(){ for(const f of firebars) f.update(); }
+function drawFirebars(cx){ for(const f of firebars) f.draw(cx); }
 
 // ─── PIRANHA PLANT ───────────────────────────────────────────────────────────
 // 1=#005800 2=#00c800 3=#f8f8f8 4=#e02020 5=#f8c0c0
@@ -1067,7 +1094,7 @@ const gS={
     if(++this._tAcc>=40){ this._tAcc=0; this.time=Math.max(0,this.time-1); if(this.time===0) mario.die(this); }
     mario.update(tilemap,this);
     updateObjs(tilemap); updateParts(); updateBounce(); updateFBs(tilemap);
-    updatePlants();
+    updatePlants(); updateFirebars();
     for(const e of enemies) e.update(tilemap,this);
     if(mario.y>NH+64) mario.die(this);
 
@@ -1087,6 +1114,9 @@ const gS={
         else mario.hit(this);
       }
     }
+    // Firebar vs Mario
+    for(const fb of firebars) if(fb.hits(mario)) mario.hit(this);
+
     // Piranha plant vs Mario
     for(const p of plants){
       if(!p.showing) continue;
@@ -1118,8 +1148,9 @@ const gS={
     this.poleCol=this.lv===2?185:200;
     enemies.length=0;
     ld.spawns.forEach(sp=>{ if(sp.type==='g') enemies.push(new Goomba(sp.col*TILE,sp.row*TILE)); else enemies.push(new Koopa(sp.col*TILE,sp.row*TILE)); });
-    objs.length=0; parts.length=0; fbs.length=0; plants.length=0;
+    objs.length=0; parts.length=0; fbs.length=0; plants.length=0; firebars.length=0;
     if(ld.pipePlants) ld.pipePlants.forEach(p=>plants.push(new PiranhaPlant(p.c,p.r)));
+    if(ld.firebars)   ld.firebars.forEach(f=>firebars.push(new Firebar(f.cx*TILE+8,f.cy*TILE+8,f.len,f.spd)));
     mario.x=3*TILE; mario.y=11*TILE; mario.vx=0; mario.vy=0;
     mario.dead=false; mario.dT=0; mario.form='S'; mario.onGnd=false;
     mario.hitT=0; mario.invT=0; mario.pole=false; mario.wF=0; mario.wT=0; mario.warpT=0;
@@ -1177,9 +1208,13 @@ function drawGameOver(){
   ctx.textAlign='left';
 }
 function drawClear(){
-  ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(0,24,NW,30);
+  ctx.fillStyle='rgba(0,0,0,0.68)'; ctx.fillRect(0,24,NW,68);
   ctx.fillStyle='#fff'; ctx.font='bold 8px monospace'; ctx.textAlign='center';
-  ctx.fillText('COURSE CLEAR!',NW/2,36); ctx.fillText('SCORE  '+String(gS.score).padStart(6,'0'),NW/2,48);
+  ctx.fillText('COURSE CLEAR!',NW/2,38);
+  ctx.fillText('SCORE  '+String(gS.score).padStart(6,'0'),NW/2,50);
+  ctx.fillStyle=gS._bonusRemain>0?'#f8c000':'#fff';
+  ctx.fillText('TIME BONUS  '+String(gS._bonusRemain||0).padStart(3,'0')+'  ×50',NW/2,64);
+  ctx.fillText('+'+String((gS._bonusRemain||0)*50).padStart(5,'0'),NW/2,76);
   ctx.textAlign='left';
 }
 
@@ -1251,7 +1286,7 @@ function render(){
   drawScenery(cx);
   tilemap.draw(cx);
   drawFlag(cx);
-  drawObjs(cx); drawFBs(cx); drawPlants(cx);
+  drawObjs(cx); drawFBs(cx); drawPlants(cx); drawFirebars(cx);
   for(const e of enemies) e.draw(cx);
   drawParts(cx);
   mario.draw(cx);
@@ -1278,6 +1313,7 @@ const enemies=[];
 gS.mario=mario;
 ld.spawns.forEach(sp=>{ if(sp.type==='g') enemies.push(new Goomba(sp.col*TILE,sp.row*TILE)); else enemies.push(new Koopa(sp.col*TILE,sp.row*TILE)); });
 if(ld.pipePlants) ld.pipePlants.forEach(p=>plants.push(new PiranhaPlant(p.c,p.r)));
+if(ld.firebars)   ld.firebars.forEach(f=>firebars.push(new Firebar(f.cx*TILE+8,f.cy*TILE+8,f.len,f.spd)));
 
 // M = mute / P = pause
 document.addEventListener('keydown',e=>{
@@ -1304,8 +1340,8 @@ document.addEventListener('keydown',e=>{
 })();
 
 // ─── GAME LOOP ───────────────────────────────────────────────────────────────
-let last=0,acc=0;
-function loop(ts){ acc+=ts-last; last=ts; if(acc>200) acc=200; while(acc>=DT){ gS.update(); acc-=DT; } render(); requestAnimationFrame(loop); }
+let last=0,acc=0,frameTick=0;
+function loop(ts){ acc+=ts-last; last=ts; if(acc>200) acc=200; while(acc>=DT){ gS.update(); acc-=DT; frameTick++; } render(); requestAnimationFrame(loop); }
 requestAnimationFrame(ts=>{ last=ts; requestAnimationFrame(loop); });
 
 // ─── DEBUG API ───────────────────────────────────────────────────────────────
