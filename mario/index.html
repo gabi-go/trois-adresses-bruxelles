@@ -1040,9 +1040,12 @@ const gS={
   addScore(n){ this.score+=n; if(this.score>this.hiScore){ this.hiScore=this.score; localStorage.setItem('mhs',this.hiScore); } },
   addCoins(n){ this.coins++; this.score+=200; if(this.coins>=100){ this.coins=0; this.lives++; sfx.play('1up'); } },
   levelClear(){
-    this.phase='CLEAR'; this._clT=300;
+    this.phase='CLEAR';
     this._nextLv=this.lv===1?2:1;
     if(this.lv===2) this.world++;
+    this._bonusRemain=Math.ceil(this.time);
+    this._bonusTick=0;
+    this._clT=this._bonusRemain*2+220; // countdown frames + hold
   },
   enterPipe(){ this.lv=2; this._reset(); },
   marioDied(){ this.phase='DEAD'; },
@@ -1053,7 +1056,12 @@ const gS={
     if(this.phase==='INTRO'){ if(--this._iT<=0){ this.phase='PLAY'; music.start(); } return; }
     if(this.phase==='DEAD'){ mario.update(tilemap,this); return; }
     if(this.phase==='GAMEOVER'){ if(--this._goT<=0) this._newGame(); return; }
-    if(this.phase==='CLEAR'){ mario.update(tilemap,this); if(--this._clT<=0){ this.lv=this._nextLv; this._reset(); } return; }
+    if(this.phase==='CLEAR'){
+      mario.update(tilemap,this);
+      if(this._bonusRemain>0&&++this._bonusTick%2===0){ this._bonusRemain--; this.addScore(50); this.snd('coin'); }
+      if(--this._clT<=0){ this.lv=this._nextLv; this._reset(); }
+      return;
+    }
 
     // PLAY
     if(++this._tAcc>=40){ this._tAcc=0; this.time=Math.max(0,this.time-1); if(this.time===0) mario.die(this); }
