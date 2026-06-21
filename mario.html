@@ -4,10 +4,9 @@
 <meta charset="UTF-8">
 <title>Super Mario Bros</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #000; display: flex; justify-content: center; align-items: center;
-         min-height: 100vh; overflow: hidden; }
-  canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#000; display:flex; justify-content:center; align-items:center; min-height:100vh; overflow:hidden; }
+canvas { image-rendering:pixelated; image-rendering:crisp-edges; display:block; }
 </style>
 </head>
 <body>
@@ -15,1475 +14,1045 @@
 <script>
 'use strict';
 
-// ─── CONSTANTS ────────────────────────────────────────────────────────────────
-const TILE = 16;
-const NW   = 256;   // 16 tiles wide
-const NH   = 240;   // 15 tiles tall
-const FPS  = 60;
-const DT   = 1000 / FPS;
-
-// ─── CANVAS ───────────────────────────────────────────────────────────────────
-const canvas = document.getElementById('c');
-const ctx    = canvas.getContext('2d');
-canvas.width  = NW;
-canvas.height = NH;
-function resize() {
-  const s = Math.min(window.innerWidth / NW, window.innerHeight / NH);
-  canvas.style.width  = Math.floor(NW * s) + 'px';
-  canvas.style.height = Math.floor(NH * s) + 'px';
+// ─── CANVAS ──────────────────────────────────────────────────────────────────
+const TILE=16, NW=256, NH=240, FPS=60, DT=1000/FPS;
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+canvas.width=NW; canvas.height=NH;
+function resize(){
+  const s=Math.min(window.innerWidth/NW, window.innerHeight/NH);
+  canvas.style.width=Math.floor(NW*s)+'px'; canvas.style.height=Math.floor(NH*s)+'px';
 }
-resize();
-window.addEventListener('resize', resize);
+resize(); window.addEventListener('resize',resize);
 
-// ─── INPUT ────────────────────────────────────────────────────────────────────
-const KEY = {};
-document.addEventListener('keydown', e => { KEY[e.code] = true;  e.preventDefault(); });
-document.addEventListener('keyup',   e => { KEY[e.code] = false; });
-const LEFT  = () => KEY['ArrowLeft']  || KEY['KeyA'];
-const RIGHT = () => KEY['ArrowRight'] || KEY['KeyD'];
-const DOWN  = () => KEY['ArrowDown']  || KEY['KeyS'];
-const JUMP  = () => KEY['Space'] || KEY['KeyZ'] || KEY['ArrowUp']  || KEY['KeyW'];
-const RUN   = () => KEY['ShiftLeft'] || KEY['ShiftRight'] || KEY['KeyX'] || KEY['KeyC'];
+// ─── INPUT ───────────────────────────────────────────────────────────────────
+const KEY={};
+document.addEventListener('keydown',e=>{ KEY[e.code]=true; e.preventDefault(); });
+document.addEventListener('keyup',  e=>{ KEY[e.code]=false; });
+const pL=()=>KEY['ArrowLeft'] ||KEY['KeyA'];
+const pR=()=>KEY['ArrowRight']||KEY['KeyD'];
+const pD=()=>KEY['ArrowDown'] ||KEY['KeyS'];
+const pJ=()=>KEY['Space']||KEY['KeyZ']||KEY['ArrowUp']||KEY['KeyW'];
+const pRun=()=>KEY['ShiftLeft']||KEY['ShiftRight']||KEY['KeyX']||KEY['KeyC'];
 
-// ─── SPRITE SYSTEM ────────────────────────────────────────────────────────────
-// Each sprite is { pixels: string[], pal: string[] }
-// pixels: rows of hex chars (0=transparent, 1-f = palette index)
-// pal: ['', color1, color2, ...] (index 0 unused = transparent)
-
-function spr(s, sx, sy, flipH) {
-  sx = Math.round(sx); sy = Math.round(sy);
-  const rows = s.pixels, pal = s.pal;
-  const pw = rows[0].length;
-  for (let r = 0; r < rows.length; r++) {
-    const row = rows[r];
-    for (let c = 0; c < pw; c++) {
-      const idx = parseInt(row[c], 16);
-      if (!idx) continue;
-      ctx.fillStyle = pal[idx];
-      const px = flipH ? sx + (pw - 1 - c) : sx + c;
-      ctx.fillRect(px, sy + r, 1, 1);
+// ─── SPRITE RENDERER ─────────────────────────────────────────────────────────
+// Each pixel is 1×1 on the 256×240 canvas (scaled up by CSS)
+function spr(s, sx, sy, flipH){
+  sx=Math.round(sx); sy=Math.round(sy);
+  const {px,pal}=s, pw=px[0].length;
+  for(let r=0;r<px.length;r++){
+    const row=px[r];
+    for(let c=0;c<pw;c++){
+      const i=parseInt(row[c],16); if(!i) continue;
+      ctx.fillStyle=pal[i];
+      ctx.fillRect(flipH?sx+(pw-1-c):sx+c, sy+r, 1, 1);
     }
   }
 }
 
-// ── Mario Small sprites (12×16) ──────────────────────────────────────────────
-// Palette: 1=#2c1800 2=#c83010 3=#fca044 4=#3038b0 5=#6c3810
-const MP = ['','#2c1800','#c83010','#fca044','#3038b0','#6c3810'];
+// ─── SPRITE DEFINITIONS ──────────────────────────────────────────────────────
+// Exact SMB1 NES color approximations
+// Palette codes: 0=transparent 1=dark/outline 2=primary 3=skin/secondary 4=tertiary
 
-// Shared body rows (0-8) for all small mario frames
-const MS_HEAD = [
-  '000222000000',  // 0 hat top
-  '002222200000',  // 1
-  '012222210000',  // 2 brim
-  '003313300000',  // 3 face + eye (1=eye)
-  '003333330000',  // 4 face
-  '003333330000',  // 5 face lower
-  '001133100000',  // 6 mustache
-  '000222000000',  // 7 collar
-  '022222220000',  // 8 shirt
+// ── Small Mario (12×16) ──────────────────────────────────────────────────────
+// 1=#2c1800 2=#b53120 3=#f8a840 4=#3040c8
+const MP=['','#2c1800','#b53120','#f8a840','#3040c8'];
+const MSHEAD=[   // rows 0-8 shared by all small mario frames
+  '000222000000',  // hat top (3 red px)
+  '002222200000',  // hat wider
+  '022222220000',  // hat full
+  '112222211000',  // brim with dark edges
+  '003313300000',  // face: eye=1 at col4
+  '003333330000',  // face
+  '003333330000',
+  '001133100000',  // mustache
+  '000222000000',  // collar
 ];
-const MS_WAIST = [
-  '022444220000',  // 9  overalls-waist + suspenders
-  '044444440000',  // 10 overalls
-  '044444440000',  // 11 overalls lower
-];
-// Leg rows per animation frame (rows 12-15):
-const MS_LEGS = {
-  stand: ['004440044000','114440044110','114000044110','110000001100'],
-  walk1: ['004444000000','114440000000','114000000000','110000000000'],
-  walk2: ['000004440000','000001144000','000000001140','000000000110'],
-  walk3: ['004440044000','014440044010','000000000010','000000000000'],
-  jump:  ['000044440000','000144441000','011000011000','000000000000'],
-  crouch:['004440044000','114440044110','114000044110','110000001100'],
-  die:   ['004440044000','014400044010','114000004110','110000001100'],
+const MSBOD=['022222220000','022444220000','044444440000','044444440000']; // rows 9-12 (shirt/overalls)
+
+const MLEGS={
+  stand: ['004400440000','114400441000','114000041100','110000001100'],
+  walk1: ['004444000000','114440000000','114000000000','000000000000'],
+  walk2: ['000004440000','000001441000','000000041100','000000000000'],
+  walk3: ['004000040000','114000041000','000000000000','000000000000'],
+  jump:  ['024444420000','244444422000','004444400000','001441000000'],
+  die:   ['004444440000','114444441000','100000001100','000000000000'],
+};
+function mspr(leg){ return { pal:MP, px:[...MSHEAD,...MSBOD,...MLEGS[leg]] }; }
+const SPR={
+  ms0:mspr('stand'), ms1:mspr('walk1'), ms2:mspr('walk2'), ms3:mspr('walk3'),
+  msJ:mspr('jump'),  msD:mspr('die'),
 };
 
-function buildSmall(legKey) {
-  return { pal: MP, pixels: [...MS_HEAD, ...MS_WAIST, ...MS_LEGS[legKey]] };
-}
-const SPR = {
-  ms_stand: buildSmall('stand'),
-  ms_walk1: buildSmall('walk1'),
-  ms_walk2: buildSmall('walk2'),
-  ms_walk3: buildSmall('walk3'),
-  ms_jump:  buildSmall('jump'),
-  ms_die:   buildSmall('die'),
-};
-
-// ── Mario Super sprites (16×24) ───────────────────────────────────────────────
-const MB_PIXELS_BASE = [
-  '0002222000000000',  // 0
-  '0022222200000000',  // 1
-  '0122222210000000',  // 2 brim
-  '0003313300000000',  // 3 face eyes
-  '0033333330000000',  // 4
-  '0033333330000000',  // 5
-  '0033333330000000',  // 6
-  '0011333110000000',  // 7 mustache wide
-  '0001333100000000',  // 8 chin
-  '0002222200000000',  // 9 collar
+// ── Super Mario (16×24) ──────────────────────────────────────────────────────
+const MBPX=[
+  '0002222000000000',  //  0 hat
+  '0022222200000000',  //  1
+  '0122222210000000',  //  2 brim
+  '0003313300000000',  //  3 face: eye at col4
+  '0033333330000000',  //  4
+  '0033333330000000',  //  5
+  '0033333330000000',  //  6
+  '0011333110000000',  //  7 mustache
+  '0001333100000000',  //  8 chin
+  '0002222200000000',  //  9 collar
   '0222222222000000',  // 10 shirt
-  '0222222222000000',  // 11 shirt lower
-  '0224444222000000',  // 12 suspenders
+  '0222222222000000',  // 11
+  '0224444222000000',  // 12 suspenders (4=blue)
   '0244444422000000',  // 13 overalls
   '0244444422000000',  // 14
   '0444444444000000',  // 15
   '0444444444000000',  // 16
   '0444444444000000',  // 17
   '0044440044000000',  // 18 legs
-  '0144440044100000',  // 19 shoes
-  '1144400044110000',  // 20
+  '0144440044100000',  // 19
+  '1144400044110000',  // 20 shoes
   '1100000001100000',  // 21 soles
-  '0000000000000000',
-  '0000000000000000',
+  '0000000000000000',  // 22
+  '0000000000000000',  // 23
 ];
-const MB_PIXELS_WALK1 = [
-  ...MB_PIXELS_BASE.slice(0,18),
-  '0044444000000000','0144440000000000','1144000000000000','1100000000000000',
-  '0000000000000000','0000000000000000',
-];
-const MB_PIXELS_WALK2 = [
-  ...MB_PIXELS_BASE.slice(0,18),
-  '0000044440000000','0000001444000000','0000000144100000','0000000001100000',
-  '0000000000000000','0000000000000000',
-];
-const MB_PIXELS_JUMP = [
-  ...MB_PIXELS_BASE.slice(0,14),
-  '2244444422000000',  // arms out
-  '4444444444000000',
-  '4444444444000000',
-  '0444444440000000',
-  '0004444000000000',
-  '0014441000000000',
-  '0110000110000000',
-  '0000000000000000','0000000000000000','0000000000000000',
-];
-const MB_PIXELS_CROUCH = [
-  '0000000000000000',
-  '0002222000000000',
-  '0022222200000000',
-  '0122222210000000',
-  '0003313300000000',
-  '0033333330000000',
-  '0011333110000000',
-  '0222222222000000',
-  '0224444222000000',
-  '0244444422000000',
-  '0444444444000000',
-  '0004440044000000',
-  '0114440044100000',
-  '1114400001100000',
+const MBW1=[...MBPX.slice(0,18),'0044444000000000','0144440000000000','1144000000000000','1100000000000000','0000000000000000','0000000000000000'];
+const MBW2=[...MBPX.slice(0,18),'0000044440000000','0000001441000000','0000000041110000','0000000000000000','0000000000000000','0000000000000000'];
+const MBJP=[...MBPX.slice(0,12),'2244444422000000','2444444422000000','4444444444000000','4444444444000000','0044444000000000','0001441000000000','1100000000000000','0000000000000000','0000000000000000','0000000000000000','0000000000000000','0000000000000000'];
+const MBCR=[
+  '0000000000000000','0002222000000000','0022222200000000','0122222210000000',
+  '0003313300000000','0033333330000000','0011333110000000','0222222222000000',
+  '0224444222000000','0244444422000000','0444444444000000','0044440044000000',
+  '0144440044100000','1144000001100000',
   ...Array(10).fill('0000000000000000'),
 ];
-Object.assign(SPR, {
-  mb_stand:  { pal: MP, pixels: MB_PIXELS_BASE },
-  mb_walk1:  { pal: MP, pixels: MB_PIXELS_WALK1 },
-  mb_walk2:  { pal: MP, pixels: MB_PIXELS_WALK2 },
-  mb_jump:   { pal: MP, pixels: MB_PIXELS_JUMP },
-  mb_crouch: { pal: MP, pixels: MB_PIXELS_CROUCH },
-  mb_die:    { pal: MP, pixels: MB_PIXELS_BASE },  // same as stand, just flickers
+Object.assign(SPR,{
+  mb0:{pal:MP,px:MBPX}, mb1:{pal:MP,px:MBW1}, mb2:{pal:MP,px:MBW2},
+  mbJ:{pal:MP,px:MBJP}, mbC:{pal:MP,px:MBCR},
 });
 
-// ── Fire Mario (same shape, white+red palette) ─────────────────────────────
-const FP = ['','#2c1800','#f8f8f8','#fca044','#e87000','#e84000'];
-function cloneWithPal(s, pal) { return { pal, pixels: s.pixels }; }
-Object.assign(SPR, {
-  mf_stand:  cloneWithPal(SPR.mb_stand,  FP),
-  mf_walk1:  cloneWithPal(SPR.mb_walk1,  FP),
-  mf_walk2:  cloneWithPal(SPR.mb_walk2,  FP),
-  mf_jump:   cloneWithPal(SPR.mb_jump,   FP),
-  mf_crouch: cloneWithPal(SPR.mb_crouch, FP),
+// ── Fire Mario (same shapes, white+orange palette) ─────────────────────────
+const FP=['','#2c1800','#f8f8f8','#f8a840','#e87000'];
+['mb0','mb1','mb2','mbJ','mbC'].forEach(k=>{
+  SPR['f'+k.slice(1)]={ pal:FP, px:SPR[k].px };
 });
 
-// ── Goomba (16×16) ─────────────────────────────────────────────────────────
-// Palette: 1=#2c1400 2=#a05010 3=#d89050 4=#f8f8f8 5=#e8c090
-const GP = ['','#1c0c00','#a05010','#d89050','#f8f8f8','#e8c090'];
-const GOOMBA_HEAD = [
-  '0001111111100000',
-  '0012222222210000',
-  '0122222222221000',
-  '0124222222421000',  // eyes (4=white)
-  '0121222222121000',  // pupils (1=dark)
-  '0122222222221000',
-  '0133333333321000',  // tan belly
-  '0013333333310000',
-  '0001333113310000',  // mouth line
-  '0000133333100000',
+// ── Goomba (16×16) — pixel-exact SMB1 faithful ───────────────────────────────
+// 1=#1c0c00 2=#c86820 3=#e8c090 4=#f8f8f8
+const GP=['','#1c0c00','#c86820','#e8c090','#f8f8f8'];
+const GBASE=[
+  '0000000000000000',  //  0
+  '0000111111100000',  //  1 cap outline
+  '0001222222210000',  //  2 cap
+  '0012222222221000',  //  3 cap wider
+  '0012112222112000',  //  4 EYEBROWS: 1s at col4,5 and col10,11
+  '0012414222141000',  //  5 EYES: white-pupil-white (4-1-4) at cols 4-6 and 9-11
+  '0012222222221000',  //  6 lower head
+  '0013333333321000',  //  7 tan belly
+  '0013312113321000',  //  8 angry mouth (1s inside tan)
+  '0001333333310000',  //  9 belly bottom
+  '0000111111100000',  // 10 body base
 ];
-const GOOMBA_FEET1 = [
-  '0000111111000000',
-  '0001222001221000',  // feet spread
-  '0012222001222100',
-  '0122220001222210',
-  '0012110000111100',
-  '0000000000000000',
-];
-const GOOMBA_FEET2 = [  // feet together (other step)
-  '0000111111000000',
-  '0001221012210000',
-  '0012221122221000',
-  '0122211122221100',
-  '0001110011110000',
-  '0000000000000000',
-];
-const GOOMBA_SQUISH = [
-  '0000000000000000',
-  '0000000000000000',
-  '0000000000000000',
-  '0001111111110000',
-  '0124222222421000',
-  '0121222222121000',
-  '0133333113331000',
-  '0001111111110000',
-];
-Object.assign(SPR, {
-  goomba1:  { pal: GP, pixels: [...GOOMBA_HEAD, ...GOOMBA_FEET1] },
-  goomba2:  { pal: GP, pixels: [...GOOMBA_HEAD, ...GOOMBA_FEET2] },
-  goombaSq: { pal: GP, pixels: GOOMBA_SQUISH },
-});
-
-// ── Koopa Troopa (16×24) ──────────────────────────────────────────────────
-// Palette: 1=#001800 2=#00a020 3=#d8c800 4=#f8f8f8 5=#006010
-const KP = ['','#001800','#00a020','#d8c800','#f8f8f8','#006010'];
-const KOOPA_PIXELS = [
-  '0000033330000000',  // head top (3=yellow)
-  '0000333333000000',
-  '0003333333300000',
-  '0034333333430000',  // eyes (4=white)
-  '0031333333130000',  // pupils
-  '0003333333300000',
-  '0000033000000000',  // neck
-  '0000122110000000',  // shell top
-  '0001222222100000',
-  '0012222222210000',
-  '0122522225221000',  // shell pattern (5=dark green)
-  '0122222222221000',
-  '0125222222521000',
-  '0122222222221000',
-  '0012222222210000',
-  '0001222222100000',
-  '0000122221000000',  // shell bottom
-  '0000011110000000',
-  '0000333333000000',  // feet
-  '0003333333300000',
-  '0033330033330000',  // legs
-  '0133300033310000',
-  '1110000000011000',  // shoe soles
-  '0000000000000000',
-];
-const KOOPA_PIXELS_W2 = [
-  ...KOOPA_PIXELS.slice(0,18),
-  '0000333333000000',
-  '0003333333300000',
-  '0000330330000000',  // swapped leg
-  '0001330331000000',
-  '0110000000110000',
-  '0000000000000000',
-];
-const KOOPA_SHELL = [
-  '0000000000000000',
-  '0000000000000000',
-  '0000122221000000',
-  '0001222222100000',
-  '0012225222210000',
-  '0122222222221000',
-  '0122522225221000',
-  '0122222222221000',
-  '0125222222521000',
-  '0122222222221000',
-  '0012222222210000',
-  '0001222222100000',
-  '0000122221000000',
-  '0000011110000000',
-  ...Array(10).fill('0000000000000000'),
-];
-Object.assign(SPR, {
-  koopa1:   { pal: KP, pixels: KOOPA_PIXELS },
-  koopa2:   { pal: KP, pixels: KOOPA_PIXELS_W2 },
-  koopaShell: { pal: KP, pixels: KOOPA_SHELL },
-});
-
-// ── Mushroom (16×16) ─────────────────────────────────────────────────────────
-const MUSH_P = ['','#2c0000','#e02020','#f8f8f8','#f8c070'];
-SPR.mushroom = { pal: MUSH_P, pixels: [
-  '0001111111100000','0012222222210000','0122222222221000',
-  '0121221222121000',  // spots (white dots on cap)
-  '0121221222121000',
-  '0121222222221000','0122222222221000','0012222222210000',
-  '0001122222110000',  // stem
-  '0000143343000000',  // stem (4=skin)
-  '0000143343000000','0000143343000000',
-  '0000014341000000','0000011110000000',
-  '0000000000000000','0000000000000000',
-]};
-
-// ── Fire Flower (14×16) ──────────────────────────────────────────────────────
-const FF_P = ['','#2c1400','#e05000','#f8d000','#00a000','#f8f8f8'];
-SPR.flower = { pal: FF_P, pixels: [
-  '0000011100000000','0000151510000000','0001511515100000',
-  '0001551155100000','0000151510000000','0000011100000000',
-  '0000001000000000','0000041000000000',
-  '0000041000000000','0000441000000000',
-  '0000444000000000','0000044000000000',
-  '0000040000000000','0000040000000000',
-  '0000000000000000','0000000000000000',
-]};
-
-// ── Star (16×16) ─────────────────────────────────────────────────────────────
-const STAR_P = ['','#2c2000','#f8c000','#f8f800','#f8f8a0'];
-SPR.star = { pal: STAR_P, pixels: [
-  '0000002200000000','0000022220000000','2222222222222200',
-  '0222222222222000','0002222222200000','0000222222000000',
-  '0002222222200000','0022002200220000','0220000000022000',
-  '0200000000002000','0000000000000000','0000000000000000',
+const GFEET1=['0001221001221000','0012220012220000','0001110000111000','0000000000000000','0000000000000000'];
+const GFEET2=['0001001012211000','0000012122220000','0000001100111000','0000000000000000','0000000000000000'];
+const GSQUISH=[
   '0000000000000000','0000000000000000','0000000000000000','0000000000000000',
+  '0001111111110000',  // flat cap
+  '0012414222141000',  // eyes still visible (same)
+  '0012222222221000',
+  '0001111111110000',
+  ...Array(8).fill('0000000000000000'),
+];
+Object.assign(SPR,{
+  g1:{pal:GP,px:[...GBASE,...GFEET1]},
+  g2:{pal:GP,px:[...GBASE,...GFEET2]},
+  gS:{pal:GP,px:GSQUISH},
+});
+
+// ── Koopa Troopa (16×24) ─────────────────────────────────────────────────────
+// 1=#001800 2=#00a020 3=#d8c800 4=#f8f8f8 5=#005810
+const KP=['','#001800','#00a020','#d8c800','#f8f8f8','#005810'];
+const KBASE=[
+  '0000033330000000',  //  0 head
+  '0000333333000000',  //  1
+  '0003333333300000',  //  2
+  '0034323332430000',  //  3 eyes (4=white at col3,col12; 1=dark outline)
+  '0031222222130000',  //  4 pupils
+  '0003333333300000',  //  5
+  '0000033000000000',  //  6 neck
+  '0000122210000000',  //  7 shell top
+  '0001222222100000',  //  8
+  '0012222222210000',  //  9
+  '0122552255221000',  // 10 shell (5=dark lines)
+  '0122222222221000',  // 11
+  '0125222222521000',  // 12
+  '0122222222221000',  // 13
+  '0012222222210000',  // 14
+  '0001222222100000',  // 15
+  '0000122221000000',  // 16 shell bottom
+  '0000011110000000',  // 17
+  '0000333333000000',  // 18 feet/legs
+  '0003333333300000',  // 19
+  '0033330033330000',  // 20 legs split
+  '0133300033310000',  // 21
+  '1110000000011000',  // 22 shoe soles
+  '0000000000000000',  // 23
+];
+const KW2=[...KBASE.slice(0,20),'0000330330000000','0001330331000000','0110000000110000','0000000000000000'];
+const KSHELL=[
+  '0000000000000000','0000000000000000','0000000000000000',
+  '0000122221000000','0001222222100000','0012225222210000',
+  '0122222222221000','0122552255221000','0122222222221000',
+  '0125222222521000','0122222222221000','0012222222210000',
+  '0001222222100000','0000122221000000','0000011110000000',
+  ...Array(9).fill('0000000000000000'),
+];
+Object.assign(SPR,{
+  k1:{pal:KP,px:KBASE}, k2:{pal:KP,px:KW2}, kS:{pal:KP,px:KSHELL},
+});
+
+// ── Mushroom (16×14) ─────────────────────────────────────────────────────────
+SPR.mush={ pal:['','#5c1010','#e02020','#f8f8f8','#f8c070'], px:[
+  '0001111111100000','0012222222210000','0122222222221000',
+  '0124221224221000',  // white spots on red cap
+  '0124222224221000',
+  '0122222222221000','0012222222210000',
+  '0001122222110000',  // stem base
+  '0000143343000000',  // stem (4=skin yellow)
+  '0000143343000000','0000143343000000',
+  '0000141143000000','0000011110000000','0000000000000000',
 ]};
 
-// ── Coin (8×14) ──────────────────────────────────────────────────────────────
-const COIN_P = ['','#a07000','#f8c000','#f8f000','#fff8a0'];
-SPR.coin = { pal: COIN_P, pixels: [
+// ── Fire Flower (12×14) ──────────────────────────────────────────────────────
+SPR.flow={ pal:['','#1c1000','#e05000','#f8d000','#00a800','#f8f8f8'], px:[
+  '000051500000','000515150000','005155514000','005551550000',
+  '000515150000','000051500000','000001000000','000041000000',
+  '000041000000','000441000000','000444000000','000044000000',
+  '000040000000','000040000000',
+]};
+
+// ── Star (16×14) ─────────────────────────────────────────────────────────────
+SPR.star={ pal:['','#a08000','#f8c000','#f8f800','#f8f8a0'], px:[
+  '0000002200000000','0000023320000000','0222222222222200',
+  '0022222222222000','0002222222200000','0000222222000000',
+  '0002222222200000','0022002200220000','0200000000002000',
+  '2000000000000020','0000000000000000','0000000000000000',
+  '0000000000000000','0000000000000000',
+]};
+
+// ── Coin HUD (8×8) ───────────────────────────────────────────────────────────
+SPR.coinHUD={ pal:['','#a07000','#f8c000','#f8f000'], px:[
   '01110000','12221000','12321000','12321000',
-  '12321000','12321000','12321000','12321000',
   '12321000','12221000','01110000','00000000',
-  '00000000','00000000',
 ]};
 
 // ── Fireball (8×8) ────────────────────────────────────────────────────────────
-const FB_P = ['','#f86000','#f8e000','#f8f8f8'];
-SPR.fireball = { pal: FB_P, pixels: [
-  '00111000','01232100','12323210','13232310',
-  '12323210','01232100','00111000','00000000',
+SPR.fb={ pal:['','#f87000','#f8e000','#f8f8a0'], px:[
+  '00111000','01222100','12332210','13332310',
+  '12332210','01222100','00111000','00000000',
 ]};
 
 // ─── TILE IDs ─────────────────────────────────────────────────────────────────
-const T = {
-  AIR:0, SOLID:1, BRICK:2, QCOIN:3, QITEM:4, USED:5,
-  PTOP_L:6, PTOP_R:7, PBOD_L:8, PBOD_R:9,
-  FPOLE:10, FBASE:11, CASTLE:12,
-};
-function solid(id) {
-  return id===T.SOLID||id===T.BRICK||id===T.QCOIN||id===T.QITEM||id===T.USED
-      ||id===T.PTOP_L||id===T.PTOP_R||id===T.PBOD_L||id===T.PBOD_R
-      ||id===T.FBASE||id===T.CASTLE;
-}
+const T={AIR:0,SOLID:1,BRICK:2,QCOIN:3,QITEM:4,USED:5,PTL:6,PTR:7,PBL:8,PBR:9,POLE:10,PBASE:11,CAS:12};
+function solid(id){return id===T.SOLID||id===T.BRICK||id===T.QCOIN||id===T.QITEM||id===T.USED||id===T.PTL||id===T.PTR||id===T.PBL||id===T.PBR||id===T.PBASE||id===T.CAS;}
 
-// ─── TILE DRAWING ────────────────────────────────────────────────────────────
-const C = {
-  sky:'#5c94fc', ground:'#c84c0c', gTop:'#e88840', gLine:'#a83808',
-  brick:'#c84c0c', bLine:'#a83808', bShine:'#e8a880',
-  qMain:'#e8a000', qShine:'#f8d000', qDark:'#905800',
-  used:'#9c6838', usedDark:'#704820',
-  pipeG:'#009800', pipeL:'#00c800', pipeD:'#005800',
-  pole:'#c0c0c0', flag:'#e82020', castle:'#b45030', castleD:'#803020',
-};
-
-const _blockOffsets = {};  // col*1000+row → bounce offset (px)
-const _blockTimers  = {};
-
-function hitBlockAnim(c,r) {
-  const k = c*1000+r;
-  _blockOffsets[k] = -4;
-  _blockTimers[k]  = 12;
-}
-function updateBlockAnims() {
-  for (const k of Object.keys(_blockTimers)) {
-    _blockTimers[k]--;
-    const t = _blockTimers[k];
-    _blockOffsets[k] = t > 6 ? -4 + (6-t)*0.67 : (12-t)*0.33 - 4;
-    if (_blockTimers[k] <= 0) { delete _blockTimers[k]; delete _blockOffsets[k]; }
+// ─── BLOCK BOUNCE ANIMATION ──────────────────────────────────────────────────
+const bOff={}, bTimer={};
+function hitAnim(c,r){ bOff[c*1000+r]=-4; bTimer[c*1000+r]=14; }
+function getOff(c,r){ return bOff[c*1000+r]||0; }
+function updateBounce(){
+  for(const k of Object.keys(bTimer)){
+    const t=--bTimer[k], o=t>7?-4+(7-t)*0.57:(14-t)*0.29-4;
+    bOff[k]=o;
+    if(t<=0){ delete bOff[k]; delete bTimer[k]; }
   }
 }
-function blockOff(c,r) { return _blockOffsets[c*1000+r] || 0; }
 
-function drawTile(id, sx, sy) {
-  switch(id) {
+// ─── TILE DRAWING ─────────────────────────────────────────────────────────────
+const TC={
+  sky:'#5c94fc',
+  ground:'#c84c0c', gTop:'#e88840', gLine:'#a83808',
+  brick:'#c84c0c', bLine:'#a83808', bShine:'#e8b080',
+  qMain:'#e8a000', qShine:'#f8d000', qDark:'#804800',
+  used:'#9c6838', usedD:'#704820',
+  pipe:'#009800', pipeL:'#00c800', pipeD:'#005800',
+  pole:'#d0d0d0', poleTip:'#f8d000',
+  cas:'#b45030', casD:'#883020',
+};
+
+function drawTile(id,sx,sy){
+  switch(id){
     case T.SOLID:
-      ctx.fillStyle = C.ground;
-      ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle = C.gTop;
-      ctx.fillRect(sx,sy,TILE,4);
-      ctx.fillStyle = C.gLine;
-      ctx.fillRect(sx,sy+4,TILE,1);
-      for (let i=0;i<TILE;i+=8){ ctx.fillStyle=C.gLine; ctx.fillRect(sx+i,sy+5,1,TILE-5); }
+      ctx.fillStyle=TC.ground; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=TC.gTop; ctx.fillRect(sx,sy,TILE,4);
+      ctx.fillStyle=TC.gLine; ctx.fillRect(sx,sy+4,TILE,1);
+      for(let i=0;i<TILE;i+=8){ ctx.fillStyle=TC.gLine; ctx.fillRect(sx+i,sy+5,1,TILE-5); }
       break;
-    case T.BRICK: {
-      ctx.fillStyle = C.brick; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle = C.bLine;
-      ctx.fillRect(sx,sy+7,TILE,1);
-      ctx.fillRect(sx+8,sy,1,7);
-      ctx.fillRect(sx,sy+9,8,1);
-      ctx.fillStyle = C.bShine;
-      ctx.fillRect(sx,sy,TILE,1); ctx.fillRect(sx,sy,1,7);
+    case T.BRICK:
+      ctx.fillStyle=TC.brick; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=TC.bLine; ctx.fillRect(sx,sy+7,TILE,1); ctx.fillRect(sx+8,sy,1,7); ctx.fillRect(sx,sy+9,8,1);
+      ctx.fillStyle=TC.bShine; ctx.fillRect(sx,sy,TILE,1); ctx.fillRect(sx,sy,1,7);
       break;
-    }
-    case T.QCOIN:
-    case T.QITEM: {
-      ctx.fillStyle = C.qMain; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle = C.qShine;
-      ctx.fillRect(sx+1,sy+1,TILE-2,2); ctx.fillRect(sx+1,sy+1,2,TILE-2);
-      ctx.fillStyle = C.qDark;
-      ctx.fillRect(sx+TILE-2,sy,2,TILE); ctx.fillRect(sx,sy+TILE-2,TILE,2);
+    case T.QCOIN: case T.QITEM:
+      ctx.fillStyle=TC.qMain; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=TC.qShine; ctx.fillRect(sx+1,sy+1,TILE-2,2); ctx.fillRect(sx+1,sy+1,2,TILE-2);
+      ctx.fillStyle=TC.qDark; ctx.fillRect(sx+TILE-2,sy,2,TILE); ctx.fillRect(sx,sy+TILE-2,TILE,2);
+      // ? mark
       ctx.fillStyle='#fff';
-      ctx.fillRect(sx+5,sy+3,5,2); ctx.fillRect(sx+8,sy+5,2,3);
-      ctx.fillRect(sx+5,sy+7,5,2); ctx.fillRect(sx+6,sy+10,3,3);
+      ctx.fillRect(sx+4,sy+3,7,2); ctx.fillRect(sx+9,sy+5,2,3); ctx.fillRect(sx+4,sy+7,7,2); ctx.fillRect(sx+6,sy+10,3,3);
       break;
-    }
     case T.USED:
-      ctx.fillStyle=C.used; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle=C.usedDark; ctx.fillRect(sx+1,sy+1,TILE-2,TILE-2);
-      ctx.fillStyle='#c09868';
-      for(let r=3;r<TILE;r+=4) ctx.fillRect(sx+2,sy+r,TILE-4,1);
+      ctx.fillStyle=TC.used; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=TC.usedD; ctx.fillRect(sx+1,sy+1,TILE-2,TILE-2);
+      ctx.fillStyle='#c09060'; for(let r=3;r<TILE;r+=4) ctx.fillRect(sx+2,sy+r,TILE-4,1);
       break;
-    case T.PTOP_L:
-      ctx.fillStyle=C.pipeG; ctx.fillRect(sx,sy+4,TILE,TILE-4);
-      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy+4,4,TILE-4);
-      ctx.fillStyle=C.pipeD; ctx.fillRect(sx+TILE-2,sy+4,2,TILE-4);
-      ctx.fillStyle=C.pipeL; ctx.fillRect(sx-2,sy,TILE+2,6);
-      ctx.fillStyle=C.pipeG; ctx.fillRect(sx,sy+2,TILE,4);
-      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy+2,4,4);
+    case T.PTL:
+      ctx.fillStyle=TC.pipe; ctx.fillRect(sx,sy+4,TILE,TILE-4);
+      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy+4,4,TILE-4);
+      ctx.fillStyle=TC.pipeD; ctx.fillRect(sx+TILE-2,sy+4,2,TILE-4);
+      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx-2,sy,TILE+2,6);
+      ctx.fillStyle=TC.pipe;  ctx.fillRect(sx,sy+2,TILE,4);
+      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy+2,4,4);
       break;
-    case T.PTOP_R:
-      ctx.fillStyle=C.pipeG; ctx.fillRect(sx,sy+4,TILE,TILE-4);
-      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy+4,4,TILE-4);
-      ctx.fillStyle=C.pipeD; ctx.fillRect(sx+TILE-2,sy+4,2,TILE-4);
-      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy,TILE+2,6);
-      ctx.fillStyle=C.pipeG; ctx.fillRect(sx,sy+2,TILE,4);
-      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy+2,4,4);
+    case T.PTR:
+      ctx.fillStyle=TC.pipe; ctx.fillRect(sx,sy+4,TILE,TILE-4);
+      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy+4,4,TILE-4);
+      ctx.fillStyle=TC.pipeD; ctx.fillRect(sx+TILE-2,sy+4,2,TILE-4);
+      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy,TILE+2,6);
+      ctx.fillStyle=TC.pipe;  ctx.fillRect(sx,sy+2,TILE,4);
+      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy+2,4,4);
       break;
-    case T.PBOD_L: case T.PBOD_R:
-      ctx.fillStyle=C.pipeG; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy,4,TILE);
-      ctx.fillStyle=C.pipeD; ctx.fillRect(sx+TILE-2,sy,2,TILE);
+    case T.PBL: case T.PBR:
+      ctx.fillStyle=TC.pipe; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy,4,TILE);
+      ctx.fillStyle=TC.pipeD; ctx.fillRect(sx+TILE-2,sy,2,TILE);
       break;
-    case T.FPOLE:
-      ctx.fillStyle=C.pole; ctx.fillRect(sx+7,sy,2,TILE); break;
-    case T.FBASE:
-      ctx.fillStyle=C.pole; ctx.fillRect(sx+4,sy,8,TILE); break;
-    case T.CASTLE:
-      ctx.fillStyle=C.castle; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle=C.castleD;
-      ctx.fillRect(sx,sy+7,TILE,2);
-      ctx.fillRect(sx+8,sy,1,7);
-      ctx.fillRect(sx,sy+9,8,1);
+    case T.POLE:
+      ctx.fillStyle=TC.pole; ctx.fillRect(sx+7,sy,2,TILE); break;
+    case T.PBASE:
+      ctx.fillStyle=TC.pole; ctx.fillRect(sx+5,sy,6,TILE); break;
+    case T.CAS:
+      ctx.fillStyle=TC.cas; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=TC.casD; ctx.fillRect(sx,sy+7,TILE,2); ctx.fillRect(sx+8,sy,1,7); ctx.fillRect(sx,sy+9,8,1);
       break;
   }
 }
 
 // ─── TILEMAP ─────────────────────────────────────────────────────────────────
-class TileMap {
-  constructor(data,w,h){ this.data=data; this.w=w; this.h=h; }
-  get(c,r){
-    if(c<0||r<0||c>=this.w||r>=this.h) return r>=this.h?T.SOLID:T.AIR;
-    return this.data[r*this.w+c];
-  }
-  set(c,r,id){ if(c>=0&&c<this.w&&r>=0&&r<this.h) this.data[r*this.w+c]=id; }
-  draw(camX){
-    const c0=Math.max(0,Math.floor(camX/TILE));
-    const c1=Math.min(this.w-1,c0+17);
-    for(let c=c0;c<=c1;c++){
-      for(let r=0;r<this.h;r++){
-        const id=this.get(c,r); if(!id) continue;
-        const off = blockOff(c,r);
-        drawTile(id, c*TILE-camX, r*TILE+off);
-      }
+class TileMap{
+  constructor(d,w,h){ this.d=d; this.w=w; this.h=h; }
+  get(c,r){ if(c<0||r<0||c>=this.w||r>=this.h) return r>=this.h?T.SOLID:T.AIR; return this.d[r*this.w+c]; }
+  set(c,r,id){ if(c>=0&&c<this.w&&r>=0&&r<this.h) this.d[r*this.w+c]=id; }
+  draw(cx){
+    const c0=Math.max(0,Math.floor(cx/TILE)), c1=Math.min(this.w-1,c0+17);
+    for(let c=c0;c<=c1;c++) for(let r=0;r<this.h;r++){
+      const id=this.get(c,r); if(!id) continue;
+      drawTile(id, c*TILE-cx, r*TILE+getOff(c,r));
     }
   }
 }
 
 // ─── WORLD 1-1 ────────────────────────────────────────────────────────────────
-function buildLevel11() {
-  const W=212,H=15;
+function buildLevel(){
+  const W=220,H=15;
   const d=new Uint8Array(W*H);
-  function s(c,r,id){ if(c>=0&&c<W&&r>=0&&r<H) d[r*W+c]=id; }
-  function row(c1,c2,r,id){ for(let c=c1;c<=c2;c++) s(c,r,id); }
-  function col(r1,r2,c,id){ for(let r=r1;r<=r2;r++) s(c,r,id); }
+  const s=(c,r,id)=>{ if(c>=0&&c<W&&r>=0&&r<H) d[r*W+c]=id; };
+  const row=(c1,c2,r,id)=>{ for(let c=c1;c<=c2;c++) s(c,r,id); };
+  const col=(r1,r2,c,id)=>{ for(let r=r1;r<=r2;r++) s(c,r,id); };
+  const pipe=(c,h)=>{ s(c,13-h,T.PTL); s(c+1,13-h,T.PTR); for(let r=14-h;r<=12;r++){ s(c,r,T.PBL); s(c+1,r,T.PBR); } };
 
-  // Ground rows 13-14 continuous
-  row(0,W-1,13,T.SOLID); row(0,W-1,14,T.SOLID);
+  // ── Ground (with pit between cols 69-71) ──────────────────────────────────
+  row(0,68,13,T.SOLID); row(0,68,14,T.SOLID);
+  row(72,W-1,13,T.SOLID); row(72,W-1,14,T.SOLID);
 
-  // First ? / brick section
-  s(16,8,T.QITEM); s(17,8,T.BRICK); s(18,8,T.QCOIN);
-  s(19,8,T.BRICK); s(20,8,T.QITEM); s(21,8,T.BRICK); s(22,8,T.BRICK);
+  // ── Section 1: opening blocks (row 8) ─────────────────────────────────────
+  s(16,8,T.QITEM);                                       // mushroom block
+  s(19,8,T.BRICK); s(20,8,T.QCOIN); s(21,8,T.BRICK);    // coin + bricks
+  s(22,8,T.QITEM);                                       // mystery
+  s(23,8,T.BRICK);
 
-  // Elevated bricks + star
-  row(24,29,4,T.BRICK); s(27,4,T.QITEM);
+  // Hidden 1-up hint: single brick above ground near start
+  s(15,4,T.BRICK);
 
-  // Pipes
-  s(28,11,T.PTOP_L); s(29,11,T.PTOP_R); s(28,12,T.PBOD_L); s(29,12,T.PBOD_R);
-  s(38,10,T.PTOP_L); s(39,10,T.PTOP_R); s(38,11,T.PBOD_L); s(39,11,T.PBOD_R); s(38,12,T.PBOD_L); s(39,12,T.PBOD_R);
-  s(46,9,T.PTOP_L);  s(47,9,T.PTOP_R);  s(46,10,T.PBOD_L); s(47,10,T.PBOD_R); s(46,11,T.PBOD_L); s(47,11,T.PBOD_R); s(46,12,T.PBOD_L); s(47,12,T.PBOD_R);
-  s(57,9,T.PTOP_L);  s(58,9,T.PTOP_R);  s(57,10,T.PBOD_L); s(58,10,T.PBOD_R); s(57,11,T.PBOD_L); s(58,11,T.PBOD_R); s(57,12,T.PBOD_L); s(58,12,T.PBOD_R);
+  // ── Pipe 1 (2-tall) ───────────────────────────────────────────────────────
+  pipe(28,2);
 
-  // Elevated brick platforms
-  row(64,68,10,T.BRICK); s(65,10,T.QCOIN); s(67,10,T.QITEM);
-  row(77,82,8,T.BRICK); s(79,8,T.QCOIN); s(81,8,T.QITEM);
-  s(88,8,T.QITEM); row(89,94,4,T.BRICK);
-  row(93,101,8,T.BRICK); s(96,8,T.QITEM); s(100,8,T.QCOIN);
+  // ── High brick row + hidden Q ─────────────────────────────────────────────
+  row(24,30,4,T.BRICK); s(27,4,T.QITEM); s(29,4,T.QCOIN);
 
-  // Staircase up
-  for(let i=0;i<4;i++){ col(12-i,12,104+i*2,T.SOLID); col(12-i,12,105+i*2,T.SOLID); }
-  // Staircase down
-  for(let i=0;i<4;i++){ col(10+i,12,113+i*2,T.SOLID); col(10+i,12,114+i*2,T.SOLID); }
+  // ── Pipe 2 (3-tall) ───────────────────────────────────────────────────────
+  pipe(38,3);
 
-  // More bricks and ?s
-  row(124,134,8,T.BRICK); s(126,8,T.QCOIN); s(130,8,T.QITEM); s(133,8,T.QCOIN);
-  row(130,134,4,T.BRICK); s(140,8,T.QITEM); s(143,4,T.QITEM);
+  // ── Pipe 3 (4-tall) ───────────────────────────────────────────────────────
+  pipe(46,4);
 
-  // Ascending stairs before flagpole
-  for(let i=0;i<8;i++) col(13-i,14,178+i,T.SOLID);
-  // Descending after stairs
-  for(let i=0;i<8;i++) col(6+i,12,187+i,T.SOLID);
+  // ── Pipe 4 warp (4-tall) ──────────────────────────────────────────────────
+  pipe(57,4);
 
-  // Flagpole
-  col(2,12,198,T.FPOLE); s(198,13,T.FBASE);
+  // ── Pit here (cols 69-71) — ground gap already cut above ──────────────────
 
-  // Castle
-  col(7,14,200,T.CASTLE); col(7,14,211,T.CASTLE);
-  row(200,211,7,T.CASTLE);
-  s(200,6,T.CASTLE); s(202,6,T.CASTLE); s(204,6,T.CASTLE); s(208,6,T.CASTLE); s(210,6,T.CASTLE);
-  col(9,14,203,T.CASTLE); col(9,14,208,T.CASTLE);
-  for(let r=8;r<=14;r++) for(let c=201;c<=210;c++) if(!d[r*W+c]) s(c,r,T.CASTLE);
-  for(let r=10;r<=14;r++) for(let c=204;c<=207;c++) s(c,r,T.AIR);
-  s(202,9,T.AIR); s(209,9,T.AIR);
+  // ── Section 2: floating brick platform over pit ───────────────────────────
+  row(64,67,10,T.BRICK); s(65,10,T.QCOIN); s(66,10,T.QITEM);
 
-  // Enemy spawn definitions (returned separately)
-  const spawns = [
-    { type:'goomba', col:22, row:12 },
-    { type:'goomba', col:42, row:12 },
-    { type:'goomba', col:49, row:12 },
-    { type:'goomba', col:50, row:12 },
-    { type:'goomba', col:79, row:12 },
-    { type:'koopa',  col:34, row:12 },
-    { type:'koopa',  col:100,row:12 },
-    { type:'goomba', col:110,row:12 },
-    { type:'goomba', col:111,row:12 },
-    { type:'goomba', col:148,row:12 },
-    { type:'goomba', col:149,row:12 },
-    { type:'koopa',  col:162,row:12 },
-    { type:'goomba', col:172,row:12 },
-    { type:'goomba', col:173,row:12 },
+  // ── Section 3: mid-level brick rows ───────────────────────────────────────
+  row(77,82,8,T.BRICK); s(78,8,T.QCOIN); s(80,8,T.QITEM); s(82,8,T.QCOIN);
+  s(87,8,T.QITEM);
+  row(88,94,4,T.BRICK); s(91,4,T.QITEM);
+
+  // ── Section 4: long brick row with coins ──────────────────────────────────
+  row(93,101,8,T.BRICK); s(95,8,T.QCOIN); s(97,8,T.QITEM); s(100,8,T.QCOIN);
+
+  // Lone Q block
+  s(107,8,T.QITEM);
+
+  // ── Staircase up (4 steps, each 1 wide) ───────────────────────────────────
+  for(let i=0;i<4;i++) col(13-i,13,112+i,T.SOLID);
+
+  // ── Staircase down ────────────────────────────────────────────────────────
+  for(let i=0;i<4;i++) col(10+i,13,119+i,T.SOLID);
+
+  // ── Section 5: underground-style brick ceiling ────────────────────────────
+  row(128,138,8,T.BRICK); s(130,8,T.QCOIN); s(133,8,T.QITEM); s(136,8,T.QCOIN);
+  row(133,138,4,T.BRICK); s(135,4,T.QITEM);
+
+  // Lone Q blocks
+  s(143,8,T.QITEM); s(146,4,T.QITEM);
+
+  // ── Pipe 5 (2-tall) ───────────────────────────────────────────────────────
+  pipe(150,2);
+
+  // ── Pipe 6 (2-tall) ───────────────────────────────────────────────────────
+  pipe(156,2);
+
+  // ── Final ascending staircase (8 steps) ───────────────────────────────────
+  for(let i=0;i<8;i++) col(13-i,13,179+i,T.SOLID);
+
+  // ── Descending (matching staircase) ───────────────────────────────────────
+  for(let i=0;i<8;i++) col(6+i,13,189+i,T.SOLID);
+
+  // ── Flagpole ──────────────────────────────────────────────────────────────
+  col(2,12,200,T.POLE); s(200,13,T.PBASE);
+
+  // ── Castle ────────────────────────────────────────────────────────────────
+  col(7,14,202,T.CAS); col(7,14,213,T.CAS);
+  row(202,213,7,T.CAS);
+  [202,204,206,210,212].forEach(c=>s(c,6,T.CAS));
+  col(9,14,205,T.CAS); col(9,14,210,T.CAS);
+  for(let r=8;r<=14;r++) for(let c=203;c<=212;c++) if(!d[r*W+c]) s(c,r,T.CAS);
+  for(let r=10;r<=14;r++) for(let c=206;c<=209;c++) s(c,r,T.AIR);
+  s(204,9,T.AIR); s(211,9,T.AIR);
+
+  // ── Enemy spawns ──────────────────────────────────────────────────────────
+  const spawns=[
+    {type:'g',col:21,row:12},                            // opener goomba
+    {type:'g',col:23,row:12},                            // pair
+    {type:'k',col:35,row:12},                            // koopa near pipe 2
+    {type:'g',col:44,row:12},{type:'g',col:45,row:12},   // pair
+    {type:'g',col:52,row:12},{type:'g',col:53,row:12},   // pair before pit
+    {type:'g',col:80,row:12},                            // mid level
+    {type:'k',col:97,row:7},                             // koopa on elevated brick
+    {type:'g',col:113,row:12},{type:'g',row:12,col:114}, // stair area
+    {type:'g',col:140,row:12},{type:'g',col:141,row:12},
+    {type:'k',col:158,row:12},
+    {type:'g',col:167,row:12},{type:'g',col:168,row:12},
   ];
-
-  return { data:d, w:W, h:H, spawns };
+  return {d,w:W,h:H,spawns};
 }
 
-// ─── PHYSICS ────────────────────────────────────────────────────────────────
-const P = {
-  walkAccel:0.037109375, runAccel:0.05615234375,
-  releaseDecel:0.031982421875, skidDecel:0.05,
-  maxWalk:1.5625, maxRun:2.5,
-  gravity:0.1875, gravityHold:0.06640625,
-  jumpVelWalk:4.0, jumpVelMid:4.5, jumpVelRun:5.0,
-  maxFall:5.0,
-};
+// ─── PHYSICS ─────────────────────────────────────────────────────────────────
+const P={walkAcc:0.0371, runAcc:0.0562, relDec:0.0320, skidDec:0.05,
+         maxWalk:1.5625, maxRun:2.5, grav:0.1875, gravHold:0.0938,
+         jVelW:3.1, jVelM:3.6, jVelR:4.2, maxFall:5.0};
 
 // ─── PARTICLES ───────────────────────────────────────────────────────────────
-const particles = [];
-
-function spawnCoinAnim(x,y){
-  particles.push({type:'coin',x:x+8,y,vy:-4.5,life:50});
-}
-function spawnScore(x,y,val){
-  particles.push({type:'score',x,y,vy:-0.8,life:55,val});
-}
-function spawnBrickBreak(x,y){
-  for(let i=0;i<4;i++){
-    particles.push({
-      type:'brick',x:x+8,y:y+8,
-      vx:(i<2?-2:2)+(Math.random()-.5),
-      vy:-4-Math.random()*2,life:40
-    });
+const parts=[];
+function addCoin(x,y){ parts.push({t:'coin',x:x+8,y,vy:-4.5,life:50}); }
+function addScore(x,y,v){ parts.push({t:'pts',x,y,vy:-0.8,life:55,v}); }
+function addBrick(x,y){ for(let i=0;i<4;i++) parts.push({t:'brk',x:x+8,y:y+8,vx:(i<2?-2:2)+(Math.random()-.5),vy:-4-Math.random()*2,life:40}); }
+function addDust(x,y,n=3){ for(let i=0;i<n;i++) parts.push({t:'dust',x,y,vx:(Math.random()-.5)*2,vy:-Math.random()*1.5,life:15+Math.random()*10|0}); }
+function addStomp(x,y){ for(let i=0;i<5;i++){const a=i/5*Math.PI; parts.push({t:'stp',x,y,vx:Math.cos(a)*2,vy:-Math.sin(a)*2,life:18});} }
+function updateParts(){
+  for(let i=parts.length-1;i>=0;i--){
+    const p=parts[i]; p.life--;
+    if(p.life<=0){ parts.splice(i,1); continue; }
+    if(p.t==='coin'){ p.y+=p.vy; p.vy+=0.3; }
+    if(p.t==='pts')  p.y+=p.vy;
+    if(p.t==='brk'){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.35; }
+    if(p.t==='dust'){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; }
+    if(p.t==='stp'){ p.x+=p.vx; p.y+=p.vy; }
   }
 }
-function spawnDust(x,y,n=3){
-  for(let i=0;i<n;i++){
-    particles.push({
-      type:'dust',x,y,
-      vx:(Math.random()-.5)*1.5,vy:-Math.random()*1.5,
-      life:15+Math.random()*10|0
-    });
-  }
-}
-function spawnStomp(x,y){
-  for(let i=0;i<5;i++){
-    const a = (i/5)*Math.PI;
-    particles.push({type:'stomp',x,y,vx:Math.cos(a)*2,vy:-Math.sin(a)*2,life:20});
+function drawParts(cx){
+  for(const p of parts){
+    const sx=p.x-cx;
+    if(p.t==='coin')  spr(SPR.coinHUD,sx-4,p.y);
+    else if(p.t==='pts'){ ctx.fillStyle='#fff'; ctx.font='bold 7px monospace'; ctx.fillText(p.v,sx-8,p.y); }
+    else if(p.t==='brk'){ ctx.fillStyle=TC.brick; ctx.fillRect(sx-3,p.y-3,6,6); }
+    else if(p.t==='dust'){ ctx.fillStyle=`rgba(200,160,80,${p.life/25})`; ctx.fillRect(sx-2,p.y-2,4,4); }
+    else if(p.t==='stp'){ ctx.fillStyle=`rgba(255,255,200,${p.life/18})`; ctx.fillRect(sx-2,p.y-2,4,4); }
   }
 }
 
-function updateParticles(){
-  for(let i=particles.length-1;i>=0;i--){
-    const p=particles[i];
-    p.life--;
-    if(p.life<=0){ particles.splice(i,1); continue; }
-    switch(p.type){
-      case 'coin':  p.y+=p.vy; p.vy+=0.3; break;
-      case 'score': p.y+=p.vy; break;
-      case 'brick': p.x+=p.vx; p.y+=p.vy; p.vy+=0.35; break;
-      case 'dust':  p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; break;
-      case 'stomp': p.x+=p.vx; p.y+=p.vy; break;
-    }
-  }
-}
+// ─── WORLD OBJECTS ────────────────────────────────────────────────────────────
+const objs=[];
+function spawnMush(x,y,dir){ objs.push({t:'mush',x,y,vx:dir,vy:0,w:14,h:14,alive:true,em:14}); }
+function spawnFlow(x,y){ objs.push({t:'flow',x,y,vx:0,vy:0,w:12,h:16,alive:true,em:16}); }
+function spawnStar(x,y){ objs.push({t:'star',x,y,vx:2,vy:-4,w:14,h:14,alive:true,em:0}); }
 
-function drawParticles(camX){
-  for(const p of particles){
-    const sx=p.x-camX;
-    if(sx<-20||sx>NW+20) continue;
-    switch(p.type){
-      case 'coin': spr(SPR.coin,sx-4,p.y); break;
-      case 'score':
-        ctx.fillStyle='#fff'; ctx.font='bold 7px monospace';
-        ctx.fillText(p.val,sx-8,p.y); break;
-      case 'brick':
-        ctx.fillStyle=C.brick; ctx.fillRect(sx-3,p.y-3,6,6); break;
-      case 'dust':
-        ctx.fillStyle=`rgba(200,160,80,${p.life/25})`;
-        ctx.fillRect(sx-2,p.y-2,4,4); break;
-      case 'stomp':
-        ctx.fillStyle=`rgba(255,255,255,${p.life/20})`;
-        ctx.fillRect(sx-2,p.y-2,4,4); break;
-    }
-  }
-}
-
-// ─── WORLD OBJECTS (items) ────────────────────────────────────────────────────
-const worldObjects = [];
-
-function spawnMushroom(x,y,dir){
-  worldObjects.push({type:'mushroom',x,y,vx:dir,vy:0,w:14,h:14,alive:true,emerging:8,emergeY:y});
-}
-function spawnFlower(x,y){
-  worldObjects.push({type:'flower',x,y,vx:0,vy:0,w:12,h:16,alive:true,emerging:16,emergeY:y});
-}
-function spawnStar(x,y){
-  worldObjects.push({type:'star',x,y,vx:2,vy:-4,w:14,h:14,alive:true});
-}
-
-function updateObjects(tm){
-  for(let i=worldObjects.length-1;i>=0;i--){
-    const o=worldObjects[i];
-    if(!o.alive){ worldObjects.splice(i,1); continue; }
-
-    // Emerging from block
-    if(o.emerging>0){
-      o.y--; o.emerging--;
-      continue;
-    }
-
-    if(o.type==='flower') continue; // flowers stay put
-
-    // Gravity
-    o.vy=Math.min(o.vy+P.gravity, P.maxFall);
-
-    // Horizontal
+function updateObjs(tm){
+  for(let i=objs.length-1;i>=0;i--){
+    const o=objs[i];
+    if(!o.alive){ objs.splice(i,1); continue; }
+    if(o.em>0){ o.y--; o.em--; continue; }
+    if(o.t==='flow') continue;
+    o.vy=Math.min(o.vy+P.grav,P.maxFall);
     o.x+=o.vx;
-    const midR=Math.floor((o.y+o.h/2)/TILE);
-    if(o.vx>0){
-      const c=Math.floor((o.x+o.w)/TILE);
-      if(solid(tm.get(c,midR))) o.vx=-Math.abs(o.vx);
-    } else if(o.vx<0){
-      const c=Math.floor(o.x/TILE);
-      if(solid(tm.get(c,midR))) o.vx=Math.abs(o.vx);
-    }
-
-    // Vertical
+    const mr=Math.floor((o.y+o.h/2)/TILE);
+    if(o.vx>0){ const c=Math.floor((o.x+o.w)/TILE); if(solid(tm.get(c,mr))) o.vx=-Math.abs(o.vx); }
+    else if(o.vx<0){ const c=Math.floor(o.x/TILE); if(solid(tm.get(c,mr))) o.vx=Math.abs(o.vx); }
     o.y+=o.vy;
-    const botR=Math.floor((o.y+o.h)/TILE);
-    const lc=Math.floor((o.x+1)/TILE), rc=Math.floor((o.x+o.w-1)/TILE);
-    for(let c=lc;c<=rc;c++){
-      if(solid(tm.get(c,botR))){
-        o.y=botR*TILE-o.h; o.vy=0;
-        if(o.type==='star') o.vy=-3.5; // star bounces
-        break;
-      }
+    const br=Math.floor((o.y+o.h)/TILE);
+    for(let c=Math.floor((o.x+1)/TILE);c<=Math.floor((o.x+o.w-1)/TILE);c++){
+      if(solid(tm.get(c,br))){ o.y=br*TILE-o.h; o.vy=o.t==='star'?-3.5:0; break; }
     }
-    // Edge reversal for mushroom
-    if(o.type==='mushroom'&&o.vy===0){
-      const frontC=o.vx>0?Math.floor((o.x+o.w)/TILE):Math.floor((o.x-1)/TILE);
-      if(!solid(tm.get(frontC,Math.floor((o.y+o.h)/TILE)))) o.vx=-o.vx;
-    }
+    if(o.t==='mush'&&o.vy===0){ const fc=o.vx>0?Math.floor((o.x+o.w)/TILE):Math.floor((o.x-1)/TILE); if(!solid(tm.get(fc,Math.floor((o.y+o.h)/TILE)))) o.vx=-o.vx; }
   }
 }
-
-function drawObjects(camX){
-  for(const o of worldObjects){
+function drawObjs(cx){
+  for(const o of objs){
     if(!o.alive) continue;
-    const sx=o.x-camX;
-    switch(o.type){
-      case 'mushroom': spr(SPR.mushroom,sx,o.y); break;
-      case 'flower':   spr(SPR.flower,  sx,o.y); break;
-      case 'star':     spr(SPR.star,    sx,o.y); break;
-    }
+    const sx=o.x-cx;
+    if(o.t==='mush') spr(SPR.mush,sx,o.y);
+    if(o.t==='flow') spr(SPR.flow,sx,o.y);
+    if(o.t==='star') spr(SPR.star,sx,o.y);
   }
 }
 
 // ─── ENEMIES ─────────────────────────────────────────────────────────────────
-class Enemy {
+class Enemy{
   constructor(x,y,w,h){ this.x=x; this.y=y; this.w=w; this.h=h; this.alive=true; this.vx=0; this.vy=0; }
-  get left(){ return this.x; }
-  get right(){ return this.x+this.w; }
-  get top(){ return this.y; }
-  get bottom(){ return this.y+this.h; }
-  moveAndCollide(tm){
+  get left(){ return this.x; } get right(){ return this.x+this.w; }
+  get top(){  return this.y; } get bottom(){ return this.y+this.h; }
+  step(tm){
     this.x+=this.vx;
-    if(this.vx>0){
-      const c=Math.floor((this.x+this.w)/TILE);
-      for(let r=Math.floor((this.y+1)/TILE);r<=Math.floor((this.y+this.h-1)/TILE);r++){
-        if(solid(tm.get(c,r))){ this.x=c*TILE-this.w; this.vx=-this.vx; break; }
-      }
-    } else if(this.vx<0){
-      const c=Math.floor(this.x/TILE);
-      for(let r=Math.floor((this.y+1)/TILE);r<=Math.floor((this.y+this.h-1)/TILE);r++){
-        if(solid(tm.get(c,r))){ this.x=(c+1)*TILE; this.vx=-this.vx; break; }
-      }
-    }
-    this.vy=Math.min(this.vy+P.gravity,P.maxFall);
+    const vdir=this.vx>0?1:-1;
+    const cc=vdir>0?Math.floor((this.x+this.w)/TILE):Math.floor(this.x/TILE);
+    for(let r=Math.floor((this.y+1)/TILE);r<=Math.floor((this.y+this.h-1)/TILE);r++)
+      if(solid(tm.get(cc,r))){ this.x=vdir>0?cc*TILE-this.w:(cc+1)*TILE; this.vx=-this.vx; break; }
+    this.vy=Math.min(this.vy+P.grav,P.maxFall);
     this.y+=this.vy;
-    const botR=Math.floor((this.y+this.h)/TILE);
-    const lc=Math.floor((this.x+1)/TILE),rc=Math.floor((this.x+this.w-1)/TILE);
-    let grounded=false;
-    for(let c=lc;c<=rc;c++){
-      if(solid(tm.get(c,botR))){ this.y=botR*TILE-this.h; this.vy=0; grounded=true; break; }
-    }
-    // Reverse at ledge
-    if(grounded){
-      const ahead=this.vx>0?Math.floor((this.x+this.w)/TILE):Math.floor((this.x-1)/TILE);
-      if(!solid(tm.get(ahead,botR))) this.vx=-this.vx;
-    }
-    // Fell off level
+    const br=Math.floor((this.y+this.h)/TILE);
+    const lc=Math.floor((this.x+1)/TILE), rc=Math.floor((this.x+this.w-1)/TILE);
+    let gnd=false;
+    for(let c=lc;c<=rc;c++) if(solid(tm.get(c,br))){ this.y=br*TILE-this.h; this.vy=0; gnd=true; break; }
+    if(gnd){ const ac=this.vx>0?Math.floor((this.x+this.w)/TILE):Math.floor((this.x-1)/TILE); if(!solid(tm.get(ac,br))) this.vx=-this.vx; }
     if(this.y>NH+32) this.alive=false;
   }
 }
 
-class Goomba extends Enemy {
-  constructor(x,y){
-    super(x,y,14,14);
-    this.vx=-0.8;
-    this.frame=0;
-    this.frameTimer=0;
-    this.squished=false;
-    this.squishTimer=0;
-    this.dying=false;  // dying = flipped off screen
-    this.dyingVy=0;
-  }
+class Goomba extends Enemy{
+  constructor(x,y){ super(x,y,14,14); this.vx=-0.85; this.ft=0; this.ftimer=0; this.sqT=0; this.dieV=0; this.dying=false; }
   update(tm){
     if(!this.alive) return;
-    if(this.dying){ this.y+=this.dyingVy; this.dyingVy+=0.3; if(this.y>NH+32) this.alive=false; return; }
-    if(this.squished){ this.squishTimer--; if(this.squishTimer<=0) this.alive=false; return; }
-    this.moveAndCollide(tm);
-    this.frameTimer++;
-    if(this.frameTimer>=14){ this.frameTimer=0; this.frame^=1; }
+    if(this.dying){ this.y+=this.dieV; this.dieV+=0.3; if(this.y>NH+32) this.alive=false; return; }
+    if(this.sqT>0){ if(--this.sqT<=0) this.alive=false; return; }
+    this.step(tm);
+    if(++this.ftimer>=14){ this.ftimer=0; this.ft^=1; }
   }
-  stomp(gs){
-    this.squished=true;
-    this.squishTimer=25;
-    this.y+=8;
-    gs.addScore(100);
-    spawnScore(this.x,this.y,100);
-    spawnStomp(this.x+8,this.y+4);
-    gs.sound('stomp');
-  }
-  hitFromSide(){
-    // Kicked by shell — fly off
-    this.dying=true; this.dyingVy=-3; this.alive=true;
-  }
-  draw(camX){
+  stomp(gs){ this.sqT=25; this.y+=8; gs.addScore(100); addScore(this.x,this.y,100); addStomp(this.x+7,this.y+4); gs.snd('stomp'); }
+  kick(){ this.dying=true; this.dieV=-3; }
+  draw(cx){
     if(!this.alive) return;
-    const sx=this.x-camX;
-    if(this.squished){
-      spr(SPR.goombaSq,sx-1,this.y+4);
-    } else {
-      spr(this.frame===0?SPR.goomba1:SPR.goomba2, sx-1, this.y-2);
-    }
+    spr(this.sqT>0?SPR.gS:this.ft===0?SPR.g1:SPR.g2, this.x-cx-1, this.y-2);
   }
 }
 
-class Koopa extends Enemy {
-  constructor(x,y){
-    super(x,y,14,22);
-    this.vx=-0.9;
-    this.frame=0;
-    this.frameTimer=0;
-    this.shelled=false;   // in shell
-    this.shellSliding=false;
-    this.shellTimer=0;    // how long shell sat still (respawn)
-    this.facingR=false;
-  }
-  update(tm){
+class Koopa extends Enemy{
+  constructor(x,y){ super(x,y,14,22); this.vx=-0.9; this.ft=0; this.ftimer=0; this.sh=false; this.shSlide=false; this.shTimer=0; this.fR=false; }
+  update(tm,gs){
     if(!this.alive) return;
-    if(this.shelled && !this.shellSliding){
-      // Shell sits still, timer to respawn
-      this.shellTimer++;
-      if(this.shellTimer>300){ this.shelled=false; this.shellSliding=false; this.vx=-0.9; }
-      return;
+    if(this.sh&&!this.shSlide){ if(++this.shTimer>300){ this.sh=false; this.vx=-0.9; } return; }
+    this.fR=this.vx>0;
+    this.step(tm);
+    // Shell hits enemies
+    if(this.shSlide){
+      for(const e of enemies){
+        if(e===this||!e.alive) continue;
+        if(this.right>e.left&&this.left<e.right&&this.bottom>e.top&&this.top<e.bottom){
+          if(e instanceof Goomba) e.kick();
+          else if(e instanceof Koopa&&!e.sh) e.kick();
+          gs.addScore(200);
+        }
+      }
     }
-    this.facingR = this.vx>0;
-    this.moveAndCollide(tm);
-    if(!this.shelled){
-      this.frameTimer++;
-      if(this.frameTimer>=16){ this.frameTimer=0; this.frame^=1; }
-    }
+    if(!this.sh){ if(++this.ftimer>=16){ this.ftimer=0; this.ft^=1; } }
   }
   stomp(gs){
-    if(!this.shelled){
-      this.shelled=true;
-      this.shellSliding=false;
-      this.vx=0;
-      this.h=14;
-      this.y+=8;
-      this.shellTimer=0;
-      gs.addScore(100);
-      spawnScore(this.x,this.y,100);
-      gs.sound('stomp');
-    } else if(!this.shellSliding){
-      // Kick the shell
-      this.shellSliding=true;
-      this.vx = gs.mario.x < this.x ? 4 : -4;
-      gs.sound('kick');
-    } else {
-      // Stop shell
-      this.shellSliding=false; this.vx=0;
-    }
+    if(!this.sh){ this.sh=true; this.shSlide=false; this.vx=0; this.h=14; this.y+=8; this.shTimer=0; gs.addScore(100); addScore(this.x,this.y,100); gs.snd('stomp'); }
+    else if(!this.shSlide){ this.shSlide=true; this.vx=gs.mario.x<this.x?-4:4; gs.snd('kick'); }
+    else{ this.shSlide=false; this.vx=0; }
   }
-  draw(camX){
+  kick(){ this.sh=true; this.shSlide=true; this.h=14; this.y+=8; this.vx=3; }
+  draw(cx){
     if(!this.alive) return;
-    const sx=this.x-camX;
-    if(this.shelled){
-      spr(SPR.koopaShell,sx-1,this.y-8);
-    } else {
-      const s=this.frame===0?SPR.koopa1:SPR.koopa2;
-      spr(s,sx-1,this.y-2,!this.facingR);
-    }
+    spr(this.sh?SPR.kS:this.ft===0?SPR.k1:SPR.k2, this.x-cx-1, this.y-2, !this.fR);
   }
 }
 
 // ─── FIREBALLS ────────────────────────────────────────────────────────────────
-const fireballs = [];
-function spawnFireball(x,y,dir){
-  fireballs.push({x,y,vx:dir*4,vy:-2,alive:true,bounce:0});
-}
-function updateFireballs(tm){
-  for(let i=fireballs.length-1;i>=0;i--){
-    const f=fireballs[i];
-    if(!f.alive){ fireballs.splice(i,1); continue; }
-    f.vy+=P.gravity;
-    f.x+=f.vx; f.y+=f.vy;
-    // Wall
-    const c=f.vx>0?Math.floor((f.x+8)/TILE):Math.floor(f.x/TILE);
-    if(solid(tm.get(c,Math.floor((f.y+4)/TILE)))){ f.alive=false; }
-    // Floor bounce
-    const botR=Math.floor((f.y+8)/TILE);
-    if(solid(tm.get(Math.floor((f.x+4)/TILE),botR))){
-      f.y=botR*TILE-8; f.vy=-3; f.bounce++;
-      if(f.bounce>5) f.alive=false;
-    }
+const fbs=[];
+function fireball(x,y,dir){ fbs.push({x,y,vx:dir*4,vy:-2,alive:true,b:0}); }
+function updateFBs(tm){
+  for(let i=fbs.length-1;i>=0;i--){
+    const f=fbs[i]; if(!f.alive){ fbs.splice(i,1); continue; }
+    f.vy+=P.grav; f.x+=f.vx; f.y+=f.vy;
+    if(solid(tm.get(f.vx>0?Math.floor((f.x+8)/TILE):Math.floor(f.x/TILE),Math.floor((f.y+4)/TILE)))) f.alive=false;
+    const br=Math.floor((f.y+8)/TILE);
+    if(solid(tm.get(Math.floor((f.x+4)/TILE),br))){ f.y=br*TILE-8; f.vy=-3; if(++f.b>5) f.alive=false; }
     if(f.x<-16||f.x>tilemap.w*TILE+16) f.alive=false;
   }
 }
-function drawFireballs(camX){
-  for(const f of fireballs){
-    if(!f.alive) continue;
-    spr(SPR.fireball,f.x-camX,f.y);
-  }
-}
+function drawFBs(cx){ for(const f of fbs) if(f.alive) spr(SPR.fb,f.x-cx,f.y); }
 
-// ─── MARIO ───────────────────────────────────────────────────────────────────
-class Mario {
+// ─── MARIO CLASS ─────────────────────────────────────────────────────────────
+class Mario{
   constructor(x,y){
     this.x=x; this.y=y; this.vx=0; this.vy=0;
-    this.onGround=false; this.facingR=true;
-    this.form='SMALL';   // SMALL | SUPER | FIRE
-    this.jumping=false; this.crouching=false;
-    this.dead=false; this.deadVy=0; this.deadTimer=0;
-    this.invTimer=0; this.hitTimer=0;
-    this.skidding=false;
-    this.growing=false; this.growTimer=0; this.growPhase=0;
-    this.onPole=false; this.poleVy=1.5;
-    this.wasOnGround=false;
-    this.walkFrame=0; this.walkTimer=0;
-    this.fireTimer=0;  // cooldown between fireballs
-    this._prevY=y;
-    this.stompCombo=0; this.stompComboReset=0;
+    this.onGnd=false; this.fR=true;
+    this.form='S'; // S=small B=big F=fire
+    this.jmp=false; this.crc=false;
+    this.dead=false; this.dVy=0; this.dT=0;
+    this.invT=0; this.hitT=0;
+    this.skid=false;
+    this.grow=false; this.gT=0;
+    this.pole=false; this.pVy=1.5;
+    this.wF=0; this.wT=0; // walk animation
+    this.fbT=0; // fireball cooldown
+    this.wasGnd=false;
+    this.combo=0;
   }
-  get w(){ return this.form==='SMALL' ? 12 : 14; }
-  get h(){
-    if(this.crouching) return this.form==='SMALL'?12:16;
-    return this.form==='SMALL'?16:24;
-  }
-  get left(){ return this.x; }
+  get w(){ return this.form==='S'?12:14; }
+  get h(){ return this.form==='S'?(this.crc?12:16):(this.crc?16:24); }
+  get left(){  return this.x; }
   get right(){ return this.x+this.w; }
-  get top(){ return this.y; }
+  get top(){   return this.y; }
   get bottom(){ return this.y+this.h; }
 
   update(tm,gs){
-    if(this.dead){ this._updateDead(gs); return; }
-    if(this.onPole){ this._updatePole(tm,gs); return; }
-    if(this.growing){ this._updateGrow(); return; }
+    if(this.dead){ this._dead(gs); return; }
+    if(this.pole){ this._pole(tm,gs); return; }
+    if(this.grow){ if(--this.gT<=0) this.grow=false; return; }
 
-    const run=RUN(), left=LEFT(), right=RIGHT(), down=DOWN(), jump=JUMP();
-    this.wasOnGround=this.onGround;
-    this.crouching=down && this.form!=='SMALL' && this.onGround;
+    const run=pRun(), left=pL(), right=pR(), jump=pJ(), dn=pD();
+    this.wasGnd=this.onGnd;
+    this.crc=dn&&this.form!=='S'&&this.onGnd;
 
     // Horizontal
-    const maxSpd=run?P.maxRun:P.maxWalk;
-    const accel=run?P.runAccel:P.walkAccel;
-    if(!this.crouching){
-      if(right&&!left){
-        this.facingR=true;
-        this.skidding=this.vx<-0.1;
-        if(this.vx<maxSpd) this.vx=Math.min(this.vx+accel,maxSpd);
-        else if(this.vx>maxSpd) this.vx=Math.max(this.vx-P.skidDecel,maxSpd);
-      } else if(left&&!right){
-        this.facingR=false;
-        this.skidding=this.vx>0.1;
-        if(this.vx>-maxSpd) this.vx=Math.max(this.vx-accel,-maxSpd);
-        else if(this.vx<-maxSpd) this.vx=Math.min(this.vx+P.skidDecel,-maxSpd);
-      } else {
-        this.skidding=false;
-        if(this.vx>0) this.vx=Math.max(0,this.vx-P.releaseDecel);
-        else if(this.vx<0) this.vx=Math.min(0,this.vx+P.releaseDecel);
-      }
+    const maxV=run?P.maxRun:P.maxWalk, acc=run?P.runAcc:P.walkAcc;
+    if(!this.crc){
+      if(right&&!left){ this.fR=true; this.skid=this.vx<-0.1; this.vx=this.vx<maxV?Math.min(this.vx+acc,maxV):Math.max(this.vx-P.skidDec,maxV); }
+      else if(left&&!right){ this.fR=false; this.skid=this.vx>0.1; this.vx=this.vx>-maxV?Math.max(this.vx-acc,-maxV):Math.min(this.vx+P.skidDec,-maxV); }
+      else{ this.skid=false; this.vx=this.vx>0?Math.max(0,this.vx-P.relDec):Math.min(0,this.vx+P.relDec); }
     }
 
     // Jump
-    if(jump&&this.onGround&&!this.crouching){
-      const spd=Math.abs(this.vx);
-      this.vy=-(spd>=P.maxRun*0.6?P.jumpVelRun:spd>=P.maxWalk*0.5?P.jumpVelMid:P.jumpVelWalk);
-      this.onGround=false; this.jumping=true;
-      spawnDust(this.x+this.w/2, this.y+this.h);
-      gs.sound('jump');
+    if(jump&&this.onGnd&&!this.crc){
+      const sp=Math.abs(this.vx);
+      this.vy=-(sp>=P.maxRun*0.6?P.jVelR:sp>=P.maxWalk*0.5?P.jVelM:P.jVelW);
+      this.onGnd=false; this.jmp=true;
+      addDust(this.x+this.w/2,this.y+this.h); gs.snd('jump');
     }
-    if(!jump) this.jumping=false;
+    if(!jump) this.jmp=false;
+    this.vy=Math.min(this.vy+((this.jmp&&this.vy<0)?P.gravHold:P.grav),P.maxFall);
 
-    // Gravity
-    this.vy=Math.min(this.vy+((this.jumping&&this.vy<0)?P.gravityHold:P.gravity),P.maxFall);
-
-    // Collide
-    this._prevY=this.y;
-    this._moveX(tm);
-    this._moveY(tm,gs);
-
-    // Left boundary
+    this._moveX(tm); this._moveY(tm,gs);
     if(this.x<0){ this.x=0; this.vx=0; }
 
-    // Walk animation
-    if(this.onGround&&Math.abs(this.vx)>0.1){
-      this.walkTimer++;
-      const speed=Math.abs(this.vx)/P.maxRun;
-      const period=Math.max(4,Math.round(12*(1-speed*0.7)));
-      if(this.walkTimer>=period){ this.walkTimer=0; this.walkFrame=(this.walkFrame+1)%4; }
-    } else if(!this.onGround){ this.walkFrame=4; } // jump frame
-    else { this.walkFrame=0; this.walkTimer=0; }
-
-    // Landing dust
-    if(!this.wasOnGround&&this.onGround){ spawnDust(this.x+this.w/2,this.y+this.h,4); }
+    // Walk anim
+    if(this.onGnd&&Math.abs(this.vx)>0.1){
+      const period=Math.max(4,Math.round(12*(1-Math.abs(this.vx)/P.maxRun*0.7)));
+      if(++this.wT>=period){ this.wT=0; this.wF=(this.wF+1)%4; }
+    } else { if(!this.onGnd) this.wF=4; else{ this.wF=0; this.wT=0; } }
+    if(!this.wasGnd&&this.onGnd) addDust(this.x+this.w/2,this.y+this.h,4);
 
     // Fireball
-    if(this.fireTimer>0) this.fireTimer--;
-    if(this.form==='FIRE'&&RUN()&&this.fireTimer===0){
-      spawnFireball(this.x+(this.facingR?this.w:0), this.y+8, this.facingR?1:-1);
-      this.fireTimer=20;
-      gs.sound('fireball');
-    }
+    if(this.fbT>0) this.fbT--;
+    if(this.form==='F'&&pRun()&&this.fbT===0){ fireball(this.x+(this.fR?this.w:0),this.y+8,this.fR?1:-1); this.fbT=22; gs.snd('fb'); }
 
-    if(this.hitTimer>0) this.hitTimer--;
-    if(this.invTimer>0) this.invTimer--;
+    if(this.hitT>0) this.hitT--;
+    if(this.invT>0) this.invT--;
 
     // Flagpole
-    const poleCol=198;
-    if(this.right>=poleCol*TILE+4&&!this.onPole&&this.y>2*TILE&&gState.phase==='PLAYING'){
-      this.onPole=true; this.x=poleCol*TILE+1; this.vx=0; this.vy=0; this.onGround=false;
-      gs.sound('flagpole');
+    if(this.right>=200*TILE+4&&!this.pole&&this.y>2*TILE&&gs.phase==='PLAY'){
+      this.pole=true; this.x=200*TILE+1; this.vx=0; this.vy=0; this.onGnd=false; gs.snd('flag');
     }
-
-    // Stomp combo reset
-    if(this.onGround){ this.stompCombo=0; }
-    if(this.stompComboReset>0){ this.stompComboReset--; if(this.stompComboReset===0) this.stompCombo=0; }
+    if(this.onGnd) this.combo=0;
   }
 
-  _updateDead(gs){
-    if(this.deadTimer===0){ this.deadVy=-6; }
-    this.deadTimer++;
-    this.deadVy+=0.25;
-    this.y+=this.deadVy;
-    if(this.deadTimer>180) gs._finishDeath();
-  }
-  _updatePole(tm,gs){
-    this.y+=this.poleVy; this.poleVy=Math.min(this.poleVy+0.12,3.5);
-    if(this.y>=13*TILE-this.h){
-      this.y=13*TILE-this.h; this.onPole=false; this.onGround=true;
-      gs.triggerLevelClear();
-    }
-  }
-  _updateGrow(){
-    this.growTimer--;
-    this.growPhase=Math.floor(this.growTimer/6)%2;
-    if(this.growTimer<=0){ this.growing=false; }
-  }
+  _dead(gs){ if(this.dT===0){ this.dVy=-6; } this.dT++; this.dVy+=0.25; this.y+=this.dVy; if(this.dT>180) gs._endDeath(); }
+  _pole(tm,gs){ this.y+=this.pVy; this.pVy=Math.min(this.pVy+0.12,3.5); if(this.y>=13*TILE-this.h){ this.y=13*TILE-this.h; this.pole=false; this.onGnd=true; gs.levelClear(); } }
 
   _moveX(tm){
     this.x+=this.vx;
-    if(this.vx>0){
-      const c=Math.floor((this.x+this.w)/TILE);
-      for(let r=Math.floor((this.y+1)/TILE);r<=Math.floor((this.y+this.h-1)/TILE);r++){
-        if(solid(tm.get(c,r))){ this.x=c*TILE-this.w; this.vx=0; break; }
-      }
-    } else if(this.vx<0){
-      const c=Math.floor(this.x/TILE);
-      for(let r=Math.floor((this.y+1)/TILE);r<=Math.floor((this.y+this.h-1)/TILE);r++){
-        if(solid(tm.get(c,r))){ this.x=(c+1)*TILE; this.vx=0; break; }
-      }
-    }
+    const w=this.w,h=this.h,dir=this.vx>0?1:-1;
+    const cc=dir>0?Math.floor((this.x+w)/TILE):Math.floor(this.x/TILE);
+    for(let r=Math.floor((this.y+1)/TILE);r<=Math.floor((this.y+h-1)/TILE);r++)
+      if(solid(tm.get(cc,r))){ this.x=dir>0?cc*TILE-w:(cc+1)*TILE; this.vx=0; break; }
   }
   _moveY(tm,gs){
     this.y+=this.vy;
+    const w=this.w,h=this.h;
     if(this.vy>=0){
-      const r=Math.floor((this.y+this.h)/TILE);
-      let landed=false;
-      for(let c=Math.floor((this.x+1)/TILE);c<=Math.floor((this.x+this.w-1)/TILE);c++){
-        if(solid(tm.get(c,r))){ this.y=r*TILE-this.h; this.vy=0; this.onGround=true; this.jumping=false; landed=true; break; }
-      }
-      if(!landed) this.onGround=false;
+      const r=Math.floor((this.y+h)/TILE); let hit=false;
+      for(let c=Math.floor((this.x+1)/TILE);c<=Math.floor((this.x+w-1)/TILE);c++)
+        if(solid(tm.get(c,r))){ this.y=r*TILE-h; this.vy=0; this.onGnd=true; this.jmp=false; hit=true; break; }
+      if(!hit) this.onGnd=false;
     } else {
-      this.onGround=false;
+      this.onGnd=false;
       const r=Math.floor(this.y/TILE);
-      for(let c=Math.floor((this.x+1)/TILE);c<=Math.floor((this.x+this.w-1)/TILE);c++){
-        if(solid(tm.get(c,r))){
-          this.y=(r+1)*TILE; this.vy=0; this.jumping=false;
-          this._hitBlock(tm,c,r,tm.get(c,r),gs); break;
-        }
+      for(let c=Math.floor((this.x+1)/TILE);c<=Math.floor((this.x+w-1)/TILE);c++){
+        if(solid(tm.get(c,r))){ this.y=(r+1)*TILE; this.vy=0; this.jmp=false; this._hitBlk(tm,c,r,tm.get(c,r),gs); break; }
       }
     }
   }
-
-  _hitBlock(tm,c,r,id,gs){
-    hitBlockAnim(c,r);
+  _hitBlk(tm,c,r,id,gs){
+    hitAnim(c,r);
     if(id===T.QCOIN||id===T.QITEM){
       tm.set(c,r,T.USED);
-      if(id===T.QCOIN){
-        gs.addCoins(1); spawnCoinAnim(c*TILE,r*TILE); spawnScore(c*TILE+4,r*TILE,200); gs.sound('coin');
-      } else {
-        if(this.form==='SMALL'){
-          spawnMushroom(c*TILE+1,(r-1)*TILE,this.facingR?1:-1);
-        } else {
-          spawnFlower(c*TILE+2,(r-1)*TILE);
-        }
-        gs.sound('powerup_appear');
+      if(id===T.QCOIN){ gs.addCoins(1); addCoin(c*TILE,r*TILE); addScore(c*TILE+4,r*TILE,200); gs.snd('coin'); }
+      else{
+        // Instant powerup — no pickup required
+        if(this.form==='S'){ this.form='B'; this.y-=8; this.grow=true; this.gT=48; gs.addScore(1000); addScore(c*TILE+4,r*TILE,1000); }
+        else if(this.form==='B'){ this.form='F'; this.grow=true; this.gT=48; gs.addScore(1000); addScore(c*TILE+4,r*TILE,1000); }
+        else{ gs.addScore(1000); addScore(c*TILE+4,r*TILE,1000); }
+        gs.snd('powerup');
       }
     } else if(id===T.BRICK){
-      if(this.form!=='SMALL'){
-        tm.set(c,r,T.AIR);
-        spawnBrickBreak(c*TILE,r*TILE);
-        gs.addScore(50); gs.sound('brick_break');
-      } else {
-        gs.sound('bump');
-      }
+      if(this.form!=='S'){ tm.set(c,r,T.AIR); addBrick(c*TILE,r*TILE); gs.addScore(50); gs.snd('brk'); }
+      else gs.snd('bump');
     }
   }
-
   hit(gs){
-    if(this.invTimer>0||this.hitTimer>0||this.dead) return;
-    if(this.form!=='SMALL'){
-      this.form='SMALL'; this.y+=8;
-      this.hitTimer=120; gs.sound('damage');
-    } else {
-      this.die(gs);
-    }
+    if(this.invT>0||this.hitT>0||this.dead) return;
+    if(this.form!=='S'){ this.form='S'; this.y+=8; this.hitT=120; gs.snd('dmg'); }
+    else this.die(gs);
   }
-  die(gs){
-    if(this.dead) return;
-    this.dead=true; this.deadTimer=0; this.deadVy=-6;
-    gs.sound('death'); gs.onMarioDeath();
+  die(gs){ if(this.dead) return; this.dead=true; this.dT=0; this.dVy=-6; gs.snd('die'); gs.marioDied(); }
+  stompScore(){ const S=[100,200,400,800,1000,2000,4000,8000]; return S[Math.min(this.combo++,7)]; }
+
+  draw(cx){
+    if(this.dead){ this._drawSpr(cx); return; }
+    if(this.grow&&Math.floor(this.gT/6)%2===0) return;
+    if(this.hitT>0&&Math.floor(this.hitT/4)%2!==0) return;
+    if(this.invT>0&&Math.floor(this.invT/3)%2!==0) return;
+    this._drawSpr(cx);
   }
-
-  stompEnemy(gs){
-    const SCORES=[100,200,400,800,1000,2000,4000,8000];
-    this.stompCombo=Math.min(this.stompCombo+1,7);
-    return SCORES[this.stompCombo];
-  }
-
-  draw(camX){
-    if(this.dead){ this._drawSprite(camX,true); return; }
-    if(this.growing&&this.growPhase===1) return;
-    if(this.hitTimer>0&&Math.floor(this.hitTimer/4)%2!==0) return;
-    if(this.invTimer>0&&Math.floor(this.invTimer/3)%2!==0) return;
-    this._drawSprite(camX,false);
-  }
-
-  _drawSprite(camX, flip){
-    const sx=Math.round(this.x-camX);
-    const sy=Math.round(this.y);
-    const flipH=!this.facingR;
-
+  _drawSpr(cx){
+    const sx=Math.round(this.x-cx), sy=Math.round(this.y), flip=!this.fR;
     let s;
-    if(this.dead){
-      s = SPR.ms_die; // death spin
-    } else if(this.form==='SMALL'){
-      if(this.crouching) s=SPR.ms_stand;
-      else if(!this.onGround) s=SPR.ms_jump;
-      else {
-        const frames=[SPR.ms_stand,SPR.ms_walk1,SPR.ms_walk3,SPR.ms_walk2];
-        s=frames[this.walkFrame%4];
-      }
+    if(this.dead){ s=this.form==='S'?SPR.msD:SPR.mb0; }
+    else if(this.form==='S'){
+      if(!this.onGnd) s=SPR.msJ;
+      else{ const fr=[SPR.ms0,SPR.ms1,SPR.ms3,SPR.ms2]; s=fr[this.wF%4]; }
     } else {
-      const prefix = this.form==='FIRE' ? 'mf' : 'mb';
-      if(this.crouching) s=SPR[prefix+'_crouch'];
-      else if(!this.onGround) s=SPR[prefix+'_jump'];
-      else {
-        const frames=[SPR[prefix+'_stand'],SPR[prefix+'_walk1'],SPR[prefix+'_stand'],SPR[prefix+'_walk2']];
-        s=frames[this.walkFrame%4];
-      }
+      const pfx=this.form==='F'?'f':'mb';
+      if(this.crc) s=SPR[pfx==='f'?'fC':'mbC'];
+      else if(!this.onGnd) s=SPR[pfx==='f'?'fJ':'mbJ'];
+      else{ const fr=[SPR[pfx+'0'],SPR[pfx+'1'],SPR[pfx+'0'],SPR[pfx+'2']]; s=fr[this.wF%4]; }
     }
-
-    // Skid marker
-    if(this.skidding&&this.onGround){
-      ctx.fillStyle='rgba(255,255,200,0.7)';
-      ctx.fillRect(sx+(flipH?this.w:0)-2,sy+this.h-2,4,2);
-    }
-
-    spr(s, sx, sy, flipH);
-
-    // Star sparkle overlay
-    if(this.invTimer>0&&Math.floor(Date.now()/100)%3===0){
-      ctx.fillStyle='rgba(255,255,0,0.5)';
-      ctx.fillRect(sx,sy,this.w,this.h);
-    }
+    if(this.skid&&this.onGnd){ ctx.fillStyle='rgba(255,255,200,0.8)'; ctx.fillRect(sx+(flip?this.w-3:0),sy+this.h-2,3,2); }
+    spr(s,sx,sy,flip);
+    if(this.invT>0&&Math.floor(Date.now()/100)%3===0){ ctx.fillStyle='rgba(255,255,0,0.4)'; ctx.fillRect(sx,sy,this.w,this.h); }
   }
 }
 
 // ─── CAMERA ──────────────────────────────────────────────────────────────────
-class Camera {
-  constructor(){ this.x=0; }
-  follow(mario,levelW){
-    const target=mario.x-NW*0.40;
-    this.x=Math.max(this.x,Math.min(target,levelW*TILE-NW));
-    this.x=Math.max(0,this.x);
+class Camera{ constructor(){ this.x=0; } follow(m,lw){ const t=m.x-NW*0.4; this.x=Math.max(this.x,Math.min(t,lw*TILE-NW)); this.x=Math.max(0,this.x); } }
+
+// ─── MUSIC ENGINE (SMB1 Overworld Theme) ─────────────────────────────────────
+class Music{
+  constructor(){ this.ac=null; this.muted=false; this.playing=false; this.noteIdx=0; this.noteTimer=0; this.src=null; document.addEventListener('keydown',()=>this._init(),{once:true}); }
+  _init(){
+    if(this.ac) return;
+    this.ac=new(window.AudioContext||window.webkitAudioContext)();
+    this.masterGain=this.ac.createGain(); this.masterGain.gain.value=0.25; this.masterGain.connect(this.ac.destination);
   }
+  // SMB1 Overworld theme — simplified faithful transcription
+  // [freq, frames_at_60fps]  0=rest
+  static THEME=[
+    [659,6],[0,3],[659,6],[0,10],[659,6],[0,10],[523,6],[659,10],[0,6],[784,18],[0,18],[392,18],[0,18],
+    [523,18],[0,18],[392,12],[0,18],[330,18],[0,18],[440,12],[494,12],[0,6],[466,12],[0,6],[440,12],[0,6],
+    [392,8],[659,8],[784,8],[0,3],[880,12],[0,6],[698,12],[784,12],[0,6],[659,12],[0,6],[523,12],[0,3],[587,12],[494,12],[0,12],
+    // phrase 2 repeat start
+    [523,18],[0,18],[392,12],[0,18],[330,18],[0,18],[440,12],[494,12],[0,6],[466,12],[0,6],[440,12],[0,6],
+    [392,8],[659,8],[784,8],[0,3],[880,12],[0,6],[698,12],[784,12],[0,6],[659,12],[0,6],[523,12],[0,3],[587,12],[494,12],[0,12],
+  ];
+  _note(freq,dur){
+    if(!this.ac||this.muted||!freq) return;
+    const t=this.ac.currentTime;
+    const o=this.ac.createOscillator(); o.type='square'; o.frequency.value=freq;
+    const g=this.ac.createGain(); g.gain.setValueAtTime(1,t); g.gain.linearRampToValueAtTime(0,t+dur*0.8/60);
+    o.connect(g); g.connect(this.masterGain);
+    o.start(t); o.stop(t+dur/60+0.05);
+  }
+  tick(){
+    if(!this.playing||this.muted) return;
+    const T=Music.THEME;
+    if(this.noteTimer<=0){
+      const [freq,frames]=T[this.noteIdx];
+      this._note(freq,frames);
+      this.noteTimer=frames;
+      this.noteIdx=(this.noteIdx+1)%T.length;
+    }
+    this.noteTimer--;
+  }
+  start(){ this.playing=true; this.noteIdx=0; this.noteTimer=0; }
+  stop(){ this.playing=false; }
 }
 
-// ─── SOUND ENGINE ─────────────────────────────────────────────────────────────
-class SoundEngine {
-  constructor(){ this.ac=null; this.muted=false; document.addEventListener('keydown',()=>this._init(),{once:true}); }
-  _init(){ if(this.ac) return; this.ac=new(window.AudioContext||window.webkitAudioContext)(); }
-  _beep(freq,dur,type='square',vol=0.15,delay=0){
+// ─── SFX ENGINE ───────────────────────────────────────────────────────────────
+class SFX{
+  constructor(music){ this.ac=null; this.muted=false; this.music=music; document.addEventListener('keydown',()=>this._init(),{once:true}); }
+  _init(){ if(this.ac) return; this.ac=this.music.ac||(this.music.ac=new(window.AudioContext||window.webkitAudioContext)()); if(!this.music.masterGain){ this.music.masterGain=this.ac.createGain(); this.music.masterGain.gain.value=0.25; this.music.masterGain.connect(this.ac.destination); } }
+  _beep(f,d,t='square',v=0.2,dl=0){
     if(!this.ac||this.muted) return;
-    const t=this.ac.currentTime+delay;
-    const o=this.ac.createOscillator(), g=this.ac.createGain();
-    o.type=type; o.frequency.setValueAtTime(freq,t);
-    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    const at=this.ac.currentTime+dl;
+    const o=this.ac.createOscillator(),g=this.ac.createGain();
+    o.type=t; o.frequency.setValueAtTime(f,at);
+    g.gain.setValueAtTime(v,at); g.gain.exponentialRampToValueAtTime(0.001,at+d);
     o.connect(g); g.connect(this.ac.destination);
-    o.start(t); o.stop(t+dur+0.01);
+    o.start(at); o.stop(at+d+0.01);
   }
-  play(name){
+  play(n){
     if(!this.ac) return;
-    switch(name){
-      case 'jump':          this._beep(400,.08); this._beep(600,.07,undefined,.13,.06); break;
-      case 'coin':          this._beep(988,.06); this._beep(1319,.1,undefined,.12,.06); break;
-      case 'brick_break':   this._beep(200,.05,'sawtooth',.2); this._beep(150,.1,'sawtooth',.1,.05); break;
-      case 'bump':          this._beep(180,.07,'square',.18); break;
-      case 'powerup_appear':this._beep(600,.08); this._beep(800,.08,undefined,.12,.08); break;
-      case 'powerup':       for(let i=0;i<5;i++) this._beep(400+i*100,.06,undefined,.12,i*.06); break;
-      case 'damage':        for(let i=0;i<3;i++) this._beep(440-i*80,.1,'sawtooth',.2,i*.12); break;
-      case 'death':         this._beep(440,.15,'sawtooth',.3); this._beep(200,.5,'sawtooth',.2,.15); break;
-      case 'stomp':         this._beep(300,.06,'square',.2); break;
-      case 'kick':          this._beep(250,.08,'square',.25); break;
-      case 'flagpole':      for(let i=0;i<8;i++) this._beep(300+i*50,.08,undefined,.12,i*.07); break;
-      case 'fireball':      this._beep(600,.04,'square',.1); this._beep(400,.04,'square',.05,.04); break;
-      case '1up':           for(let i=0;i<6;i++) this._beep([523,659,784,659,784,1047][i],.08,undefined,.15,i*.08); break;
+    switch(n){
+      case 'jump':   this._beep(400,.08); this._beep(600,.07,undefined,.15,.05); break;
+      case 'coin':   this._beep(988,.06); this._beep(1319,.1,undefined,.12,.06); break;
+      case 'brk':    this._beep(200,.05,'sawtooth',.25); this._beep(150,.1,'sawtooth',.1,.05); break;
+      case 'bump':   this._beep(200,.07,'square',.2); break;
+      case 'powerup':this._beep(600,.08); this._beep(800,.08,undefined,.15,.08); break;
+      case '1up':    [523,659,784,659,784,1047].forEach((f,i)=>this._beep(f,.08,undefined,.15,i*.08)); break;
+      case 'dmg':    [440,360,280].forEach((f,i)=>this._beep(f,.1,'sawtooth',.2,i*.12)); break;
+      case 'die':    this._beep(440,.15,'sawtooth',.3); this._beep(200,.5,'sawtooth',.2,.15); break;
+      case 'stomp':  this._beep(350,.06,'square',.25); break;
+      case 'kick':   this._beep(280,.08,'square',.3); break;
+      case 'flag':   [300,350,400,450,500,550,600,650].forEach((f,i)=>this._beep(f,.08,undefined,.15,i*.07)); break;
+      case 'fb':     this._beep(700,.04,'square',.1); this._beep(500,.04,'square',.05,.04); break;
     }
   }
 }
 
 // ─── GAME STATE ───────────────────────────────────────────────────────────────
-const gState = {
-  phase:'WORLD_INTRO',
-  score:0, coins:0, lives:3, world:1, level:1,
-  timeLeft:400, _timeAcc:0, _introTimer:120,
-  _clearTimer:0, _gameOverTimer:0,
+const gS={
+  phase:'INTRO', score:0, coins:0, lives:3, world:1, lv:1,
+  time:400, _tAcc:0, _iT:120, _clT:0, _goT:0,
   mario:null,
-
-  sound(n){ sfx.play(n); },
+  snd(n){ sfx.play(n); },
   addScore(n){ this.score+=n; },
-  addCoins(n){
-    this.coins++;  this.score+=200;
-    if(this.coins>=100){ this.coins=0; this.lives++; sfx.play('1up'); }
-  },
-  triggerLevelClear(){
-    this.phase='LEVEL_CLEAR'; this._clearTimer=300;
-  },
-  onMarioDeath(){
-    this.phase='MARIO_DEAD';
-  },
-  _finishDeath(){
-    this.lives--;
-    if(this.lives<=0){ this.phase='GAME_OVER'; this._gameOverTimer=300; }
-    else this._respawn();
-  },
-
+  addCoins(n){ this.coins++; this.score+=200; if(this.coins>=100){ this.coins=0; this.lives++; sfx.play('1up'); } },
+  levelClear(){ this.phase='CLEAR'; this._clT=300; },
+  marioDied(){ this.phase='DEAD'; },
+  _endDeath(){ if(--this.lives<=0){ this.phase='GAMEOVER'; this._goT=300; } else this._reset(); },
   update(){
-    if(this.phase==='WORLD_INTRO'){
-      this._introTimer--;
-      if(this._introTimer<=0) this.phase='PLAYING';
-      return;
-    }
-    if(this.phase==='MARIO_DEAD'){
-      mario.update(tilemap,this);
-      return;
-    }
-    if(this.phase==='GAME_OVER'){
-      this._gameOverTimer--;
-      if(this._gameOverTimer<=0) this._resetGame();
-      return;
-    }
-    if(this.phase==='LEVEL_CLEAR'){
-      mario.update(tilemap,this);
-      this._clearTimer--;
-      if(this._clearTimer<=0) this._nextLevel();
-      return;
-    }
+    music.tick();
+    if(this.phase==='INTRO'){ if(--this._iT<=0){ this.phase='PLAY'; music.start(); } return; }
+    if(this.phase==='DEAD'){ mario.update(tilemap,this); return; }
+    if(this.phase==='GAMEOVER'){ if(--this._goT<=0) this._newGame(); return; }
+    if(this.phase==='CLEAR'){ mario.update(tilemap,this); if(--this._clT<=0) this._reset(); return; }
 
-    // PLAYING
-    this._timeAcc++;
-    if(this._timeAcc>=40){ this._timeAcc=0; this.timeLeft=Math.max(0,this.timeLeft-1); if(this.timeLeft===0) mario.die(this); }
-
+    // PLAY
+    if(++this._tAcc>=40){ this._tAcc=0; this.time=Math.max(0,this.time-1); if(this.time===0) mario.die(this); }
     mario.update(tilemap,this);
-    updateObjects(tilemap);
-    updateParticles();
-    updateBlockAnims();
-    updateFireballs(tilemap);
-
-    // Enemy update
-    for(const e of enemies) e.update(tilemap);
-
-    // Mario fell
+    updateObjs(tilemap); updateParts(); updateBounce(); updateFBs(tilemap);
+    for(const e of enemies) e.update(tilemap,this);
     if(mario.y>NH+64) mario.die(this);
 
-    // Enemy collision
+    // Enemy vs Mario
     for(const e of enemies){
       if(!e.alive) continue;
       if(mario.right>e.left&&mario.left<e.right&&mario.bottom>e.top&&mario.top<e.bottom){
-        const stomp=mario.vy>0.5&&mario.bottom<e.top+e.h*0.55;
-        if(stomp){
-          e.stomp(this);
-          const pts=mario.stompEnemy(this);
-          spawnScore(e.x,e.y,pts);
-          mario.vy=-3.5;
-          mario.stompComboReset=30;
-        } else {
-          mario.hit(this);
-        }
+        const stomp=mario.vy>0.5&&mario.bottom<e.top+e.h*0.5+4;
+        if(stomp){ e.stomp(this); mario.vy=-3.5; }
+        else mario.hit(this);
       }
     }
-
     // Fireball vs enemy
-    for(const f of fireballs){
-      if(!f.alive) continue;
-      for(const e of enemies){
-        if(!e.alive) continue;
-        if(f.x+8>e.left&&f.x<e.right&&f.y+8>e.top&&f.y<e.bottom){
-          f.alive=false;
-          if(e instanceof Goomba) e.hitFromSide();
-          else if(e instanceof Koopa&&!e.shelled) e.hitFromSide();
-          this.addScore(200); spawnScore(e.x,e.y,200);
-        }
-      }
-    }
-
-    // Object pickup
-    for(const o of worldObjects){
-      if(!o.alive||o.emerging>0) continue;
+    for(const f of fbs){ if(!f.alive) continue; for(const e of enemies){ if(!e.alive) continue; if(f.x+8>e.left&&f.x<e.right&&f.y+8>e.top&&f.y<e.bottom){ f.alive=false; if(e instanceof Goomba) e.kick(); else if(e instanceof Koopa&&!e.sh) e.kick(); this.addScore(200); addScore(e.x,e.y,200); } } }
+    // Obj vs Mario
+    for(const o of objs){
+      if(!o.alive||o.em>0) continue;
       if(mario.right>o.x&&mario.left<o.x+o.w&&mario.bottom>o.y&&mario.top<o.y+o.h){
         o.alive=false;
-        switch(o.type){
-          case 'mushroom':
-            if(mario.form==='SMALL'){ mario.form='SUPER'; mario.y-=8; mario.growing=true; mario.growTimer=48; }
-            this.addScore(1000); spawnScore(o.x,o.y,1000); sfx.play('powerup'); break;
-          case 'flower':
-            if(mario.form!=='FIRE'){ mario.form='FIRE'; mario.growing=true; mario.growTimer=48; }
-            this.addScore(1000); spawnScore(o.x,o.y,1000); sfx.play('powerup'); break;
-          case 'star':
-            mario.invTimer=600; this.addScore(1000); spawnScore(o.x,o.y,1000); sfx.play('powerup'); break;
+        switch(o.t){
+          case 'mush': if(mario.form==='S'){ mario.form='B'; mario.y-=8; mario.grow=true; mario.gT=48; } this.addScore(1000); addScore(o.x,o.y,1000); sfx.play('powerup'); break;
+          case 'flow': if(mario.form!=='F'){ mario.form='F'; mario.grow=true; mario.gT=48; } this.addScore(1000); addScore(o.x,o.y,1000); sfx.play('powerup'); break;
+          case 'star': mario.invT=600; this.addScore(1000); sfx.play('powerup'); break;
         }
       }
     }
-
     camera.follow(mario,tilemap.w);
   },
-
-  _respawn(){
-    const ld=buildLevel11();
-    tilemap.data=ld.data;
+  _reset(){
+    const ld=buildLevel(); tilemap.d=ld.d;
     enemies.length=0;
-    for(const sp of ld.spawns){
-      if(sp.type==='goomba') enemies.push(new Goomba(sp.col*TILE, sp.row*TILE));
-      if(sp.type==='koopa')  enemies.push(new Koopa(sp.col*TILE,  sp.row*TILE));
-    }
-    worldObjects.length=0; particles.length=0; fireballs.length=0;
-    mario.x=3*TILE; mario.y=11*TILE;
-    mario.vx=0; mario.vy=0; mario.dead=false; mario.deadTimer=0;
-    mario.form='SMALL'; mario.onGround=false;
-    mario.hitTimer=0; mario.invTimer=0; mario.onPole=false;
-    mario.walkFrame=0; mario.walkTimer=0;
-    camera.x=0;
-    this.timeLeft=400; this._timeAcc=0; this._introTimer=90;
-    this.phase='WORLD_INTRO';
+    ld.spawns.forEach(sp=>{ if(sp.type==='g') enemies.push(new Goomba(sp.col*TILE,sp.row*TILE)); else enemies.push(new Koopa(sp.col*TILE,sp.row*TILE)); });
+    objs.length=0; parts.length=0; fbs.length=0;
+    mario.x=3*TILE; mario.y=11*TILE; mario.vx=0; mario.vy=0;
+    mario.dead=false; mario.dT=0; mario.form='S'; mario.onGnd=false;
+    mario.hitT=0; mario.invT=0; mario.pole=false; mario.wF=0; mario.wT=0;
+    camera.x=0; this.time=400; this._tAcc=0; this._iT=90; this.phase='INTRO';
+    music.stop();
   },
-  _nextLevel(){ this._respawn(); },
-  _resetGame(){
-    this.score=0; this.coins=0; this.lives=3; this.world=1; this.level=1;
-    this._respawn();
-  },
+  _newGame(){ this.score=0; this.coins=0; this.lives=3; this.world=1; this.lv=1; this._reset(); },
 };
 
-// ─── HUD ────────────────────────────────────────────────────────────────────
+// ─── HUD ─────────────────────────────────────────────────────────────────────
 function drawHUD(){
-  ctx.fillStyle='#fff'; ctx.font='bold 8px monospace';
-  ctx.fillText('MARIO',16,10);
-  ctx.fillText(String(gState.score).padStart(6,'0'),16,20);
-  ctx.fillStyle='#f8c000'; spr(SPR.coin,80,8);
-  ctx.fillStyle='#fff'; ctx.fillText('×'+String(gState.coins).padStart(2,'0'),90,20);
-  ctx.fillText('WORLD',120,10); ctx.fillText(`${gState.world}-${gState.level}`,126,20);
-  ctx.fillText('TIME',168,10);
-  const urgency=gState.timeLeft<100&&Math.floor(Date.now()/300)%2;
-  ctx.fillStyle=urgency?'#f88':'#fff';
-  ctx.fillText(String(Math.ceil(gState.timeLeft)).padStart(3,'0'),168,20);
-  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='6px monospace';
-  ctx.fillText(`♥ ${gState.lives}  M=mute  F=fire`,4,NH-4);
+  // SMB1-style black strip at top
+  ctx.fillStyle='#000';
+  ctx.fillRect(0,0,NW,24);
+
+  ctx.fillStyle='#fff';
+  ctx.font='bold 8px monospace';
+
+  // Score
+  ctx.fillText('MARIO',16,9);
+  ctx.fillText(String(gS.score).padStart(6,'0'),16,19);
+
+  // Coins
+  spr(SPR.coinHUD,88,10);
+  ctx.fillText('×'+String(gS.coins).padStart(2,'0'),98,19);
+
+  // World
+  ctx.fillText('WORLD',144,9);
+  ctx.fillText(`${gS.world}-${gS.lv}`,152,19);
+
+  // Time
+  ctx.fillText('TIME',200,9);
+  const urgency=gS.time<100&&Math.floor(Date.now()/300)%2;
+  ctx.fillStyle=urgency?'#ff8888':'#fff';
+  ctx.fillText(String(Math.ceil(gS.time)).padStart(3,'0'),200,19);
 }
 
-// ─── OVERLAYS ─────────────────────────────────────────────────────────────────
-function drawWorldIntro(){
+// ─── SCREENS ─────────────────────────────────────────────────────────────────
+function drawIntro(){
   ctx.fillStyle='#000'; ctx.fillRect(0,0,NW,NH);
-  ctx.fillStyle='#fff'; ctx.font='bold 10px monospace';
-  ctx.textAlign='center';
-  ctx.fillText(`WORLD ${gState.world}-${gState.level}`,NW/2,NH/2-14);
-  // mario icon
-  spr(SPR.ms_stand,NW/2-24,NH/2-4);
-  ctx.fillText(`× ${gState.lives}`,NW/2,NH/2+12);
+  ctx.fillStyle='#fff'; ctx.font='bold 10px monospace'; ctx.textAlign='center';
+  ctx.fillText(`WORLD ${gS.world}-${gS.lv}`,NW/2,NH/2-18);
+  spr(SPR.ms0,NW/2-20,NH/2-8);
+  ctx.fillText(`× ${gS.lives}`,NW/2+4,NH/2+8);
   ctx.textAlign='left';
 }
 function drawGameOver(){
   ctx.fillStyle='#000'; ctx.fillRect(0,0,NW,NH);
-  ctx.fillStyle='#fff'; ctx.font='bold 14px monospace';
-  ctx.textAlign='center';
+  ctx.fillStyle='#fff'; ctx.font='bold 14px monospace'; ctx.textAlign='center';
   ctx.fillText('GAME OVER',NW/2,NH/2);
   ctx.textAlign='left';
 }
-function drawLevelClear(){
-  ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(0,0,NW,32);
-  ctx.fillStyle='#fff'; ctx.font='bold 8px monospace';
-  ctx.textAlign='center';
-  ctx.fillText('COURSE CLEAR!',NW/2,14);
-  ctx.fillText('SCORE  '+String(gState.score).padStart(6,'0'),NW/2,25);
+function drawClear(){
+  ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(0,24,NW,30);
+  ctx.fillStyle='#fff'; ctx.font='bold 8px monospace'; ctx.textAlign='center';
+  ctx.fillText('COURSE CLEAR!',NW/2,36); ctx.fillText('SCORE  '+String(gS.score).padStart(6,'0'),NW/2,48);
   ctx.textAlign='left';
 }
 
 // ─── SCENERY ─────────────────────────────────────────────────────────────────
-function drawScenery(camX){
-  const clouds=[
-    {x:48,y:42},{x:128,y:34},{x:208,y:46},{x:320,y:36},
-    {x:416,y:42},{x:528,y:38},{x:640,y:44},{x:768,y:36},{x:896,y:42},
-  ];
-  for(const cl of clouds){
-    const sx=cl.x-camX*0.5;
-    if(sx<-56||sx>NW+56) continue;
-    ctx.fillStyle='#fff';
-    ctx.fillRect(sx+4, cl.y+8,34,8);
-    ctx.fillRect(sx+10,cl.y+4,12,8);
-    ctx.fillRect(sx+18,cl.y,   14,12);
-    ctx.fillRect(sx+30,cl.y+4, 8, 8);
-  }
-  // Hills
-  const hills=[
-    {x:0,y:NH-32,r:28},{x:96,y:NH-42,r:36},{x:224,y:NH-32,r:28},
-    {x:352,y:NH-42,r:36},{x:512,y:NH-32,r:28},{x:672,y:NH-42,r:36},
-  ];
-  for(const h of hills){
-    const sx=h.x-camX*0.7;
-    if(sx<-80||sx>NW+80) continue;
-    ctx.fillStyle='#00a000';
-    ctx.beginPath(); ctx.arc(sx+h.r,h.y+h.r,h.r,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#00c800';
-    ctx.beginPath(); ctx.arc(sx+h.r,h.y+h.r*0.6,h.r*0.5,0,Math.PI*2); ctx.fill();
-  }
+// SMB1-faithful clouds: 3 overlapping circles + rectangular base
+function drawCloud(x,y){
+  ctx.fillStyle='#fff';
+  // base rectangle
+  ctx.fillRect(x,y+10,48,10);
+  // three bumps
+  ctx.beginPath(); ctx.arc(x+10,y+10,10,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+24,y+4,14,0,Math.PI*2);  ctx.fill();
+  ctx.beginPath(); ctx.arc(x+38,y+10,10,0,Math.PI*2); ctx.fill();
+}
+// SMB1-faithful hills: green semicircle with lighter pattern
+function drawHill(cx,cy,r){
+  ctx.fillStyle='#00a800';
+  ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,0); ctx.lineTo(cx+r,cy); ctx.lineTo(cx-r,cy); ctx.closePath(); ctx.fill();
+  // dot highlights
+  ctx.fillStyle='#00c800';
+  const dots=[-r*.45, 0, r*.45];
+  for(const dx of dots){ ctx.beginPath(); ctx.arc(cx+dx,cy-r*.55,r*.12,0,Math.PI*2); ctx.fill(); }
+}
+// SMB1 bush (green rectangle clusters)
+function drawBush(x,y){
+  ctx.fillStyle='#00a800';
+  ctx.fillRect(x+4,y+6,24,6);
+  ctx.beginPath(); ctx.arc(x+10,y+6,6,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+20,y+4,8,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+28,y+6,6,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#00c800';
+  ctx.beginPath(); ctx.arc(x+20,y+2,4,0,Math.PI*2); ctx.fill();
 }
 
-function drawFlag(camX){
-  const px=198*TILE-camX; if(px<-10||px>NW+20) return;
-  ctx.fillStyle='#d8d800';
-  ctx.beginPath(); ctx.arc(px+9,2*TILE+3,4,0,Math.PI*2); ctx.fill();
-  const wave=Math.sin(Date.now()/200)*2;
+function drawScenery(cx){
+  // Cloud positions (x in world coords, parallax 0.5)
+  const clouds=[{x:48,y:36},{x:128,y:28},{x:192,y:40},{x:320,y:32},{x:400,y:38},{x:512,y:28},{x:640,y:36},{x:784,y:30},{x:928,y:38}];
+  for(const c of clouds){ const sx=c.x-cx*.5; if(sx<-60||sx>NW+60) continue; drawCloud(sx,c.y); }
+
+  // Hills (ground decorations, parallax 0.7)
+  const hills=[{x:48,r:32},{x:160,r:44},{x:288,r:32},{x:432,r:44},{x:576,r:32},{x:720,r:44},{x:864,r:32}];
+  for(const h of hills){ const sx=h.x-cx*.7; if(sx<-h.r*2||sx>NW+h.r*2) continue; drawHill(sx+h.r,NH-32,h.r); }
+
+  // Bushes
+  const bushes=[{x:96},{x:224},{x:352},{x:480},{x:608},{x:736}];
+  for(const b of bushes){ const sx=b.x-cx; if(sx<-48||sx>NW+48) continue; drawBush(sx,NH-32); }
+}
+
+// Flagpole flag animation
+function drawFlag(cx){
+  const px=200*TILE-cx; if(px<-10||px>NW+20) return;
+  // Gold tip
+  ctx.fillStyle='#f8d000'; ctx.beginPath(); ctx.arc(px+9,2*TILE+3,4,0,Math.PI*2); ctx.fill();
+  // Waving flag
+  const w=Math.sin(Date.now()/200)*2;
   ctx.fillStyle='#e82020';
-  ctx.beginPath();
-  ctx.moveTo(px+9,2*TILE+7);
-  ctx.lineTo(px+9+16+wave,2*TILE+13);
-  ctx.lineTo(px+9,2*TILE+20);
-  ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(px+9,2*TILE+7); ctx.lineTo(px+9+16+w,2*TILE+14); ctx.lineTo(px+9,2*TILE+21); ctx.closePath(); ctx.fill();
 }
 
-// ─── RENDER ───────────────────────────────────────────────────────────────────
+// ─── RENDER ──────────────────────────────────────────────────────────────────
 function render(){
-  const camX=camera.x;
-  ctx.fillStyle=C.sky; ctx.fillRect(0,0,NW,NH);
+  const cx=camera.x;
+  ctx.fillStyle=TC.sky; ctx.fillRect(0,0,NW,NH);
 
-  if(gState.phase==='WORLD_INTRO'){ drawWorldIntro(); return; }
-  if(gState.phase==='GAME_OVER')  { drawGameOver();   return; }
+  if(gS.phase==='INTRO'){ drawIntro(); return; }
+  if(gS.phase==='GAMEOVER'){ drawGameOver(); return; }
 
-  drawScenery(camX);
-  tilemap.draw(camX);
-  drawFlag(camX);
-  drawObjects(camX);
-  drawFireballs(camX);
-  for(const e of enemies) e.draw(camX);
-  drawParticles(camX);
-  mario.draw(camX);
+  drawScenery(cx);
+  tilemap.draw(cx);
+  drawFlag(cx);
+  drawObjs(cx); drawFBs(cx);
+  for(const e of enemies) e.draw(cx);
+  drawParts(cx);
+  mario.draw(cx);
   drawHUD();
-  if(gState.phase==='LEVEL_CLEAR') drawLevelClear();
+  if(gS.phase==='CLEAR') drawClear();
 }
 
 // ─── BOOT ────────────────────────────────────────────────────────────────────
-const ld      = buildLevel11();
-const tilemap = new TileMap(ld.data,ld.w,ld.h);
-const mario   = new Mario(3*TILE,11*TILE);
-const camera  = new Camera();
-const sfx     = new SoundEngine();
-const enemies = [];
-gState.mario  = mario;
+const ld=buildLevel();
+const tilemap=new TileMap(ld.d,ld.w,ld.h);
+const mario=new Mario(3*TILE,11*TILE);
+const camera=new Camera();
+const music=new Music();
+const sfx=new SFX(music);
+const enemies=[];
+gS.mario=mario;
+ld.spawns.forEach(sp=>{ if(sp.type==='g') enemies.push(new Goomba(sp.col*TILE,sp.row*TILE)); else enemies.push(new Koopa(sp.col*TILE,sp.row*TILE)); });
 
-for(const sp of ld.spawns){
-  if(sp.type==='goomba') enemies.push(new Goomba(sp.col*TILE, sp.row*TILE));
-  if(sp.type==='koopa')  enemies.push(new Koopa(sp.col*TILE,  sp.row*TILE));
-}
+// M = mute toggle
+document.addEventListener('keydown',e=>{ if(e.code==='KeyM'){ sfx.muted=!sfx.muted; music.muted=!music.muted; } });
 
-document.addEventListener('keydown',e=>{ if(e.code==='KeyM') sfx.muted=!sfx.muted; });
-
-// ─── GAME LOOP ────────────────────────────────────────────────────────────────
-let last=0, acc=0;
-function loop(ts){
-  acc+=ts-last; last=ts;
-  if(acc>200) acc=200;
-  while(acc>=DT){ gState.update(); acc-=DT; }
-  render();
-  requestAnimationFrame(loop);
-}
+// ─── GAME LOOP ───────────────────────────────────────────────────────────────
+let last=0,acc=0;
+function loop(ts){ acc+=ts-last; last=ts; if(acc>200) acc=200; while(acc>=DT){ gS.update(); acc-=DT; } render(); requestAnimationFrame(loop); }
 requestAnimationFrame(ts=>{ last=ts; requestAnimationFrame(loop); });
 
-// ─── DEBUG API ────────────────────────────────────────────────────────────────
+// ─── DEBUG API ───────────────────────────────────────────────────────────────
 if(new URLSearchParams(location.search).get('debug')==='1'){
   window.__marioDebug={
-    getState:()=>({
-      mario:{x:mario.x,y:mario.y,vx:mario.vx,vy:mario.vy,state:mario.form,onGround:mario.onGround,dead:mario.dead},
-      score:gState.score,coins:gState.coins,lives:gState.lives,
-      world:gState.world,level:gState.level,timeLeft:gState.timeLeft,
-      phase:gState.phase,camX:camera.x,
-      enemies:enemies.map(e=>({type:e.constructor.name,x:e.x,y:e.y,alive:e.alive})),
-    }),
-    teleportMario:(x,y)=>{ mario.x=x; mario.y=y; mario.vx=0; mario.vy=0; },
-    setWorld:(w,l)=>{ gState.world=w; gState.level=l; },
-    toggleInvincible:()=>{ mario.invTimer=mario.invTimer>0?0:600; },
-    skipToFlagpole:()=>{ mario.x=194*TILE; mario.y=5*TILE; mario.vx=0; mario.vy=0; },
-    giveFireMario:()=>{ mario.form='FIRE'; },
+    getState:()=>({mario:{x:mario.x,y:mario.y,vx:mario.vx,vy:mario.vy,form:mario.form,onGnd:mario.onGnd,dead:mario.dead},score:gS.score,coins:gS.coins,lives:gS.lives,world:gS.world,lv:gS.lv,time:gS.time,phase:gS.phase,camX:camera.x,enemies:enemies.map(e=>({type:e.constructor.name,x:e.x,y:e.y,alive:e.alive}))}),
+    teleport:(x,y)=>{ mario.x=x; mario.y=y; mario.vx=0; mario.vy=0; },
+    skipToFlag:()=>{ mario.x=194*TILE; mario.y=5*TILE; camera.x=Math.max(0,mario.x-NW*.4); },
+    fireForm:()=>{ mario.form='F'; },
+    invincible:()=>{ mario.invT=mario.invT>0?0:600; },
   };
 }
 </script>
