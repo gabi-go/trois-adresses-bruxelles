@@ -1665,6 +1665,7 @@ if(new URLSearchParams(location.search).get('debug')==='1'){
     getState:()=>({mario:{x:mario.x,y:mario.y,vx:mario.vx,vy:mario.vy,form:mario.form,onGnd:mario.onGnd,dead:mario.dead},score:gS.score,coins:gS.coins,lives:gS.lives,world:gS.world,lv:gS.lv,time:gS.time,phase:gS.phase,camX:camera.x,enemies:enemies.map(e=>({type:e.constructor.name,x:e.x,y:e.y,alive:e.alive}))}),
     teleport:(x,y)=>{ mario.x=x; mario.y=y; mario.vx=0; mario.vy=0; },
     skipToFlag:()=>{ mario.x=194*TILE; mario.y=5*TILE; camera.x=Math.max(0,mario.x-NW*.4); },
+    goLevel:(lv)=>{ gS.lv=lv; gS._reset(); gS.phase='PLAY'; music.stop(); },
     fireForm:()=>{ mario.form='F'; },
     invincible:()=>{ mario.invT=mario.invT>0?0:600; },
   };
