@@ -498,7 +498,10 @@ function buildLevel(){
     {type:'k',col:158,row:12},
     {type:'g',col:167,row:12},{type:'g',col:168,row:12},
   ];
-  return {d,w:W,h:H,spawns};
+  // Piranha plants (pipeCol, pipeTopRow)
+  // pipe(28,2)→top row 11; pipe(38,3)→top row 10; pipe(46,4)→top row 9; pipe(57,4)→top row 9
+  const pipePlants=[{c:38,r:10},{c:46,r:9},{c:57,r:9},{c:150,r:11},{c:156,r:11}];
+  return {d,w:W,h:H,spawns,pipePlants};
 }
 
 // ─── WORLD 1-2 (UNDERGROUND) ─────────────────────────────────────────────────
@@ -573,7 +576,9 @@ function buildLevel2(){
     {type:'g',col:148,row:12},{type:'g',col:149,row:12},
     {type:'k',col:160,row:12},
   ];
-  return {d,w:W,h:H,spawns};
+  // Piranha plants in underground pipes: pipe(8,3)→row10; pipe(44,4)→row9; pipe(110,3)→row10; pipe(143,2)→row11
+  const pipePlants=[{c:44,r:9},{c:110,r:10},{c:143,r:11}];
+  return {d,w:W,h:H,spawns,pipePlants};
 }
 
 // ─── PHYSICS ─────────────────────────────────────────────────────────────────
@@ -718,6 +723,42 @@ class Koopa extends Enemy{
   }
 }
 
+// ─── PIRANHA PLANT ───────────────────────────────────────────────────────────
+// 1=#005800 2=#00c800 3=#f8f8f8 4=#e02020 5=#f8c0c0
+const PP=['','#005800','#00c800','#f8f8f8','#e02020','#f8c0c0'];
+const PPBODY=[
+  '0000044400000000','0000424420000000','0004244244000000',
+  '0004444444000000','0004444444000000','0000444400000000',
+  '0000444400000000','0000222200000000','0000222200000000',
+  '0000222200000000','0001222210000000','0012222221000000',
+  '0001112111000000','0000111100000000',
+];
+SPR.pp={pal:PP,px:PPBODY};
+class PiranhaPlant{
+  constructor(pipeCol,pipeTopRow){
+    this.px=pipeCol*TILE+1; this.baseY=(pipeTopRow-1)*TILE;
+    this.y=this.baseY; this.w=14; this.h=14;
+    this.alive=true; this.timer=0; this.showing=false; this.dir=1;
+  }
+  get left(){return this.px;} get right(){return this.px+this.w;}
+  get top(){return this.y;} get bottom(){return this.y+this.h;}
+  update(){
+    this.timer++;
+    // Cycle: 60f hidden → 30f rising → 60f visible → 30f sinking
+    const cyc=this.timer%180;
+    if(cyc<60){  this.showing=false; this.y=this.baseY; }
+    else if(cyc<90){ // rising — but only if mario not nearby
+      if(Math.abs(mario.x-this.px)>40){ this.y=this.baseY-(cyc-60)/30*this.h; this.showing=true; }
+    }
+    else if(cyc<150){ this.showing=true; this.y=this.baseY-this.h; }
+    else { this.y=this.baseY-(180-cyc)/30*this.h; this.showing=true; }
+  }
+  draw(cx){ if(!this.alive||!this.showing) return; spr(SPR.pp,this.px-cx,this.y); }
+}
+const plants=[];
+function updatePlants(){ for(const p of plants) p.update(); }
+function drawPlants(cx){ for(const p of plants) p.draw(cx); }
+
 // ─── FIREBALLS ────────────────────────────────────────────────────────────────
 const fbs=[];
 function fireball(x,y,dir){ fbs.push({x,y,vx:dir*4,vy:-2,alive:true,b:0}); }
@@ -749,6 +790,7 @@ class Mario{
     this.fbT=0; // fireball cooldown
     this.wasGnd=false;
     this.combo=0;
+    this.warpT=0; // pipe warp countdown
   }
   get w(){ return this.form==='S'?12:14; }
   get h(){ return this.form==='S'?(this.crc?12:16):(this.crc?16:24); }
@@ -761,6 +803,7 @@ class Mario{
     if(this.dead){ this._dead(gs); return; }
     if(this.pole){ this._pole(tm,gs); return; }
     if(this.grow){ if(--this.gT<=0) this.grow=false; return; }
+    if(this.warpT>0){ this.y+=0.6; if(--this.warpT<=0) gs.enterPipe(); return; }
 
     const run=pRun(), left=pL(), right=pR(), jump=pJ(), dn=pD();
     this.wasGnd=this.onGnd;
@@ -800,6 +843,16 @@ class Mario{
 
     if(this.hitT>0) this.hitT--;
     if(this.invT>0) this.invT--;
+
+    // Warp pipe entry (press DOWN while standing on a pipe top)
+    if(pD()&&this.onGnd&&this.warpT===0&&Math.abs(this.vx)<0.5){
+      const pc=Math.floor((this.x+this.w/2)/TILE);
+      const pr=Math.floor((this.y+this.h)/TILE);
+      const tid=tm.get(pc,pr); const tid2=tm.get(pc+1,pr);
+      if(tid===T.PTL||tid===T.PTR||tid2===T.PTL||tid2===T.PTR){
+        if(gs.lv===1){ this.warpT=55; this.vx=0; gs.snd('powerup'); }
+      }
+    }
 
     // Flagpole
     if(this.right>=(gs.poleCol||200)*TILE+4&&!this.pole&&this.y>2*TILE&&gs.phase==='PLAY'){
@@ -981,15 +1034,17 @@ class SFX{
 const gS={
   phase:'INTRO', score:0, coins:0, lives:3, world:1, lv:1, poleCol:200,
   time:400, _tAcc:0, _iT:120, _clT:0, _goT:0, _nextLv:1,
+  hiScore:parseInt(localStorage.getItem('mhs')||'0'),
   mario:null,
   snd(n){ sfx.play(n); },
-  addScore(n){ this.score+=n; },
+  addScore(n){ this.score+=n; if(this.score>this.hiScore){ this.hiScore=this.score; localStorage.setItem('mhs',this.hiScore); } },
   addCoins(n){ this.coins++; this.score+=200; if(this.coins>=100){ this.coins=0; this.lives++; sfx.play('1up'); } },
   levelClear(){
     this.phase='CLEAR'; this._clT=300;
     this._nextLv=this.lv===1?2:1;
     if(this.lv===2) this.world++;
   },
+  enterPipe(){ this.lv=2; this._reset(); },
   marioDied(){ this.phase='DEAD'; },
   _endDeath(){ if(--this.lives<=0){ this.phase='GAMEOVER'; this._goT=300; } else this._reset(); },
   update(){
@@ -1004,6 +1059,7 @@ const gS={
     if(++this._tAcc>=40){ this._tAcc=0; this.time=Math.max(0,this.time-1); if(this.time===0) mario.die(this); }
     mario.update(tilemap,this);
     updateObjs(tilemap); updateParts(); updateBounce(); updateFBs(tilemap);
+    updatePlants();
     for(const e of enemies) e.update(tilemap,this);
     if(mario.y>NH+64) mario.die(this);
 
@@ -1023,6 +1079,14 @@ const gS={
         else mario.hit(this);
       }
     }
+    // Piranha plant vs Mario
+    for(const p of plants){
+      if(!p.showing) continue;
+      if(mario.right>p.left&&mario.left<p.right&&mario.bottom>p.top&&mario.top<p.bottom) mario.hit(this);
+    }
+    // Fireball vs piranha plant
+    for(const f of fbs) if(f.alive) for(const p of plants){ if(p.showing&&f.x+8>p.left&&f.x<p.right&&f.y+8>p.top&&f.y<p.bottom){ f.alive=false; p.showing=false; p.timer=0; this.addScore(200); addScore(p.px,p.y,200); } }
+
     // Fireball vs enemy
     for(const f of fbs){ if(!f.alive) continue; for(const e of enemies){ if(!e.alive) continue; if(f.x+8>e.left&&f.x<e.right&&f.y+8>e.top&&f.y<e.bottom){ f.alive=false; if(e instanceof Goomba) e.kick(); else if(e instanceof Koopa&&!e.sh) e.kick(); this.addScore(200); addScore(e.x,e.y,200); } } }
     // Obj vs Mario
@@ -1046,10 +1110,11 @@ const gS={
     this.poleCol=this.lv===2?185:200;
     enemies.length=0;
     ld.spawns.forEach(sp=>{ if(sp.type==='g') enemies.push(new Goomba(sp.col*TILE,sp.row*TILE)); else enemies.push(new Koopa(sp.col*TILE,sp.row*TILE)); });
-    objs.length=0; parts.length=0; fbs.length=0;
+    objs.length=0; parts.length=0; fbs.length=0; plants.length=0;
+    if(ld.pipePlants) ld.pipePlants.forEach(p=>plants.push(new PiranhaPlant(p.c,p.r)));
     mario.x=3*TILE; mario.y=11*TILE; mario.vx=0; mario.vy=0;
     mario.dead=false; mario.dT=0; mario.form='S'; mario.onGnd=false;
-    mario.hitT=0; mario.invT=0; mario.pole=false; mario.wF=0; mario.wT=0;
+    mario.hitT=0; mario.invT=0; mario.pole=false; mario.wF=0; mario.wT=0; mario.warpT=0;
     camera.x=0; this.time=400; this._tAcc=0; this._iT=90; this.phase='INTRO';
     music.stop();
   },
@@ -1065,9 +1130,13 @@ function drawHUD(){
   ctx.fillStyle='#fff';
   ctx.font='bold 8px monospace';
 
-  // Score
+  // Score + hi-score
   ctx.fillText('MARIO',16,9);
   ctx.fillText(String(gS.score).padStart(6,'0'),16,19);
+  if(gS.hiScore>0){
+    ctx.fillStyle='#f8c000'; ctx.fillText('HI',56,9);
+    ctx.fillStyle='#fff'; ctx.fillText(String(gS.hiScore).padStart(6,'0'),56,19);
+  }
 
   // Coins
   spr(SPR.coinHUD,88,10);
@@ -1174,12 +1243,20 @@ function render(){
   drawScenery(cx);
   tilemap.draw(cx);
   drawFlag(cx);
-  drawObjs(cx); drawFBs(cx);
+  drawObjs(cx); drawFBs(cx); drawPlants(cx);
   for(const e of enemies) e.draw(cx);
   drawParts(cx);
   mario.draw(cx);
   drawHUD();
   if(gS.phase==='CLEAR') drawClear();
+  if(gS.phase==='PAUSE'){
+    ctx.fillStyle='rgba(0,0,0,0.55)'; ctx.fillRect(0,24,NW,NH-24);
+    ctx.fillStyle='#fff'; ctx.font='bold 12px monospace'; ctx.textAlign='center';
+    ctx.fillText('PAUSED',NW/2,NH/2-6);
+    ctx.font='bold 7px monospace';
+    ctx.fillText('P / ESC to continue  |  M to mute',NW/2,NH/2+12);
+    ctx.textAlign='left';
+  }
 }
 
 // ─── BOOT ────────────────────────────────────────────────────────────────────
@@ -1192,6 +1269,7 @@ const sfx=new SFX(music);
 const enemies=[];
 gS.mario=mario;
 ld.spawns.forEach(sp=>{ if(sp.type==='g') enemies.push(new Goomba(sp.col*TILE,sp.row*TILE)); else enemies.push(new Koopa(sp.col*TILE,sp.row*TILE)); });
+if(ld.pipePlants) ld.pipePlants.forEach(p=>plants.push(new PiranhaPlant(p.c,p.r)));
 
 // M = mute / P = pause
 document.addEventListener('keydown',e=>{
