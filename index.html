@@ -365,6 +365,153 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
   border-bottom:1px solid #1a1a1a;padding-bottom:2px;margin-top:8px;
 }
 
+/* ── ANIMATIONS / SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.up{transform:translateY(28px)}
+.reveal.left{transform:translateX(-32px)}
+.reveal.right{transform:translateX(32px)}
+.reveal.visible{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+.reveal-delay-4{transition-delay:.4s}
+
+/* ── LÉONA — LATTE CARDS (colored grid) ── */
+.latte-section{padding:64px 40px;background:#faf8f5}
+.latte-section-header{text-align:center;margin-bottom:48px}
+.latte-section-header .eyebrow-tag{
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#b5422a;
+  margin-bottom:10px;font-weight:500;
+}
+.latte-section-header h2{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:clamp(32px,4vw,52px);font-weight:300;
+}
+.latte-section-header h2 em{font-style:italic;color:#b5422a}
+.latte-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:12px;
+  max-width:1100px;margin:0 auto;
+}
+.latte-card{
+  position:relative;aspect-ratio:2/3;overflow:hidden;
+  cursor:default;
+  transition:transform .4s ease;
+}
+.latte-card:hover{transform:translateY(-6px)}
+.latte-card-bg{
+  position:absolute;inset:0;
+  transition:transform .5s ease;
+}
+.latte-card:hover .latte-card-bg{transform:scale(1.05)}
+.latte-card-content{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:20px 16px;color:#fff;
+}
+.latte-card-name{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:22px;font-weight:400;line-height:1.1;margin-bottom:6px;
+}
+.latte-card-ing{font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-bottom:8px}
+.latte-card-price{font-size:13px;letter-spacing:.06em;opacity:.9;font-weight:300}
+
+/* ── LÉONA — KEY POINTS STRIP ── */
+.leona-pillars{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:1px solid #e8e8e8;border-bottom:1px solid #e8e8e8;
+}
+.leona-pillar{
+  padding:40px 28px;text-align:center;
+  border-right:1px solid #e8e8e8;
+}
+.leona-pillar:last-child{border-right:none}
+.leona-pillar-icon{
+  font-size:28px;margin-bottom:14px;line-height:1;
+}
+.leona-pillar h3{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:18px;font-weight:400;margin-bottom:8px;
+}
+.leona-pillar p{font-size:12px;color:#888;line-height:1.6;letter-spacing:.02em}
+
+/* ── LÉONA — HISTOIRE SECTION ── */
+.leona-histoire{
+  display:grid;grid-template-columns:1fr 1fr;
+  min-height:520px;
+}
+.leona-histoire-img{
+  position:relative;overflow:hidden;
+}
+.leona-histoire-img img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center top;
+}
+.leona-histoire-text{
+  background:#1a1a1a;color:#fff;
+  padding:72px 56px;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.leona-histoire-text .eyebrow-tag{
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#b5422a;
+  margin-bottom:16px;
+}
+.leona-histoire-text h2{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:clamp(30px,3vw,46px);font-weight:300;line-height:1.15;
+  margin-bottom:28px;
+}
+.leona-histoire-text h2 em{font-style:italic;color:#d4836a}
+.leona-histoire-text p{
+  font-size:14px;line-height:1.85;color:#ccc;margin-bottom:14px;
+  font-weight:300;
+}
+.leona-histoire-text .stat-row{
+  display:flex;gap:40px;margin-top:32px;padding-top:28px;border-top:1px solid #333;
+}
+.leona-histoire-text .stat span{
+  display:block;
+}
+.leona-histoire-text .stat .num{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:36px;font-weight:300;color:#fff;line-height:1;
+}
+.leona-histoire-text .stat .label{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#888;margin-top:4px;
+}
+
+/* ── LÉONA — BRUNCH VISUAL SECTION ── */
+.brunch-strip{
+  background:#f7f0e8;
+  padding:72px 48px;
+  display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;
+}
+.brunch-strip-text .eyebrow-tag{
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#b5422a;margin-bottom:12px;
+}
+.brunch-strip-text h2{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:clamp(28px,3vw,42px);font-weight:300;margin-bottom:20px;line-height:1.2;
+}
+.brunch-strip-text h2 strong{font-weight:500;font-style:italic}
+.brunch-strip-text p{font-size:14px;line-height:1.8;color:#555;margin-bottom:16px}
+.brunch-strip-text .detail-row{
+  display:flex;gap:24px;margin-top:24px;flex-wrap:wrap;
+}
+.brunch-detail{
+  padding:12px 20px;border:1px solid #c5a882;
+  font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#7a5c3a;
+  background:#fff;
+}
+.brunch-strip-img{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+.brunch-strip-img img{
+  width:100%;aspect-ratio:1;object-fit:cover;
+}
+.brunch-strip-img img:first-child{
+  aspect-ratio:1/1.4;grid-row:span 2;
+}
+
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){
   .coll-grid{grid-template-columns:repeat(2,1fr)}
@@ -372,6 +519,12 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
   .quality-sec{grid-template-columns:1fr;gap:32px}
   .about-strip{grid-template-columns:1fr}
   .address-cards{grid-template-columns:1fr}
+  .latte-grid{grid-template-columns:repeat(3,1fr)}
+  .leona-pillars{grid-template-columns:repeat(2,1fr)}
+  .leona-pillar:nth-child(2){border-right:none}
+  .leona-histoire{grid-template-columns:1fr}
+  .leona-histoire-img{min-height:320px;position:relative}
+  .brunch-strip{grid-template-columns:1fr;padding:48px 32px}
 }
 @media(max-width:768px){
   .nav-top{padding:0 20px;height:56px}
@@ -392,6 +545,13 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
   .address-cards{grid-template-columns:1fr}
   .vinfo-bar{grid-template-columns:1fr}
   .vinfo-cell{border-right:none;border-bottom:1px solid #e8e8e8}
+  .latte-grid{grid-template-columns:repeat(2,1fr)}
+  .latte-section{padding:40px 16px}
+  .leona-pillars{grid-template-columns:1fr 1fr}
+  .leona-pillar{padding:28px 16px}
+  .leona-histoire-text{padding:40px 24px}
+  .brunch-strip{padding:40px 16px;gap:32px}
+  .brunch-strip-img{grid-template-columns:1fr 1fr}
 }
 
 </style>
@@ -625,16 +785,41 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 ══════════════════════════════════════════ -->
 <div id="pg-leona" class="pg">
 
-  <!-- HERO -->
+  <!-- HERO — full bleed, no white space -->
   <section class="vhero">
     <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/31/ac/79/cf/caption.jpg"
          alt="Léona Café — comptoir à Woluwe-Saint-Lambert">
-    <div class="vhero-overlay"></div>
+    <div class="vhero-overlay" style="background:linear-gradient(160deg,rgba(0,0,0,.25) 0%,rgba(26,8,2,.65) 100%)"></div>
     <div class="vhero-content">
       <p class="vhero-eyebrow">Café de spécialité · Woluwe-Saint-Lambert</p>
-      <div class="vhero-title">Léona<br><em>Café</em></div>
+      <div class="vhero-title" style="font-size:clamp(56px,8vw,110px)">Léona<br><em>Café</em></div>
+      <p style="color:rgba(255,255,255,.7);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-top:20px">★ 4,8 &nbsp;·&nbsp; 197 avis Google &nbsp;·&nbsp; Ouvert depuis 2024</p>
     </div>
   </section>
+
+  <!-- KEY PILLARS -->
+  <div class="leona-pillars reveal">
+    <div class="leona-pillar reveal reveal-delay-1">
+      <div class="leona-pillar-icon">☕</div>
+      <h3>Café de spécialité</h3>
+      <p>Grains sélectionnés, extraction soignée, chaque tasse est un rituel</p>
+    </div>
+    <div class="leona-pillar reveal reveal-delay-2">
+      <div class="leona-pillar-icon">🌈</div>
+      <h3>Boissons colorées</h3>
+      <p>Golden, Pink, Blue, Purple Latte — préparés à base d'ingrédients naturels</p>
+    </div>
+    <div class="leona-pillar reveal reveal-delay-3">
+      <div class="leona-pillar-icon">🥞</div>
+      <h3>Brunch du samedi</h3>
+      <p>Un rituel de quartier · 11h–14h · Walk-in bienvenu</p>
+    </div>
+    <div class="leona-pillar reveal reveal-delay-4">
+      <div class="leona-pillar-icon">📍</div>
+      <h3>Woluwe-Saint-Lambert</h3>
+      <p>Av. Georges Henri 386 · Mar–Sam 9h–17h</p>
+    </div>
+  </div>
 
   <!-- INFO BAR -->
   <div class="vinfo-bar">
@@ -649,7 +834,57 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
     </div>
   </div>
 
-  <!-- MENU TABS -->
+  <!-- COLORED LATTÉ SHOWCASE -->
+  <section class="latte-section">
+    <div class="latte-section-header reveal">
+      <p class="eyebrow-tag">La signature Léona</p>
+      <h2>Les boissons <em>colorées</em></h2>
+    </div>
+    <div class="latte-grid">
+      <div class="latte-card reveal reveal-delay-1">
+        <div class="latte-card-bg" style="background:linear-gradient(160deg,#c8921a,#f5d060)"></div>
+        <div class="latte-card-content">
+          <div class="latte-card-name">Golden<br>Latte</div>
+          <div class="latte-card-ing">Curcuma · Gingembre · Épices</div>
+          <div class="latte-card-price">5,50 €</div>
+        </div>
+      </div>
+      <div class="latte-card reveal reveal-delay-2">
+        <div class="latte-card-bg" style="background:linear-gradient(160deg,#c0395a,#f0849a)"></div>
+        <div class="latte-card-content">
+          <div class="latte-card-name">Pink<br>Latte</div>
+          <div class="latte-card-ing">Betterave · Cacao · Épices</div>
+          <div class="latte-card-price">5,50 €</div>
+        </div>
+      </div>
+      <div class="latte-card reveal reveal-delay-3">
+        <div class="latte-card-bg" style="background:linear-gradient(160deg,#2a5fad,#5ba8e8)"></div>
+        <div class="latte-card-content">
+          <div class="latte-card-name">Blue<br>Latte</div>
+          <div class="latte-card-ing">Spiruline · Myrtilles · Coco</div>
+          <div class="latte-card-price">5,50 €</div>
+        </div>
+      </div>
+      <div class="latte-card reveal reveal-delay-4">
+        <div class="latte-card-bg" style="background:linear-gradient(160deg,#1a1a1a,#4a4a4a)"></div>
+        <div class="latte-card-content">
+          <div class="latte-card-name">Black<br>Latte</div>
+          <div class="latte-card-ing">Sésame noir · Charbon végétal</div>
+          <div class="latte-card-price">5,50 €</div>
+        </div>
+      </div>
+      <div class="latte-card reveal reveal-delay-1">
+        <div class="latte-card-bg" style="background:linear-gradient(160deg,#7b3fa0,#c47de0)"></div>
+        <div class="latte-card-content">
+          <div class="latte-card-name">Purple<br>Latte</div>
+          <div class="latte-card-ing">Ube violet · Vanille bourbon</div>
+          <div class="latte-card-price">5,50 €</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FULL MENU TABS -->
   <div class="menu-tabs-wrap">
     <div class="menu-tabs">
       <button class="menu-tab act" onclick="mTab('leona','cafes',this)">Cafés &amp; Co</button>
@@ -661,7 +896,6 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
     </div>
   </div>
 
-  <!-- MENU BODY -->
   <div class="menu-body">
 
     <div id="leona-cafes" class="msec on">
@@ -669,64 +903,63 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
       <div class="menu-group">
         <p class="group-title">Cafés</p>
         <div class="menu-items">
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Espresso</div></div><div class="mi-price">3,00 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Espresso macchiato</div></div><div class="mi-price">3,40 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Americano</div></div><div class="mi-price">3,50 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Cappuccino</div></div><div class="mi-price">4,00 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Flat white</div></div><div class="mi-price">4,50 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Café latte</div></div><div class="mi-price">5,00 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Café Léona</div><div class="mi-desc">La signature maison</div></div><div class="mi-price">5,00 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Chocolat chaud</div></div><div class="mi-price">5,50 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Choco kids</div></div><div class="mi-price">4,00 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Espresso</div></div><div class="mi-price">3,00 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Espresso macchiato</div></div><div class="mi-price">3,40 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Americano</div></div><div class="mi-price">3,50 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Cappuccino</div></div><div class="mi-price">4,00 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Flat white</div></div><div class="mi-price">4,50 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Café latte</div></div><div class="mi-price">5,00 €</div></div>
+          <div class="menu-item reveal" style="background:#fdf8f5;margin:0 -16px;padding:18px 16px"><div class="mi-left"><div class="mi-name" style="font-family:'Cormorant Garamond',serif;font-size:17px;color:#b5422a">Café Léona</div><div class="mi-desc" style="color:#b5422a;opacity:.7">✦ La signature maison</div></div><div class="mi-price" style="color:#b5422a">5,00 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Chocolat chaud</div></div><div class="mi-price">5,50 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Choco kids</div></div><div class="mi-price">4,00 €</div></div>
         </div>
       </div>
       <div class="menu-group">
         <p class="group-title">Laits disponibles</p>
         <div class="menu-items">
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Lait de vache</div></div><div class="mi-price">inclus</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Avoine · Soja · Soja vanille</div></div><div class="mi-price">inclus</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Coconut</div></div><div class="mi-price">+0,50 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Lait de vache · Avoine · Soja · Soja vanille</div></div><div class="mi-price">inclus</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Coconut</div></div><div class="mi-price">+0,50 €</div></div>
         </div>
       </div>
     </div>
 
     <div id="leona-colorees" class="msec">
-      <div class="msec-title">Boissons colorées</div>
+      <div class="msec-title">Boissons colorées — <em style="font-family:'Cormorant Garamond',serif;font-size:15px;text-transform:none;letter-spacing:0;color:#b5422a">Préparées à base d'ingrédients naturels</em></div>
       <div class="menu-items">
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Golden Latte</div><div class="mi-desc">Curcuma, gingembre, épices</div></div><div class="mi-price">5,50 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Pink Latte</div><div class="mi-desc">Betterave, cacao, épices</div></div><div class="mi-price">5,50 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Blue Latte</div><div class="mi-desc">Spiruline, myrtilles, coco, noix de cajou</div></div><div class="mi-price">5,50 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Black Latte</div><div class="mi-desc">Sésame noir &amp; charbon végétal</div></div><div class="mi-price">5,50 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Purple Latte</div><div class="mi-desc">Ube violet &amp; vanille bourbon</div></div><div class="mi-price">5,50 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Masala Chaï Latte</div></div><div class="mi-price">5,00 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Curcuma Chaï Latte</div></div><div class="mi-price">5,00 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Matcha Latte</div></div><div class="mi-price">5,50 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Hojicha Latte</div></div><div class="mi-price">5,50 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Genmaicha Latte</div></div><div class="mi-price">5,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Golden Latte</div><div class="mi-desc">Curcuma, gingembre, épices</div></div><div class="mi-price">5,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Pink Latte</div><div class="mi-desc">Betterave, cacao, épices</div></div><div class="mi-price">5,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Blue Latte</div><div class="mi-desc">Spiruline, myrtilles, coco, noix de cajou</div></div><div class="mi-price">5,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Black Latte</div><div class="mi-desc">Sésame noir &amp; charbon végétal</div></div><div class="mi-price">5,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Purple Latte</div><div class="mi-desc">Ube violet &amp; vanille bourbon</div></div><div class="mi-price">5,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Masala Chaï Latte</div></div><div class="mi-price">5,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Curcuma Chaï Latte</div></div><div class="mi-price">5,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Matcha Latte</div></div><div class="mi-price">5,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Hojicha Latte</div></div><div class="mi-price">5,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Genmaicha Latte</div></div><div class="mi-price">5,50 €</div></div>
       </div>
     </div>
 
     <div id="leona-thes" class="msec">
       <div class="msec-title">Thés &amp; Infusions</div>
       <div class="menu-items">
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Thé vert à la menthe</div></div><div class="mi-price">4,00 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Thé noir — Earl Grey / English Breakfast</div></div><div class="mi-price">4,00 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Tisane mélange Rooïbos</div></div><div class="mi-price">4,00 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Infusion citron miel gingembre</div></div><div class="mi-price">4,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Thé vert à la menthe</div></div><div class="mi-price">4,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Thé noir — Earl Grey / English Breakfast</div></div><div class="mi-price">4,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Tisane mélange Rooïbos</div></div><div class="mi-price">4,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Infusion citron miel gingembre</div></div><div class="mi-price">4,00 €</div></div>
       </div>
     </div>
 
     <div id="leona-froides" class="msec">
       <div class="msec-title">Boissons froides</div>
       <div class="menu-items">
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Limonade maison</div></div><div class="mi-price">4,50 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Ice tea</div></div><div class="mi-price">4,50 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Soda Ritchie</div></div><div class="mi-price">4,00 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Kombucha</div></div><div class="mi-price">5,00 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Spa plate / pétillante</div></div><div class="mi-price">3,50 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Jus d'orange pressé</div></div><div class="mi-price">4,50 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Jus de pomme</div></div><div class="mi-price">3,80 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Bières belges</div></div><div class="mi-price">4,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Limonade maison</div></div><div class="mi-price">4,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Ice tea</div></div><div class="mi-price">4,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Soda Ritchie</div></div><div class="mi-price">4,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Kombucha</div></div><div class="mi-price">5,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Spa plate / pétillante</div></div><div class="mi-price">3,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Jus d'orange pressé</div></div><div class="mi-price">4,50 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Jus de pomme</div></div><div class="mi-price">3,80 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Bières belges</div></div><div class="mi-price">4,50 €</div></div>
       </div>
     </div>
 
@@ -735,52 +968,84 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
       <div class="menu-group">
         <p class="group-title">Suppléments</p>
         <div class="menu-items">
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Extra shot</div></div><div class="mi-price">+0,50 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Extra ice</div></div><div class="mi-price">+0,50 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Chantilly</div></div><div class="mi-price">+1,00 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Beurre</div></div><div class="mi-price">+1,00 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Confiture</div></div><div class="mi-price">+1,00 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Chicorée Cherico</div></div><div class="mi-price">+0,50 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Extra shot · Extra ice</div></div><div class="mi-price">+0,50 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Chantilly · Beurre · Confiture</div></div><div class="mi-price">+1,00 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Chicorée Cherico</div></div><div class="mi-price">+0,50 €</div></div>
         </div>
       </div>
       <div class="menu-group">
         <p class="group-title">Sirops</p>
         <div class="menu-items">
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Caramel · Vanille · Noisette</div></div><div class="mi-price">+0,50 €</div></div>
-          <div class="menu-item"><div class="mi-left"><div class="mi-name">Kids sirops — Grenadine / Violette</div></div><div class="mi-price">2,50 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Caramel · Vanille · Noisette</div></div><div class="mi-price">+0,50 €</div></div>
+          <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Kids sirops — Grenadine / Violette</div></div><div class="mi-price">2,50 €</div></div>
         </div>
       </div>
     </div>
 
     <div id="leona-brunch" class="msec">
-      <div class="msec-title">Brunch — Samedi 11h–14h</div>
+      <div class="msec-title">Brunch — <em style="font-family:'Cormorant Garamond',serif;font-size:16px;text-transform:none;letter-spacing:0;color:#b5422a">Chaque samedi de 11h à 14h</em></div>
       <div class="menu-items">
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Tartines beurre &amp; confiture</div><div class="mi-desc">Pain de qualité, beurre artisanal</div></div><div class="mi-price">6,00 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Œufs brouillés</div><div class="mi-desc">Servis sur toast</div></div><div class="mi-price">10,00 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Avocat toast</div><div class="mi-desc">Avocat, citron, flocons de piment</div></div><div class="mi-price">11,00 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Granola maison</div><div class="mi-desc">Yaourt, fruits frais, miel</div></div><div class="mi-price">8,00 €</div></div>
-        <div class="menu-item"><div class="mi-left"><div class="mi-name">Formule brunch complet</div><div class="mi-desc">Boisson + plat + jus</div></div><div class="mi-price">18,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Tartines beurre &amp; confiture</div><div class="mi-desc">Pain de qualité, beurre artisanal</div></div><div class="mi-price">6,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Œufs brouillés</div><div class="mi-desc">Servis sur toast</div></div><div class="mi-price">10,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Avocat toast</div><div class="mi-desc">Avocat, citron, flocons de piment</div></div><div class="mi-price">11,00 €</div></div>
+        <div class="menu-item reveal"><div class="mi-left"><div class="mi-name">Granola maison</div><div class="mi-desc">Yaourt, fruits frais, miel</div></div><div class="mi-price">8,00 €</div></div>
+        <div class="menu-item reveal" style="background:#fdf8f5;margin:0 -16px;padding:18px 16px"><div class="mi-left"><div class="mi-name" style="font-family:'Cormorant Garamond',serif;font-size:17px;color:#b5422a">Formule brunch complet</div><div class="mi-desc" style="color:#b5422a;opacity:.7">Boisson + plat + jus</div></div><div class="mi-price" style="color:#b5422a">18,00 €</div></div>
       </div>
     </div>
 
   </div><!-- /menu-body -->
 
-  <!-- ABOUT STRIP -->
-  <div class="about-strip">
-    <div class="about-img">
-      <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/30/f2/3d/76/caption.jpg"
-           alt="Léona Café — ambiance">
+  <!-- NOTRE HISTOIRE — dark section -->
+  <section class="leona-histoire">
+    <div class="leona-histoire-img">
+      <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/31/ac/79/cd/caption.jpg"
+           alt="Léona Café — intérieur chaleureux">
     </div>
-    <div class="about-text">
-      <p class="eyebrow">Notre histoire</p>
-      <h2>Un café de quartier qui manquait à Woluwe</h2>
-      <p>Ouvert en août 2024, Léona est né d'une envie simple : créer le café de quartier qui manquait à Woluwe-Saint-Lambert. Un endroit où l'on peut prendre son temps, travailler, lire, ou simplement profiter d'un bon café.</p>
-      <p>Les boissons colorées maison — Golden, Pink, Blue, Purple Latte — sont préparées à partir d'ingrédients sélectionnés avec soin. Le brunch du samedi est un moment de convivialité devenu incontournable.</p>
-      <a class="link-underline" href="https://www.instagram.com/leonacafe_bxl/" target="_blank">Suivre sur Instagram →</a>
+    <div class="leona-histoire-text">
+      <p class="eyebrow-tag reveal left">Notre histoire</p>
+      <h2 class="reveal left">Un café de quartier<br>qui <em>manquait</em><br>à Woluwe</h2>
+      <p class="reveal left reveal-delay-1">Ouvert en août 2024, Léona est né d'une envie simple : créer le café de quartier qui manquait à Woluwe-Saint-Lambert. Un endroit où l'on prend son temps, où chaque boisson est préparée avec soin.</p>
+      <p class="reveal left reveal-delay-2">Les boissons colorées — Golden, Pink, Blue, Purple Latte — sont devenues la signature visuelle de la maison, préparées à base d'ingrédients naturels sélectionnés un à un. Le brunch du samedi rassemble les habitués depuis le premier jour.</p>
+      <div class="stat-row reveal left reveal-delay-3">
+        <div class="stat">
+          <span class="num">4,8</span>
+          <span class="label">Note Google</span>
+        </div>
+        <div class="stat">
+          <span class="num">197</span>
+          <span class="label">Avis clients</span>
+        </div>
+        <div class="stat">
+          <span class="num">2024</span>
+          <span class="label">Ouverture</span>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- FOOTER (same as home) -->
+  <!-- BRUNCH SECTION -->
+  <section class="brunch-strip">
+    <div class="brunch-strip-text">
+      <p class="eyebrow-tag reveal">Le rendez-vous du samedi</p>
+      <h2 class="reveal reveal-delay-1">Le brunch,<br><strong>un rituel</strong></h2>
+      <p class="reveal reveal-delay-2">Chaque samedi de 11h à 14h, Léona devient le lieu de rendez-vous du quartier. Œufs brouillés, tartines généreuses, granola maison, jus frais. Walk-in bienvenu, réservation recommandée.</p>
+      <div class="detail-row reveal reveal-delay-3">
+        <span class="brunch-detail">Samedi · 11h–14h</span>
+        <span class="brunch-detail">Walk-in</span>
+        <span class="brunch-detail">Av. Georges Henri 386</span>
+      </div>
+    </div>
+    <div class="brunch-strip-img reveal right reveal-delay-1">
+      <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/30/f2/3d/76/caption.jpg"
+           alt="Léona Café — brunch du samedi">
+      <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/31/ac/79/d0/caption.jpg"
+           alt="Léona Café — purple latte">
+      <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/31/ac/79/cf/caption.jpg"
+           alt="Léona Café — comptoir">
+    </div>
+  </section>
+
+  <!-- FOOTER -->
   <footer>
     <div class="footer-grid">
       <div class="footer-col">
@@ -809,9 +1074,7 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
     </div>
     <div class="footer-bottom">
       <span>© 2024 Léona Café</span>
-      <div class="footer-social">
-        <a onclick="go('home')">Toutes les adresses</a>
-      </div>
+      <div class="footer-social"><a onclick="go('home')">Toutes les adresses</a></div>
     </div>
   </footer>
 
@@ -1135,6 +1398,8 @@ function go(id) {
 
     // update real-time status on Léona page
     if (id === 'leona') setLeonaStatus();
+    // re-init scroll reveal for new page
+    setTimeout(initReveal, 50);
 
     setTimeout(function() { c.classList.remove('show'); }, 50);
   }, 300);
@@ -1178,10 +1443,27 @@ function setLeonaStatus() {
     : '<span class="status-closed">● Fermé actuellement</span>';
 }
 
+/* ── SCROLL REVEAL ── */
+var revealIO = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealIO.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+function initReveal() {
+  document.querySelectorAll('.reveal').forEach(function(el) {
+    el.classList.remove('visible');
+    revealIO.observe(el);
+  });
+}
+
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', function() {
-  // hide back bar on load
   document.getElementById('back-bar').style.display = 'none';
+  initReveal();
 });
 </script>
 
