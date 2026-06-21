@@ -7,10 +7,27 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#000; display:flex; justify-content:center; align-items:center; min-height:100vh; overflow:hidden; }
 canvas { image-rendering:pixelated; image-rendering:crisp-edges; display:block; }
+/* ── Touch controls ── */
+#touch-ui { position:fixed; bottom:0; left:0; right:0; height:120px; pointer-events:none; display:none; }
+@media (pointer:coarse){ #touch-ui { display:flex; justify-content:space-between; align-items:flex-end; padding:0 16px 16px; } }
+.tc-btn { pointer-events:auto; width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,0.18); border:2px solid rgba(255,255,255,0.4); display:flex; align-items:center; justify-content:center; color:#fff; font-size:22px; user-select:none; -webkit-user-select:none; touch-action:none; }
+.tc-btn:active { background:rgba(255,255,255,0.36); }
+#tc-dpad { display:flex; gap:6px; align-items:flex-end; }
+#tc-btns  { display:flex; gap:6px; align-items:flex-end; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
+<div id="touch-ui">
+  <div id="tc-dpad">
+    <div class="tc-btn" id="tc-l">◀</div>
+    <div class="tc-btn" id="tc-r">▶</div>
+  </div>
+  <div id="tc-btns">
+    <div class="tc-btn" id="tc-b">B</div>
+    <div class="tc-btn" id="tc-a">A</div>
+  </div>
+</div>
 <script>
 'use strict';
 
@@ -235,6 +252,18 @@ SPR.star={ pal:['','#a08000','#f8c000','#f8f800','#f8f8a0'], px:[
   '0000000000000000','0000000000000000',
 ]};
 
+// ── 1-Up Mushroom (16×14) — green version ────────────────────────────────────
+SPR.mush1up={ pal:['','#005800','#00c800','#f8f8f8','#f8c070'], px:[
+  '0001111111100000','0012222222210000','0122222222221000',
+  '0124221224221000',
+  '0124222224221000',
+  '0122222222221000','0012222222210000',
+  '0001122222110000',
+  '0000143343000000',
+  '0000143343000000','0000143343000000',
+  '0000141143000000','0000011110000000','0000000000000000',
+]};
+
 // ── Coin HUD (8×8) ───────────────────────────────────────────────────────────
 SPR.coinHUD={ pal:['','#a07000','#f8c000','#f8f000'], px:[
   '01110000','12221000','12321000','12321000',
@@ -248,8 +277,8 @@ SPR.fb={ pal:['','#f87000','#f8e000','#f8f8a0'], px:[
 ]};
 
 // ─── TILE IDs ─────────────────────────────────────────────────────────────────
-const T={AIR:0,SOLID:1,BRICK:2,QCOIN:3,QITEM:4,USED:5,PTL:6,PTR:7,PBL:8,PBR:9,POLE:10,PBASE:11,CAS:12};
-function solid(id){return id===T.SOLID||id===T.BRICK||id===T.QCOIN||id===T.QITEM||id===T.USED||id===T.PTL||id===T.PTR||id===T.PBL||id===T.PBR||id===T.PBASE||id===T.CAS;}
+const T={AIR:0,SOLID:1,BRICK:2,QCOIN:3,QITEM:4,USED:5,PTL:6,PTR:7,PBL:8,PBR:9,POLE:10,PBASE:11,CAS:12,Q1UP:13};
+function solid(id){return id===T.SOLID||id===T.BRICK||id===T.QCOIN||id===T.QITEM||id===T.USED||id===T.PTL||id===T.PTR||id===T.PBL||id===T.PBR||id===T.PBASE||id===T.CAS||id===T.Q1UP;}
 
 // ─── BLOCK BOUNCE ANIMATION ──────────────────────────────────────────────────
 const bOff={}, bTimer={};
@@ -263,7 +292,7 @@ function updateBounce(){
   }
 }
 
-// ─── TILE DRAWING ─────────────────────────────────────────────────────────────
+// ─── TILE COLORS ──────────────────────────────────────────────────────────────
 const TC={
   sky:'#5c94fc',
   ground:'#c84c0c', gTop:'#e88840', gLine:'#a83808',
@@ -274,61 +303,79 @@ const TC={
   pole:'#d0d0d0', poleTip:'#f8d000',
   cas:'#b45030', casD:'#883020',
 };
+const TC2={ // underground palette
+  sky:'#080820',
+  ground:'#585858', gTop:'#787878', gLine:'#383838',
+  brick:'#585858', bLine:'#383838', bShine:'#989898',
+  qMain:'#e8a000', qShine:'#f8d000', qDark:'#804800',
+  used:'#9c6838', usedD:'#704820',
+  pipe:'#009800', pipeL:'#00c800', pipeD:'#005800',
+  pole:'#d0d0d0', poleTip:'#f8d000',
+  cas:'#b45030', casD:'#883020',
+};
 
+// ─── TILE DRAWING ─────────────────────────────────────────────────────────────
 function drawTile(id,sx,sy){
+  const C=typeof gS!=='undefined'&&gS.lv===2?TC2:TC;
   switch(id){
     case T.SOLID:
-      ctx.fillStyle=TC.ground; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle=TC.gTop; ctx.fillRect(sx,sy,TILE,4);
-      ctx.fillStyle=TC.gLine; ctx.fillRect(sx,sy+4,TILE,1);
-      for(let i=0;i<TILE;i+=8){ ctx.fillStyle=TC.gLine; ctx.fillRect(sx+i,sy+5,1,TILE-5); }
+      ctx.fillStyle=C.ground; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=C.gTop; ctx.fillRect(sx,sy,TILE,4);
+      ctx.fillStyle=C.gLine; ctx.fillRect(sx,sy+4,TILE,1);
+      for(let i=0;i<TILE;i+=8){ ctx.fillStyle=C.gLine; ctx.fillRect(sx+i,sy+5,1,TILE-5); }
       break;
     case T.BRICK:
-      ctx.fillStyle=TC.brick; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle=TC.bLine; ctx.fillRect(sx,sy+7,TILE,1); ctx.fillRect(sx+8,sy,1,7); ctx.fillRect(sx,sy+9,8,1);
-      ctx.fillStyle=TC.bShine; ctx.fillRect(sx,sy,TILE,1); ctx.fillRect(sx,sy,1,7);
+      ctx.fillStyle=C.brick; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=C.bLine; ctx.fillRect(sx,sy+7,TILE,1); ctx.fillRect(sx+8,sy,1,7); ctx.fillRect(sx,sy+9,8,1);
+      ctx.fillStyle=C.bShine; ctx.fillRect(sx,sy,TILE,1); ctx.fillRect(sx,sy,1,7);
       break;
     case T.QCOIN: case T.QITEM:
-      ctx.fillStyle=TC.qMain; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle=TC.qShine; ctx.fillRect(sx+1,sy+1,TILE-2,2); ctx.fillRect(sx+1,sy+1,2,TILE-2);
-      ctx.fillStyle=TC.qDark; ctx.fillRect(sx+TILE-2,sy,2,TILE); ctx.fillRect(sx,sy+TILE-2,TILE,2);
-      // ? mark
+      ctx.fillStyle=C.qMain; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=C.qShine; ctx.fillRect(sx+1,sy+1,TILE-2,2); ctx.fillRect(sx+1,sy+1,2,TILE-2);
+      ctx.fillStyle=C.qDark; ctx.fillRect(sx+TILE-2,sy,2,TILE); ctx.fillRect(sx,sy+TILE-2,TILE,2);
+      ctx.fillStyle='#fff';
+      ctx.fillRect(sx+4,sy+3,7,2); ctx.fillRect(sx+9,sy+5,2,3); ctx.fillRect(sx+4,sy+7,7,2); ctx.fillRect(sx+6,sy+10,3,3);
+      break;
+    case T.Q1UP: // green ? block — 1-up mushroom
+      ctx.fillStyle='#00b800'; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle='#00e800'; ctx.fillRect(sx+1,sy+1,TILE-2,2); ctx.fillRect(sx+1,sy+1,2,TILE-2);
+      ctx.fillStyle='#004800'; ctx.fillRect(sx+TILE-2,sy,2,TILE); ctx.fillRect(sx,sy+TILE-2,TILE,2);
       ctx.fillStyle='#fff';
       ctx.fillRect(sx+4,sy+3,7,2); ctx.fillRect(sx+9,sy+5,2,3); ctx.fillRect(sx+4,sy+7,7,2); ctx.fillRect(sx+6,sy+10,3,3);
       break;
     case T.USED:
-      ctx.fillStyle=TC.used; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle=TC.usedD; ctx.fillRect(sx+1,sy+1,TILE-2,TILE-2);
+      ctx.fillStyle=C.used; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=C.usedD; ctx.fillRect(sx+1,sy+1,TILE-2,TILE-2);
       ctx.fillStyle='#c09060'; for(let r=3;r<TILE;r+=4) ctx.fillRect(sx+2,sy+r,TILE-4,1);
       break;
     case T.PTL:
-      ctx.fillStyle=TC.pipe; ctx.fillRect(sx,sy+4,TILE,TILE-4);
-      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy+4,4,TILE-4);
-      ctx.fillStyle=TC.pipeD; ctx.fillRect(sx+TILE-2,sy+4,2,TILE-4);
-      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx-2,sy,TILE+2,6);
-      ctx.fillStyle=TC.pipe;  ctx.fillRect(sx,sy+2,TILE,4);
-      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy+2,4,4);
+      ctx.fillStyle=C.pipe; ctx.fillRect(sx,sy+4,TILE,TILE-4);
+      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy+4,4,TILE-4);
+      ctx.fillStyle=C.pipeD; ctx.fillRect(sx+TILE-2,sy+4,2,TILE-4);
+      ctx.fillStyle=C.pipeL; ctx.fillRect(sx-2,sy,TILE+2,6);
+      ctx.fillStyle=C.pipe;  ctx.fillRect(sx,sy+2,TILE,4);
+      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy+2,4,4);
       break;
     case T.PTR:
-      ctx.fillStyle=TC.pipe; ctx.fillRect(sx,sy+4,TILE,TILE-4);
-      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy+4,4,TILE-4);
-      ctx.fillStyle=TC.pipeD; ctx.fillRect(sx+TILE-2,sy+4,2,TILE-4);
-      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy,TILE+2,6);
-      ctx.fillStyle=TC.pipe;  ctx.fillRect(sx,sy+2,TILE,4);
-      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy+2,4,4);
+      ctx.fillStyle=C.pipe; ctx.fillRect(sx,sy+4,TILE,TILE-4);
+      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy+4,4,TILE-4);
+      ctx.fillStyle=C.pipeD; ctx.fillRect(sx+TILE-2,sy+4,2,TILE-4);
+      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy,TILE+2,6);
+      ctx.fillStyle=C.pipe;  ctx.fillRect(sx,sy+2,TILE,4);
+      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy+2,4,4);
       break;
     case T.PBL: case T.PBR:
-      ctx.fillStyle=TC.pipe; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle=TC.pipeL; ctx.fillRect(sx,sy,4,TILE);
-      ctx.fillStyle=TC.pipeD; ctx.fillRect(sx+TILE-2,sy,2,TILE);
+      ctx.fillStyle=C.pipe; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=C.pipeL; ctx.fillRect(sx,sy,4,TILE);
+      ctx.fillStyle=C.pipeD; ctx.fillRect(sx+TILE-2,sy,2,TILE);
       break;
     case T.POLE:
-      ctx.fillStyle=TC.pole; ctx.fillRect(sx+7,sy,2,TILE); break;
+      ctx.fillStyle=C.pole; ctx.fillRect(sx+7,sy,2,TILE); break;
     case T.PBASE:
-      ctx.fillStyle=TC.pole; ctx.fillRect(sx+5,sy,6,TILE); break;
+      ctx.fillStyle=C.pole; ctx.fillRect(sx+5,sy,6,TILE); break;
     case T.CAS:
-      ctx.fillStyle=TC.cas; ctx.fillRect(sx,sy,TILE,TILE);
-      ctx.fillStyle=TC.casD; ctx.fillRect(sx,sy+7,TILE,2); ctx.fillRect(sx+8,sy,1,7); ctx.fillRect(sx,sy+9,8,1);
+      ctx.fillStyle=C.cas; ctx.fillRect(sx,sy,TILE,TILE);
+      ctx.fillStyle=C.casD; ctx.fillRect(sx,sy+7,TILE,2); ctx.fillRect(sx+8,sy,1,7); ctx.fillRect(sx,sy+9,8,1);
       break;
   }
 }
@@ -454,6 +501,81 @@ function buildLevel(){
   return {d,w:W,h:H,spawns};
 }
 
+// ─── WORLD 1-2 (UNDERGROUND) ─────────────────────────────────────────────────
+function buildLevel2(){
+  const W=200,H=15;
+  const d=new Uint8Array(W*H);
+  const s=(c,r,id)=>{ if(c>=0&&c<W&&r>=0&&r<H) d[r*W+c]=id; };
+  const row=(c1,c2,r,id)=>{ for(let c=c1;c<=c2;c++) s(c,r,id); };
+  const col=(r1,r2,c,id)=>{ for(let r=r1;r<=r2;r++) s(c,r,id); };
+  const pipe=(c,h)=>{ s(c,13-h,T.PTL); s(c+1,13-h,T.PTR); for(let r=14-h;r<=12;r++){ s(c,r,T.PBL); s(c+1,r,T.PBR); } };
+
+  // Ground
+  row(0,W-1,13,T.SOLID); row(0,W-1,14,T.SOLID);
+
+  // ── Brick ceiling section 1 (cols 0-43) ──────────────────────────────────
+  row(0,43,0,T.BRICK); row(0,43,1,T.BRICK);
+  // Coin blocks embedded in ceiling
+  s(10,1,T.QCOIN); s(14,1,T.QCOIN); s(18,1,T.QCOIN); s(22,1,T.QCOIN);
+  s(28,1,T.QITEM);   // fire flower in ceiling
+  s(36,1,T.Q1UP);    // secret 1-up in ceiling
+
+  // ── Gap in ceiling (cols 44-59) ──────────────────────────────────────────
+
+  // ── Brick ceiling section 2 (cols 60-105) ────────────────────────────────
+  row(60,105,0,T.BRICK); row(60,105,1,T.BRICK);
+  s(66,1,T.QCOIN); s(70,1,T.QCOIN); s(74,1,T.QITEM);
+  s(80,1,T.QCOIN); s(84,1,T.Q1UP);  // another 1-up
+  s(90,1,T.QCOIN); s(95,1,T.QITEM);
+
+  // ── Open section (cols 106-160) ──────────────────────────────────────────
+
+  // ── Mid-air platforms ─────────────────────────────────────────────────────
+  row(20,26,8,T.BRICK); s(22,8,T.QCOIN); s(25,8,T.QITEM);
+  row(35,40,10,T.BRICK); s(37,10,T.QCOIN); s(39,10,T.QCOIN);
+  row(48,55,7,T.BRICK);  s(50,7,T.QITEM); s(53,7,T.QCOIN);
+  row(65,72,9,T.BRICK);  s(67,9,T.QCOIN); s(71,9,T.QCOIN);
+  row(115,122,8,T.BRICK); s(117,8,T.QCOIN); s(120,8,T.QITEM);
+  row(130,136,10,T.BRICK); s(132,10,T.QCOIN);
+
+  // ── Pipes ─────────────────────────────────────────────────────────────────
+  pipe(8,3);
+  pipe(44,4);
+  pipe(110,3);
+  pipe(143,2);
+
+  // ── Ascending staircase ───────────────────────────────────────────────────
+  for(let i=0;i<6;i++) col(13-i,13,159+i,T.SOLID);
+  // Descending
+  for(let i=0;i<6;i++) col(7+i,13,167+i,T.SOLID);
+
+  // ── Flagpole at col 185 ───────────────────────────────────────────────────
+  col(2,12,185,T.POLE); s(185,13,T.PBASE);
+
+  // ── Castle ────────────────────────────────────────────────────────────────
+  col(7,14,187,T.CAS); col(7,14,198,T.CAS);
+  row(187,198,7,T.CAS);
+  [187,189,191,195,197].forEach(c=>s(c,6,T.CAS));
+  col(9,14,190,T.CAS); col(9,14,195,T.CAS);
+  for(let r=8;r<=14;r++) for(let c=188;c<=197;c++) if(!d[r*W+c]) s(c,r,T.CAS);
+  for(let r=10;r<=14;r++) for(let c=191;c<=194;c++) s(c,r,T.AIR);
+  s(189,9,T.AIR); s(196,9,T.AIR);
+
+  const spawns=[
+    {type:'g',col:6,row:12},{type:'g',col:7,row:12},
+    {type:'k',col:28,row:12},
+    {type:'g',col:38,row:12},
+    {type:'g',col:50,row:6},{type:'g',col:51,row:6}, // on platform
+    {type:'k',col:68,row:12},
+    {type:'g',col:80,row:12},{type:'g',col:81,row:12},
+    {type:'k',col:118,row:12},
+    {type:'g',col:132,row:12},
+    {type:'g',col:148,row:12},{type:'g',col:149,row:12},
+    {type:'k',col:160,row:12},
+  ];
+  return {d,w:W,h:H,spawns};
+}
+
 // ─── PHYSICS ─────────────────────────────────────────────────────────────────
 const P={walkAcc:0.0371, runAcc:0.0562, relDec:0.0320, skidDec:0.05,
          maxWalk:1.5625, maxRun:2.5, grav:0.1875, gravHold:0.0938,
@@ -491,6 +613,7 @@ function drawParts(cx){
 // ─── WORLD OBJECTS ────────────────────────────────────────────────────────────
 const objs=[];
 function spawnMush(x,y,dir){ objs.push({t:'mush',x,y,vx:dir,vy:0,w:14,h:14,alive:true,em:14}); }
+function spawnMush1up(x,y,dir){ objs.push({t:'1up',x,y,vx:dir,vy:0,w:14,h:14,alive:true,em:14}); }
 function spawnFlow(x,y){ objs.push({t:'flow',x,y,vx:0,vy:0,w:12,h:16,alive:true,em:16}); }
 function spawnStar(x,y){ objs.push({t:'star',x,y,vx:2,vy:-4,w:14,h:14,alive:true,em:0}); }
 
@@ -510,7 +633,7 @@ function updateObjs(tm){
     for(let c=Math.floor((o.x+1)/TILE);c<=Math.floor((o.x+o.w-1)/TILE);c++){
       if(solid(tm.get(c,br))){ o.y=br*TILE-o.h; o.vy=o.t==='star'?-3.5:0; break; }
     }
-    if(o.t==='mush'&&o.vy===0){ const fc=o.vx>0?Math.floor((o.x+o.w)/TILE):Math.floor((o.x-1)/TILE); if(!solid(tm.get(fc,Math.floor((o.y+o.h)/TILE)))) o.vx=-o.vx; }
+    if((o.t==='mush'||o.t==='1up')&&o.vy===0){ const fc=o.vx>0?Math.floor((o.x+o.w)/TILE):Math.floor((o.x-1)/TILE); if(!solid(tm.get(fc,Math.floor((o.y+o.h)/TILE)))) o.vx=-o.vx; }
   }
 }
 function drawObjs(cx){
@@ -518,6 +641,7 @@ function drawObjs(cx){
     if(!o.alive) continue;
     const sx=o.x-cx;
     if(o.t==='mush') spr(SPR.mush,sx,o.y);
+    if(o.t==='1up')  spr(SPR.mush1up,sx,o.y);
     if(o.t==='flow') spr(SPR.flow,sx,o.y);
     if(o.t==='star') spr(SPR.star,sx,o.y);
   }
@@ -678,8 +802,8 @@ class Mario{
     if(this.invT>0) this.invT--;
 
     // Flagpole
-    if(this.right>=200*TILE+4&&!this.pole&&this.y>2*TILE&&gs.phase==='PLAY'){
-      this.pole=true; this.x=200*TILE+1; this.vx=0; this.vy=0; this.onGnd=false; gs.snd('flag');
+    if(this.right>=(gs.poleCol||200)*TILE+4&&!this.pole&&this.y>2*TILE&&gs.phase==='PLAY'){
+      this.pole=true; this.x=(gs.poleCol||200)*TILE+1; this.vx=0; this.vy=0; this.onGnd=false; gs.snd('flag');
     }
     if(this.onGnd) this.combo=0;
   }
@@ -722,6 +846,10 @@ class Mario{
         else{ gs.addScore(1000); addScore(c*TILE+4,r*TILE,1000); }
         gs.snd('powerup');
       }
+    } else if(id===T.Q1UP){
+      tm.set(c,r,T.USED);
+      spawnMush1up(c*TILE+1,(r-1)*TILE,this.fR?1:-1);
+      gs.snd('powerup');
     } else if(id===T.BRICK){
       if(this.form!=='S'){ tm.set(c,r,T.AIR); addBrick(c*TILE,r*TILE); gs.addScore(50); gs.snd('brk'); }
       else gs.snd('bump');
@@ -772,6 +900,17 @@ class Music{
     this.ac=new(window.AudioContext||window.webkitAudioContext)();
     this.masterGain=this.ac.createGain(); this.masterGain.gain.value=0.25; this.masterGain.connect(this.ac.destination);
   }
+  // SMB1 Underground theme — simplified
+  static THEME2=[
+    [311,6],[0,2],[330,3],[0,1],[311,6],[0,2],[277,6],[0,4],
+    [311,9],[0,24],[370,9],[0,24],[311,9],[0,9],
+    [311,6],[0,2],[330,3],[0,1],[311,6],[0,2],[277,6],[0,4],
+    [311,9],[0,9],[587,9],[0,6],[554,9],[0,24],
+    [466,6],[0,3],[415,6],[0,6],[370,9],[0,6],
+    [311,6],[0,6],[277,6],[0,6],[233,9],[0,6],[220,24],[0,18],
+    [233,6],[0,3],[246,6],[0,3],[261,6],[0,3],[277,9],[0,6],
+    [294,6],[0,3],[311,9],[0,6],[370,6],[0,3],[415,6],[0,3],[466,24],[0,18],
+  ];
   // SMB1 Overworld theme — simplified faithful transcription
   // [freq, frames_at_60fps]  0=rest
   static THEME=[
@@ -792,16 +931,17 @@ class Music{
   }
   tick(){
     if(!this.playing||this.muted) return;
-    const T=Music.THEME;
+    const theme=typeof gS!=='undefined'&&gS.lv===2?Music.THEME2:Music.THEME;
+    if(this._lastTheme!==theme){ this._lastTheme=theme; this.noteIdx=0; this.noteTimer=0; }
     if(this.noteTimer<=0){
-      const [freq,frames]=T[this.noteIdx];
+      const [freq,frames]=theme[this.noteIdx];
       this._note(freq,frames);
       this.noteTimer=frames;
-      this.noteIdx=(this.noteIdx+1)%T.length;
+      this.noteIdx=(this.noteIdx+1)%theme.length;
     }
     this.noteTimer--;
   }
-  start(){ this.playing=true; this.noteIdx=0; this.noteTimer=0; }
+  start(){ this.playing=true; this.noteIdx=0; this.noteTimer=0; this._lastTheme=null; }
   stop(){ this.playing=false; }
 }
 
@@ -839,13 +979,17 @@ class SFX{
 
 // ─── GAME STATE ───────────────────────────────────────────────────────────────
 const gS={
-  phase:'INTRO', score:0, coins:0, lives:3, world:1, lv:1,
-  time:400, _tAcc:0, _iT:120, _clT:0, _goT:0,
+  phase:'INTRO', score:0, coins:0, lives:3, world:1, lv:1, poleCol:200,
+  time:400, _tAcc:0, _iT:120, _clT:0, _goT:0, _nextLv:1,
   mario:null,
   snd(n){ sfx.play(n); },
   addScore(n){ this.score+=n; },
   addCoins(n){ this.coins++; this.score+=200; if(this.coins>=100){ this.coins=0; this.lives++; sfx.play('1up'); } },
-  levelClear(){ this.phase='CLEAR'; this._clT=300; },
+  levelClear(){
+    this.phase='CLEAR'; this._clT=300;
+    this._nextLv=this.lv===1?2:1;
+    if(this.lv===2) this.world++;
+  },
   marioDied(){ this.phase='DEAD'; },
   _endDeath(){ if(--this.lives<=0){ this.phase='GAMEOVER'; this._goT=300; } else this._reset(); },
   update(){
@@ -853,7 +997,7 @@ const gS={
     if(this.phase==='INTRO'){ if(--this._iT<=0){ this.phase='PLAY'; music.start(); } return; }
     if(this.phase==='DEAD'){ mario.update(tilemap,this); return; }
     if(this.phase==='GAMEOVER'){ if(--this._goT<=0) this._newGame(); return; }
-    if(this.phase==='CLEAR'){ mario.update(tilemap,this); if(--this._clT<=0) this._reset(); return; }
+    if(this.phase==='CLEAR'){ mario.update(tilemap,this); if(--this._clT<=0){ this.lv=this._nextLv; this._reset(); } return; }
 
     // PLAY
     if(++this._tAcc>=40){ this._tAcc=0; this.time=Math.max(0,this.time-1); if(this.time===0) mario.die(this); }
@@ -866,6 +1010,13 @@ const gS={
     for(const e of enemies){
       if(!e.alive) continue;
       if(mario.right>e.left&&mario.left<e.right&&mario.bottom>e.top&&mario.top<e.bottom){
+        if(mario.invT>0){
+          // Star invincibility — kill on contact
+          if(e instanceof Goomba) e.kick();
+          else if(e instanceof Koopa) e.kick();
+          const sc=mario.stompScore(); this.addScore(sc); addScore(e.x,e.y,sc); this.snd('stomp');
+          continue;
+        }
         const stomp=mario.vy>0.5&&mario.bottom<e.top+e.h*0.5+4;
         if(stomp){ e.stomp(this); mario.vy=-3.5; }
         else mario.hit(this);
@@ -881,14 +1032,17 @@ const gS={
         switch(o.t){
           case 'mush': if(mario.form==='S'){ mario.form='B'; mario.y-=8; mario.grow=true; mario.gT=48; } this.addScore(1000); addScore(o.x,o.y,1000); sfx.play('powerup'); break;
           case 'flow': if(mario.form!=='F'){ mario.form='F'; mario.grow=true; mario.gT=48; } this.addScore(1000); addScore(o.x,o.y,1000); sfx.play('powerup'); break;
-          case 'star': mario.invT=600; this.addScore(1000); sfx.play('powerup'); break;
+          case 'star': mario.invT=600; this.addScore(1000); addScore(o.x,o.y,1000); sfx.play('powerup'); break;
+          case '1up':  this.lives++; addScore(o.x,o.y,'1UP'); sfx.play('1up'); break;
         }
       }
     }
     camera.follow(mario,tilemap.w);
   },
   _reset(){
-    const ld=buildLevel(); tilemap.d=ld.d;
+    const ld=this.lv===2?buildLevel2():buildLevel();
+    tilemap.d=ld.d; tilemap.w=ld.w; tilemap.h=ld.h;
+    this.poleCol=this.lv===2?185:200;
     enemies.length=0;
     ld.spawns.forEach(sp=>{ if(sp.type==='g') enemies.push(new Goomba(sp.col*TILE,sp.row*TILE)); else enemies.push(new Koopa(sp.col*TILE,sp.row*TILE)); });
     objs.length=0; parts.length=0; fbs.length=0;
@@ -898,7 +1052,7 @@ const gS={
     camera.x=0; this.time=400; this._tAcc=0; this._iT=90; this.phase='INTRO';
     music.stop();
   },
-  _newGame(){ this.score=0; this.coins=0; this.lives=3; this.world=1; this.lv=1; this._reset(); },
+  _newGame(){ this.score=0; this.coins=0; this.lives=3; this.world=1; this.lv=1; this._nextLv=1; this._reset(); },
 };
 
 // ─── HUD ─────────────────────────────────────────────────────────────────────
@@ -983,6 +1137,7 @@ function drawBush(x,y){
 }
 
 function drawScenery(cx){
+  if(gS.lv===2) return; // no scenery underground
   // Cloud positions (x in world coords, parallax 0.5)
   const clouds=[{x:48,y:36},{x:128,y:28},{x:192,y:40},{x:320,y:32},{x:400,y:38},{x:512,y:28},{x:640,y:36},{x:784,y:30},{x:928,y:38}];
   for(const c of clouds){ const sx=c.x-cx*.5; if(sx<-60||sx>NW+60) continue; drawCloud(sx,c.y); }
@@ -998,7 +1153,7 @@ function drawScenery(cx){
 
 // Flagpole flag animation
 function drawFlag(cx){
-  const px=200*TILE-cx; if(px<-10||px>NW+20) return;
+  const px=(gS.poleCol||200)*TILE-cx; if(px<-10||px>NW+20) return;
   // Gold tip
   ctx.fillStyle='#f8d000'; ctx.beginPath(); ctx.arc(px+9,2*TILE+3,4,0,Math.PI*2); ctx.fill();
   // Waving flag
@@ -1010,7 +1165,7 @@ function drawFlag(cx){
 // ─── RENDER ──────────────────────────────────────────────────────────────────
 function render(){
   const cx=camera.x;
-  ctx.fillStyle=TC.sky; ctx.fillRect(0,0,NW,NH);
+  ctx.fillStyle=(gS.lv===2?TC2:TC).sky; ctx.fillRect(0,0,NW,NH);
 
   if(gS.phase==='INTRO'){ drawIntro(); return; }
   if(gS.phase==='GAMEOVER'){ drawGameOver(); return; }
@@ -1039,6 +1194,23 @@ ld.spawns.forEach(sp=>{ if(sp.type==='g') enemies.push(new Goomba(sp.col*TILE,sp
 
 // M = mute toggle
 document.addEventListener('keydown',e=>{ if(e.code==='KeyM'){ sfx.muted=!sfx.muted; music.muted=!music.muted; } });
+
+// ─── TOUCH CONTROLS ──────────────────────────────────────────────────────────
+(function(){
+  const map={
+    'tc-l':'ArrowLeft','tc-r':'ArrowRight',
+    'tc-a':'Space',    'tc-b':'ShiftLeft',
+  };
+  Object.entries(map).forEach(([id,code])=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    const on =()=>{ KEY[code]=true;  music._init&&music._init(); sfx._init&&sfx._init(); };
+    const off=()=>{ KEY[code]=false; };
+    el.addEventListener('touchstart',e=>{ e.preventDefault(); on(); },{passive:false});
+    el.addEventListener('touchend',  e=>{ e.preventDefault(); off();},{passive:false});
+    el.addEventListener('touchcancel',e=>{ off(); });
+  });
+})();
 
 // ─── GAME LOOP ───────────────────────────────────────────────────────────────
 let last=0,acc=0;
