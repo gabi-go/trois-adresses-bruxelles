@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Léona Café · Woluwe-Saint-Lambert</title>
+<meta name="description" content="Café de spécialité, brunch du samedi et boissons colorées maison — Avenue Georges Henri 386, Woluwe-Saint-Lambert. Ouvert mar–sam 9h–17h.">
+<meta property="og:title" content="Léona Café">
+<meta property="og:description" content="Café de spécialité, brunch du samedi, boissons colorées maison. Woluwe-Saint-Lambert, Bruxelles.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#b5422a">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --T:#b5422a;--D:#1e1009;--C:#faf6f0;--S:#e8ddd0;--L:#f3ede5;--M:#7a5040;--G:#3a6e38;
+  --sf:Georgia,'Palatino Linotype',Palatino,serif;
+  --ss:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ss);background:var(--C);color:var(--D);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── PAGE TRANSITION ── */
+#page-curtain{position:fixed;inset:0;background:var(--D);z-index:9999;pointer-events:none;opacity:0;transition:opacity .35s var(--ease-out)}
+#page-curtain.visible{opacity:1}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s var(--ease-out),transform .7s var(--ease-out)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-32px);transition:opacity .75s var(--ease-out),transform .75s var(--ease-out)}
+.reveal-left.visible{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(32px);transition:opacity .75s var(--ease-out),transform .75s var(--ease-out)}
+.reveal-right.visible{opacity:1;transform:translateX(0)}
+.reveal-scale{opacity:0;transform:scale(.96);transition:opacity .65s var(--ease-out),transform .65s var(--ease-out)}
+.reveal-scale.visible{opacity:1;transform:scale(1)}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;width:100%;z-index:200;height:52px;display:flex;align-items:center;padding:0 20px;gap:14px;transition:background .3s,border-color .3s,backdrop-filter .3s}
+nav.solid{background:rgba(250,246,240,.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--S)}
+.nb{display:none;width:32px;height:32px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:50%;cursor:pointer;align-items:center;justify-content:center;color:#fff;flex-shrink:0;transition:all .2s}
+.nb.solid-nb{background:var(--S);border-color:transparent;color:var(--D)}
+.nb.show{display:flex}
+.nb:hover{transform:scale(1.08)}
+.nl{font-family:var(--sf);font-size:1.3rem;color:#fff;text-decoration:none;flex:1;cursor:pointer;transition:color .3s;letter-spacing:.01em}
+.nl.dark{color:var(--D)}
+.nt{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;opacity:.5;display:none;flex:2;text-align:center;color:var(--D)}
+.nt.show{display:block}
+.ng{width:32px;height:32px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);transition:color .3s,opacity .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ng.dark{color:var(--D);opacity:.22}
+.ng:hover{opacity:.7}
+
+/* ── PAGES ── */
+.pg{display:none;padding-top:0;min-height:100vh;animation:pg-in .4s var(--ease-out)}
+.pg.on{display:block}
+#pg-home{padding-top:0}
+#pg-boissons,#pg-brunch,#pg-contact{padding-top:52px}
+@keyframes pg-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══════ HOME ══════ */
+
+/* HERO */
+.hero{position:relative;height:92vh;min-height:560px;overflow:hidden;display:flex;align-items:flex-end}
+.hero-bg{position:absolute;inset:0;background:#1a0a04}
+.hero-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 35%;opacity:.6;transition:opacity 1s,transform 8s ease-out;transform:scale(1.04)}
+.hero-bg img.loaded{transform:scale(1)}
+.hero-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,4,1,.95) 0%,rgba(12,4,1,.45) 45%,rgba(12,4,1,.12) 100%)}
+.hero-c{position:relative;z-index:2;padding:0 32px 60px;max-width:780px}
+.h-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);padding:5px 13px;border-radius:20px;font-size:.72rem;color:rgba(255,255,255,.88);font-weight:500;margin-bottom:20px;letter-spacing:.02em;opacity:0;animation:fade-up .6s .5s var(--ease-out) forwards}
+.h-dot{width:7px;height:7px;border-radius:50%;background:#5cb85c;box-shadow:0 0 0 0 rgba(92,184,92,.5);animation:pulse-dot 2.5s infinite}
+.h-dot.off{background:#d9534f;animation:none}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(92,184,92,.4)}50%{box-shadow:0 0 0 6px rgba(92,184,92,0)}}
+.hero h1{font-family:var(--sf);font-size:clamp(3.4rem,8vw,6rem);color:#fff;line-height:.95;font-weight:400;margin-bottom:14px;opacity:0;animation:fade-up .7s .65s var(--ease-out) forwards}
+.hero h1 em{font-style:italic;color:#dda882}
+.h-sub{color:rgba(255,255,255,.58);font-size:.92rem;line-height:1.7;margin-bottom:32px;max-width:380px;font-weight:300;letter-spacing:.01em;opacity:0;animation:fade-up .7s .8s var(--ease-out) forwards}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;opacity:0;animation:fade-up .7s .95s var(--ease-out) forwards}
+.h-btn{background:var(--C);color:var(--D);padding:13px 30px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;font-family:var(--ss);font-weight:600;transition:all .22s;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.h-btn:hover{background:#fff;transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.22)}
+.h-btn-ghost{background:none;border:1px solid rgba(255,255,255,.4);color:#fff;padding:13px 30px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;border-radius:2px;cursor:pointer;font-family:var(--ss);transition:all .22s}
+.h-btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+.hero-badge{position:absolute;bottom:60px;right:32px;z-index:2;text-align:center;opacity:0;animation:fade-up .6s 1.1s var(--ease-out) forwards}
+.hb-inner{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.78);font-size:.8rem}
+.hb-stars{color:#f5a623;font-size:.88rem;letter-spacing:1px}
+
+/* SCROLL INDICATOR */
+.scroll-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px;opacity:0;animation:fade-in 1s 1.4s forwards}
+.scroll-hint span{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.scroll-mouse{width:20px;height:30px;border:1px solid rgba(255,255,255,.25);border-radius:10px;display:flex;justify-content:center;padding-top:5px}
+.scroll-wheel{width:3px;height:6px;background:rgba(255,255,255,.45);border-radius:2px;animation:scroll-anim 1.6s infinite}
+@keyframes scroll-anim{0%{opacity:1;transform:translateY(0)}80%{opacity:0;transform:translateY(8px)}100%{opacity:0;transform:translateY(0)}}
+@keyframes fade-in{to{opacity:1}}
+@keyframes fade-up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* INFO STRIP */
+.infostrip{background:var(--D);color:#fff;display:flex;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.06)}
+.is-item{flex:1;min-width:180px;padding:18px 28px;display:flex;align-items:center;gap:11px;font-size:.82rem;border-right:1px solid rgba(255,255,255,.07);opacity:.82;transition:opacity .2s}
+.is-item:last-child{border-right:none}
+.is-item:hover{opacity:1}
+.is-item svg{opacity:.5;flex-shrink:0}
+.is-open{color:#7dd87d;font-weight:600;opacity:1!important}
+.is-closed{color:#f08080;font-weight:600;opacity:1!important}
+
+/* DISCOVER SECTION */
+.discover{padding:88px 32px}
+.disc-head{margin-bottom:52px}
+.disc-eyebrow{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--T);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.disc-eyebrow::before{content:'';display:block;width:22px;height:1px;background:var(--T)}
+.disc-h2{font-family:var(--sf);font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:400;line-height:1.1}
+.disc-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--S);border-radius:4px;overflow:hidden}
+.disc-card{position:relative;overflow:hidden;cursor:pointer;height:340px;display:flex;align-items:flex-end;border:none;font-family:var(--ss);text-align:left;background:#1a0a04}
+.disc-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.7;transition:transform .7s var(--ease-out),opacity .35s}
+.disc-card:hover img{transform:scale(1.06);opacity:.82}
+.dc-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,4,1,.85) 0%,rgba(10,4,1,.05) 65%)}
+.dc-c{position:relative;z-index:2;padding:24px;color:#fff;transform:translateY(4px);transition:transform .3s var(--ease-out)}
+.disc-card:hover .dc-c{transform:translateY(0)}
+.dc-tag{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;opacity:.6;margin-bottom:7px}
+.dc-title{font-family:var(--sf);font-size:1.4rem;font-weight:400;line-height:1.2;margin-bottom:5px}
+.dc-sub{font-size:.75rem;opacity:.58;line-height:1.5}
+.dc-arr{position:absolute;top:18px;right:18px;z-index:2;width:34px;height:34px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s,transform .25s;transform:translateX(-4px)}
+.disc-card:hover .dc-arr{opacity:1;background:rgba(255,255,255,.18);transform:translateX(0)}
+
+/* SPLIT: ABOUT */
+.about-split{display:grid;grid-template-columns:1fr 1fr;min-height:520px;border-top:1px solid var(--S)}
+.as-img{position:relative;overflow:hidden;background:#1a0a04}
+.as-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease-out)}
+.as-img:hover img{transform:scale(1.04)}
+.as-text{display:flex;flex-direction:column;justify-content:center;padding:72px 56px;background:var(--L)}
+.as-eyebrow{font-size:.67rem;letter-spacing:.22em;text-transform:uppercase;color:var(--T);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.as-eyebrow::before{content:'';display:block;width:18px;height:1px;background:var(--T)}
+.as-h2{font-family:var(--sf);font-size:clamp(1.6rem,2.8vw,2.2rem);font-weight:400;line-height:1.15;margin-bottom:18px}
+.as-body{font-size:.88rem;line-height:1.88;opacity:.68;margin-bottom:16px;max-width:380px}
+.as-rating{display:flex;align-items:center;gap:10px;margin-top:24px;padding-top:24px;border-top:1px solid var(--S)}
+.as-stars{color:#f5a623;font-size:.9rem;letter-spacing:1px}
+.as-rating-text{font-size:.82rem;opacity:.65}
+.as-link{margin-top:24px;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--T);text-decoration:none;border-bottom:1px solid var(--T);padding-bottom:2px;display:inline-flex;align-items:center;gap:5px;opacity:.85;transition:opacity .2s,gap .2s}
+.as-link:hover{opacity:1;gap:8px}
+
+/* BRUNCH BANNER */
+.brunch-banner{position:relative;height:60vh;min-height:380px;overflow:hidden;display:flex;align-items:center}
+.bb-bg{position:absolute;inset:0;background:#1a0f03}
+.bb-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;transition:transform .9s var(--ease-out)}
+.brunch-banner:hover .bb-bg img{transform:scale(1.035)}
+.bb-ov{position:absolute;inset:0;background:linear-gradient(105deg,rgba(10,4,1,.9) 0%,rgba(10,4,1,.42) 50%,rgba(10,4,1,.1) 100%)}
+.bb-c{position:relative;z-index:2;padding:0 56px;max-width:520px}
+.bb-eyebrow{font-size:.67rem;letter-spacing:.22em;text-transform:uppercase;color:#e8a87c;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.bb-eyebrow::before{content:'';display:block;width:18px;height:1px;background:#e8a87c}
+.bb-h2{font-family:var(--sf);font-size:clamp(2rem,4vw,3rem);color:#fff;font-weight:400;line-height:1.08;margin-bottom:8px}
+.bb-h2 em{font-style:italic;color:#dda882}
+.bb-sub{color:rgba(255,255,255,.58);font-size:.88rem;margin-bottom:28px;line-height:1.65}
+.bb-btn{display:inline-flex;align-items:center;gap:10px;background:none;border:1px solid rgba(255,255,255,.5);color:#fff;padding:12px 26px;font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;border-radius:2px;cursor:pointer;font-family:var(--ss);transition:all .22s}
+.bb-btn:hover{border-color:#fff;background:rgba(255,255,255,.08);gap:14px}
+
+/* FOOTER */
+footer{background:var(--D);color:#fff;padding:60px 32px 36px}
+.ft-grid{display:grid;grid-template-columns:1.8fr 1fr 1fr;gap:48px;margin-bottom:44px;max-width:1100px}
+.ft-logo{font-family:var(--sf);font-size:1.4rem;color:#fff;margin-bottom:12px;display:block;letter-spacing:.01em}
+.ft-desc{font-size:.8rem;opacity:.42;line-height:1.75;max-width:260px}
+.ft-social{display:flex;gap:14px;margin-top:18px;flex-wrap:wrap}
+.ft-social a{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:#fff;text-decoration:none;opacity:.36;transition:opacity .2s;border-bottom:1px solid rgba(255,255,255,.16);padding-bottom:1px}
+.ft-social a:hover{opacity:.75}
+.ft-col h5{font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;opacity:.3;margin-bottom:14px;font-weight:600}
+.ft-col ul{list-style:none}
+.ft-col li{margin-bottom:9px}
+.ft-col a{color:#fff;text-decoration:none;font-size:.82rem;opacity:.48;transition:opacity .2s}
+.ft-col a:hover{opacity:.88}
+.ft-hours li{list-style:none;display:flex;justify-content:space-between;gap:12px;font-size:.8rem;opacity:.46;margin-bottom:5px}
+.ft-hours .off{opacity:.2}
+.ft-bottom{border-top:1px solid rgba(255,255,255,.07);padding-top:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;max-width:1100px}
+.ft-bottom p{font-size:.7rem;opacity:.26}
+.ft-bottom a{font-size:.7rem;opacity:.26;text-decoration:none;color:#fff;transition:opacity .2s}
+.ft-bottom a:hover{opacity:.55}
+
+/* ══════ BOISSONS ══════ */
+.sub-hero{position:relative;height:280px;overflow:hidden;display:flex;align-items:flex-end}
+.sub-hero-bg{position:absolute;inset:0}
+.sub-hero-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.65;transition:transform .9s var(--ease-out)}
+.sub-hero:hover .sub-hero-bg img{transform:scale(1.03)}
+.sub-hero-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,4,1,.88) 0%,rgba(10,4,1,.22) 100%)}
+.sub-hero-c{position:relative;z-index:2;padding:0 28px 32px;color:#fff}
+.sh-eyebrow{font-size:.63rem;letter-spacing:.2em;text-transform:uppercase;opacity:.55;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sh-script{font-family:var(--sf);font-style:italic;font-size:2.4rem;font-weight:400}
+
+.dts{display:flex;overflow-x:auto;border-bottom:1px solid var(--S);scrollbar-width:none;background:var(--C);padding:0 4px;position:sticky;top:52px;z-index:100;backdrop-filter:blur(8px)}
+.dts::-webkit-scrollbar{display:none}
+.dt{padding:15px 20px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border:none;background:none;color:var(--D);opacity:.4;border-bottom:2px solid transparent;white-space:nowrap;font-family:var(--ss);transition:all .22s;flex-shrink:0}
+.dt.on{opacity:1;border-bottom-color:var(--T);color:var(--T);font-weight:600}
+.dt:hover:not(.on){opacity:.7}
+.dp{display:none;padding:24px 28px 40px;max-width:720px}
+.dp.on{display:block}
+.dsect{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--T);font-weight:700;margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--S)}
+.di{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 0;border-bottom:1px solid rgba(0,0,0,.05);transition:background .15s}
+.di:last-child{border:none}
+.di:hover{background:rgba(0,0,0,.018);margin:0 -8px;padding-left:8px;padding-right:8px;border-radius:4px;border-bottom-color:transparent}
+.dil{flex:1}
+.dn{font-size:.91rem;font-weight:500;margin-bottom:2px;color:var(--D)}
+.dd{font-size:.75rem;opacity:.46;line-height:1.45;font-style:italic}
+.dpr{font-family:var(--sf);font-size:1rem;color:var(--T);white-space:nowrap;margin-left:20px;padding-top:1px}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 18px}
+.sc{padding:18px;border-radius:6px;color:#fff;position:relative;overflow:hidden;cursor:default;transition:transform .25s var(--ease-out)}
+.sc:hover{transform:translateY(-2px)}
+.sc::before{content:'';position:absolute;inset:0;opacity:.22}
+.sc.go{background:#1a1206}.sc.go::before{background:linear-gradient(135deg,#f5a623,#e67e00)}
+.sc.pi{background:#1a0812}.sc.pi::before{background:linear-gradient(135deg,#e91e8c,#c2185b)}
+.sc.bl{background:#06101a}.sc.bl::before{background:linear-gradient(135deg,#2196f3,#0d47a1)}
+.sc.bk{background:#111}.sc.bk::before{background:linear-gradient(135deg,#555,#000)}
+.sc.pu{background:#120a1a}.sc.pu::before{background:linear-gradient(135deg,#9c27b0,#4a148c)}
+.sc-n{font-family:var(--sf);font-size:.98rem;position:relative;z-index:1;margin-bottom:4px}
+.sc-d{font-size:.71rem;opacity:.54;font-style:italic;line-height:1.4;position:relative;z-index:1}
+.sc-p{font-size:.82rem;font-weight:700;margin-top:12px;opacity:.85;position:relative;z-index:1}
+.eg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0}
+.ei{display:flex;justify-content:space-between;background:var(--L);padding:10px 13px;border-radius:4px;font-size:.8rem;transition:background .15s}
+.ei:hover{background:var(--S)}
+.ei span:last-child{font-weight:600;color:var(--T)}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.mb{background:var(--L);padding:14px 16px;border-radius:5px}
+.mb-t{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;opacity:.38;font-weight:700;margin-bottom:10px}
+.mi{display:flex;justify-content:space-between;font-size:.8rem;padding:6px 0;border-bottom:1px solid var(--S)}
+.mi:last-child{border:none}
+.mi span:last-child{font-weight:600;color:var(--T)}
+.free{color:var(--G)!important}
+.prix-menu{font-size:.73rem;color:var(--M);font-style:italic;opacity:.65}
+
+/* ══════ BRUNCH ══════ */
+.bsec{background:var(--T);color:#fff;padding:12px 28px;font-size:.67rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:8px;margin-top:4px}
+.bi{padding:20px 28px;border-bottom:1px solid var(--S);background:var(--C);transition:background .15s}
+.bi:hover{background:var(--L)}
+.bi:last-of-type{border:none}
+.bi-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+.bi-n{font-family:var(--sf);font-size:.96rem;font-weight:600;text-transform:uppercase;letter-spacing:.02em;line-height:1.25}
+.bi-p{font-family:var(--sf);font-size:1rem;color:var(--T);white-space:nowrap}
+.bi-d{font-size:.79rem;opacity:.52;line-height:1.65;font-style:italic}
+.bsp{background:var(--L);padding:18px 28px}
+.bsp h4{font-size:.61rem;letter-spacing:.13em;text-transform:uppercase;opacity:.36;margin-bottom:10px;font-weight:700}
+.bsi{display:flex;justify-content:space-between;font-size:.81rem;padding:7px 0;border-bottom:1px solid var(--S)}
+.bsi:last-child{border:none}
+.alg{background:var(--S);padding:15px 28px;font-size:.78rem;opacity:.58;line-height:1.58;display:flex;gap:10px;align-items:flex-start}
+.bb-timing{display:inline-flex;align-items:center;gap:8px;background:var(--T);color:#fff;padding:10px 22px;border-radius:2px;font-size:.77rem;font-weight:700;letter-spacing:.07em;margin:20px 28px 6px}
+
+/* ══════ CONTACT ══════ */
+.cp{padding:24px 24px 48px;max-width:760px}
+.cc{background:#fff;border-radius:6px;border:1px solid var(--S);overflow:hidden;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.cc-h{background:var(--T);color:#fff;padding:13px 18px;font-size:.67rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;display:flex;align-items:center;gap:9px}
+.cc-h svg{opacity:.72}
+.cc-b{padding:14px 18px}
+.cr{display:flex;align-items:flex-start;gap:14px;padding:11px 0;border-bottom:1px solid var(--S)}
+.cr:last-child{border:none}
+.cr-i{width:34px;height:34px;background:var(--L);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--T)}
+.cr-t .lb{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;opacity:.36;margin-bottom:3px}
+.cr-t .vl{font-size:.87rem;line-height:1.58}
+.cr-t .vl a{color:var(--D);text-decoration:none;transition:color .2s}
+.cr-t .vl a:hover{color:var(--T)}
+.hg{display:grid;grid-template-columns:auto 1fr;gap:4px 18px}
+.hd{font-size:.82rem;opacity:.46}
+.ht{font-size:.82rem;font-weight:500}
+.ht.off{opacity:.26;font-weight:400}
+.ht.tod{color:var(--T);font-weight:700}
+.slw{display:flex;flex-direction:column;gap:8px;padding:14px 18px}
+.sl{display:flex;align-items:center;gap:14px;padding:12px 15px;border:1px solid var(--S);border-radius:5px;text-decoration:none;color:var(--D);transition:all .22s;font-size:.86rem;font-weight:500}
+.sl:hover{border-color:var(--T);background:var(--L);transform:translateX(2px)}
+.sl-i{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.ig-g{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)}
+.fb-g{background:#1877f2}.gm-g{background:#4285f4}
+.mapb{border-radius:6px;overflow:hidden;border:1px solid var(--S);height:220px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.mapb iframe{width:100%;height:100%;display:block;border:none;filter:sepia(14%)}
+
+/* ADMIN */
+.fab{position:fixed;bottom:22px;right:22px;width:38px;height:38px;background:var(--D);color:#fff;border:none;border-radius:50%;cursor:pointer;z-index:999;opacity:.12;transition:opacity .25s,transform .2s;display:flex;align-items:center;justify-content:center}
+.fab:hover{opacity:.42;transform:rotate(30deg)}
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:1000;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(3px)}
+.ov.on{display:flex;animation:fade-in .2s}
+.adm{background:#fff;border-radius:10px;padding:28px;max-width:440px;width:100%;max-height:88vh;overflow-y:auto;animation:modal-in .3s var(--ease-out)}
+@keyframes modal-in{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.adm h2{font-family:var(--sf);font-size:1.3rem;margin-bottom:3px}
+.adm-sub{font-size:.71rem;opacity:.34;margin-bottom:20px}
+.as{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #f0ece8}
+.as:last-child{border:none;margin:0;padding:0}
+.as h3{font-size:.65rem;letter-spacing:.13em;text-transform:uppercase;opacity:.32;margin-bottom:12px;font-weight:700}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+label{font-size:.71rem;font-weight:600;opacity:.48}
+input,textarea{padding:9px 12px;border:1px solid #e8ddd0;border-radius:4px;font-size:.81rem;font-family:var(--ss);outline:none;color:var(--D);width:100%;transition:border-color .2s,box-shadow .2s}
+input:focus,textarea:focus{border-color:var(--T);box-shadow:0 0 0 3px rgba(181,66,42,.1)}
+textarea{resize:vertical;min-height:58px}
+.cg{display:flex;gap:8px;flex-wrap:wrap;margin:7px 0}
+.csw{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,box-shadow .15s;position:relative}
+.csw.on{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--T)}
+.csw.on::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.82rem;font-weight:700}
+.csw:hover{transform:scale(1.12)}
+.bs{background:var(--D);color:#fff;border:none;padding:10px 22px;border-radius:4px;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--ss);font-weight:600;transition:background .2s}
+.bs:hover{background:var(--T)}
+.bx{background:none;border:1px solid var(--S);color:var(--D);padding:10px 16px;border-radius:4px;font-size:.74rem;cursor:pointer;font-family:var(--ss);transition:border-color .2s}
+.bx:hover{border-color:var(--D)}
+.pw-b{background:#fff;border-radius:10px;padding:26px;max-width:310px;width:100%;animation:modal-in .3s var(--ease-out)}
+.pw-b h2{font-family:var(--sf);font-size:1.28rem;margin-bottom:3px}
+.toast{display:none;position:fixed;bottom:70px;right:18px;background:var(--G);color:#fff;padding:11px 20px;border-radius:5px;font-size:.78rem;z-index:2000;animation:toast-in .26s var(--ease-out);box-shadow:0 4px 16px rgba(0,0,0,.2)}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .disc-cards{grid-template-columns:1fr 1fr}
+  .disc-card:last-child{display:none}
+  .about-split{grid-template-columns:1fr}
+  .as-img{height:320px}
+  .ft-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .hero-c{padding:0 20px 50px}
+  .disc-cards{grid-template-columns:1fr}
+  .disc-card:last-child{display:flex}
+  .discover{padding:56px 20px}
+  .as-text{padding:44px 24px}
+  .bb-c{padding:0 24px}
+  .infostrip{flex-direction:column}
+  .is-item{border-right:none;border-bottom:1px solid rgba(255,255,255,.06);padding:14px 24px}
+  .ft-grid{grid-template-columns:1fr;gap:28px}
+  footer{padding:44px 20px 30px}
+  .dp,.bb-timing,.bsec,.bsp,.bi,.alg,.bsi{padding-left:20px;padding-right:20px}
+  .scroll-hint{display:none}
+  .sg{grid-template-columns:1fr}
+  .eg{grid-template-columns:1fr}
+  .mg{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="page-curtain"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <button class="nb" id="nb" onclick="goHome()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  </button>
+  <span class="nl" id="nl" onclick="goHome()">Léona</span>
+  <div class="nt" id="nt"></div>
+  <button class="ng" id="ng" onclick="showAdmin()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+  </button>
+</nav>
+
+<!-- ═══ HOME ═══ -->
+<div id="pg-home" class="pg on">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-bg">
+      <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&q=80"
+           loading="eager" decoding="async"
+           onload="this.classList.add('loaded')"
+           onerror="this.style.display='none'"
+           alt="Léona Café intérieur">
+    </div>
+    <div class="hero-ov"></div>
+    <div class="hero-c">
+      <div class="h-pill"><span class="h-dot" id="hDot"></span><span id="hSt">…</span></div>
+      <h1>Léona<br><em>Café</em></h1>
+      <p class="h-sub">Café de spécialité, brunch du samedi et boissons colorées maison — avenue Georges Henri, Woluwe.</p>
+      <div class="hero-actions">
+        <button class="h-btn" onclick="sp('pg-boissons','À boire')">Carte des boissons</button>
+        <button class="h-btn-ghost" onclick="sp('pg-contact','Nous trouver')">Nous trouver</button>
+      </div>
+    </div>
+    <div class="hero-badge">
+      <div class="hb-inner">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#f5a623"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span><strong style="color:#fff;font-size:1rem">4,8</strong></span>
+        <span class="hb-stars">★★★★★</span>
+        <span style="font-size:.75rem">197 avis</span>
+      </div>
+    </div>
+    <div class="scroll-hint">
+      <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+      <span>Découvrir</span>
+    </div>
+  </div>
+
+  <!-- INFO STRIP -->
+  <div class="infostrip">
+    <div class="is-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="isSt">Statut</span></div>
+    <div class="is-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="isHrs">Mar–Sam 9h–17h · Dim & Lun fermé</span></div>
+    <div class="is-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Av. Georges Henri 386, Woluwe-Saint-Lambert</span></div>
+    <div class="is-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 2 2 0 012.18 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.15a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg><a href="tel:+32494402892" style="color:#fff;text-decoration:none">+32 494 40 28 92</a></div>
+  </div>
+
+  <!-- DISCOVER -->
+  <div class="discover">
+    <div class="disc-head reveal">
+      <div class="disc-eyebrow">Explorer</div>
+      <h2 class="disc-h2">Ce que vous trouverez<br>chez Léona</h2>
+    </div>
+    <div class="disc-cards reveal">
+
+      <button class="disc-card" onclick="sp('pg-boissons','À boire')" style="background:radial-gradient(ellipse at 20% 80%,#5a2a12,#0c0603)">
+        <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=700&q=75"
+             loading="lazy" onerror="this.style.display='none'" alt="Boissons Léona">
+        <div class="dc-ov"></div>
+        <div class="dc-arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="dc-c">
+          <div class="dc-tag">Cafés · Lattes · Thés</div>
+          <div class="dc-title">À boire</div>
+          <div class="dc-sub">Espressos, boissons colorées, infusions et plus</div>
+        </div>
+      </button>
+
+      <button class="disc-card" onclick="sp('pg-brunch','Brunch')" style="background:radial-gradient(ellipse at 80% 20%,#6b4018,#0c0a02)">
+        <img src="https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=700&q=75"
+             loading="lazy" onerror="this.style.display='none'" alt="Brunch Léona">
+        <div class="dc-ov"></div>
+        <div class="dc-arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="dc-c">
+          <div class="dc-tag">Samedis · 11h – 14h</div>
+          <div class="dc-title">Brunch</div>
+          <div class="dc-sub">Pancakes, brioche perdue, toasts et plats salés</div>
+        </div>
+      </button>
+
+      <button class="disc-card" onclick="sp('pg-contact','Nous trouver')" style="background:radial-gradient(ellipse at 50% 100%,#8a2a18,#1a0804)">
+        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=700&q=75"
+             loading="lazy" onerror="this.style.display='none'" alt="Léona Café adresse">
+        <div class="dc-ov"></div>
+        <div class="dc-arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        <div class="dc-c">
+          <div class="dc-tag">Woluwe-Saint-Lambert</div>
+          <div class="dc-title">Nous trouver</div>
+          <div class="dc-sub">Av. Georges Henri 386 · Tram 7 & 25</div>
+        </div>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ABOUT SPLIT -->
+  <div class="about-split">
+    <div class="as-img reveal-left">
+      <img src="https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=900&q=80"
+           loading="lazy" onerror="this.style.display='none'" alt="Baristas Léona">
+    </div>
+    <div class="as-text reveal-right">
+      <div class="as-eyebrow">Notre histoire</div>
+      <h2 class="as-h2">Un café né d'une envie simple</h2>
+      <p class="as-body">Léona a ouvert ses portes en août 2024 avenue Georges Henri, avec une idée en tête : créer un café de quartier où l'on se sent bien. Tout est fait maison — des sirops colorés aux plats du jour.</p>
+      <p class="as-body">Rien n'est précipité ici. Du premier espresso du matin à la dernière part de carrot cake, chaque détail est soigné.</p>
+      <div class="as-rating">
+        <span class="as-stars">★★★★★</span>
+        <span class="as-rating-text"><strong>4,8</strong> / 5 · 197 avis Google</span>
+      </div>
+      <a href="https://www.instagram.com/le.cafe.leona/" target="_blank" class="as-link">@le.cafe.leona ↗</a>
+    </div>
+  </div>
+
+  <!-- BRUNCH BANNER -->
+  <div class="brunch-banner reveal-scale">
+    <div class="bb-bg">
+      <img src="https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=1400&q=80"
+           loading="lazy" onerror="this.style.display='none'" alt="Brunch Léona">
+    </div>
+    <div class="bb-ov"></div>
+    <div class="bb-c">
+      <div class="bb-eyebrow">Brunch du samedi</div>
+      <h2 class="bb-h2">Tous les samedis<br><em>de 11h à 14h</em></h2>
+      <p class="bb-sub">Walk-in uniquement, sans réservation. Pancakes Mont-Blanc, brioche perdue, toasts et plats salés maison.</p>
+      <button class="bb-btn" onclick="sp('pg-brunch','Brunch')">
+        Voir la carte brunch
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="ft-grid reveal">
+      <div>
+        <span class="ft-logo">Léona</span>
+        <p class="ft-desc">Café de spécialité, petits-déjeuners, lunchs et pâtisseries maison depuis août 2024, avenue Georges Henri.</p>
+        <div class="ft-social">
+          <a href="https://www.instagram.com/le.cafe.leona/" target="_blank">Instagram</a>
+          <a href="https://www.facebook.com/p/L%C3%A9ona-caf%C3%A9-61560708781211/" target="_blank">Facebook</a>
+          <a href="https://www.google.com/maps/search/Leona+Cafe+Woluwe/" target="_blank">Google Maps</a>
+        </div>
+      </div>
+      <div class="ft-col">
+        <h5>Navigation</h5>
+        <ul>
+          <li><a href="#" onclick="sp('pg-boissons','À boire');return false">À boire</a></li>
+          <li><a href="#" onclick="sp('pg-brunch','Brunch');return false">Brunch</a></li>
+          <li><a href="#" onclick="sp('pg-contact','Nous trouver');return false">Nous trouver</a></li>
+          <li><a href="mailto:le.cafe.leona@gmail.com">Contact</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h5>Horaires</h5>
+        <ul class="ft-hours">
+          <li><span>Lundi</span><span class="off">Fermé</span></li>
+          <li><span>Mar–Ven</span><span id="ftHrs">9h–17h</span></li>
+          <li><span>Samedi</span><span>9h–17h · Brunch</span></li>
+          <li><span>Dimanche</span><span class="off">Fermé</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ft-bottom">
+      <p>© 2025 Léona Café SRL · BE 1012.601.905 · Woluwe-Saint-Lambert</p>
+      <a href="mailto:le.cafe.leona@gmail.com">Mentions légales</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══ BOISSONS ═══ -->
+<div id="pg-boissons" class="pg">
+  <div class="sub-hero" style="background:radial-gradient(ellipse at 20% 80%,#5a2a12,#0c0603)">
+    <div class="sub-hero-bg">
+      <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=900&q=75"
+           loading="lazy" onerror="this.style.display='none'" alt="Boissons Léona">
+    </div>
+    <div class="sub-hero-grad"></div>
+    <div class="sub-hero-c">
+      <div class="sh-eyebrow">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 8h1a4 4 0 010 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4V8z"/></svg>
+        Léona Café
+      </div>
+      <div class="sh-script">à boire</div>
+    </div>
+  </div>
+  <div class="dts">
+    <button class="dt on" onclick="dTab('dc',this)">Cafés & Co</button>
+    <button class="dt" onclick="dTab('ds',this)">Spéciales</button>
+    <button class="dt" onclick="dTab('dt',this)">Thés</button>
+    <button class="dt" onclick="dTab('df',this)">Froides</button>
+    <button class="dt" onclick="dTab('de',this)">Extras</button>
+  </div>
+  <div id="dc" class="dp on">
+    <div class="di"><div class="dil"><div class="dn">Espresso</div></div><div class="dpr">3,00 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Espresso macchiato</div></div><div class="dpr">3,40 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Americano</div></div><div class="dpr">3,50 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Cappuccino</div></div><div class="dpr">4,00 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Flat white</div></div><div class="dpr">4,50 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Café latte</div></div><div class="dpr">5,00 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Café Léona</div></div><div class="dpr">5,00 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Chocolat chaud</div></div><div class="dpr">5,50 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Choco kids</div></div><div class="dpr">4,00 €</div></div>
+  </div>
+  <div id="ds" class="dp">
+    <div class="dsect">Boissons spéciales</div>
+    <div class="sg">
+      <div class="sc go"><div class="sc-n">Golden Latte</div><div class="sc-d">Curcuma, gingembre, épices</div><div class="sc-p">5,50 €</div></div>
+      <div class="sc pi"><div class="sc-n">Pink Latte</div><div class="sc-d">Betterave, cacao, épices</div><div class="sc-p">5,50 €</div></div>
+      <div class="sc bl"><div class="sc-n">Blue Latte</div><div class="sc-d">Spiruline, myrtilles, coco, cajou</div><div class="sc-p">5,50 €</div></div>
+      <div class="sc bk"><div class="sc-n">Black Latte</div><div class="sc-d">Sésame noir & charbon végétal</div><div class="sc-p">5,50 €</div></div>
+      <div class="sc pu"><div class="sc-n">Purple Latte</div><div class="sc-d">Ube violet & vanille bourbon</div><div class="sc-p">5,50 €</div></div>
+    </div>
+    <div class="dsect">Chaï & Plantes</div>
+    <div class="di"><div class="dil"><div class="dn">Masala chaï latte</div></div><div class="dpr">5,00 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Curcuma chaï latte</div></div><div class="dpr">5,00 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Matcha latte</div></div><div class="dpr">5,50 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Hojicha latte</div></div><div class="dpr">5,50 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Genmaicha latte</div></div><div class="dpr">5,50 €</div></div>
+  </div>
+  <div id="dt" class="dp">
+    <div class="dsect">Thés & Infusions</div>
+    <div class="di"><div class="dil"><div class="dn">Thé vert à la menthe</div></div><div class="dpr">4,00 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Thé noir</div><div class="dd">Earl grey / English breakfast</div></div><div class="dpr"><span class="prix-menu">Nous consulter</span></div></div>
+    <div class="di"><div class="dil"><div class="dn">Tisane mélange Rooibos</div></div><div class="dpr"><span class="prix-menu">Nous consulter</span></div></div>
+    <div class="di"><div class="dil"><div class="dn">Infusion citron miel gingembre</div></div><div class="dpr"><span class="prix-menu">Nous consulter</span></div></div>
+  </div>
+  <div id="df" class="dp">
+    <div class="dsect">Boissons froides</div>
+    <div class="di"><div class="dil"><div class="dn">Limonade maison</div></div><div class="dpr">4,50 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Ice tea Léona</div></div><div class="dpr">4,50 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Soda Ritchie</div></div><div class="dpr">4,00 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Kombucha Rish</div></div><div class="dpr">5,00 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Spa plate / pétillante</div></div><div class="dpr">3,50 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Jus d'orange frais</div></div><div class="dpr">4,50 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Jus de pomme bio</div></div><div class="dpr">3,80 €</div></div>
+    <div class="di"><div class="dil"><div class="dn">Bières belges</div></div><div class="dpr">4,50 €</div></div>
+  </div>
+  <div id="de" class="dp">
+    <div class="dsect">Extras</div>
+    <div class="eg">
+      <div class="ei"><span>Extra shot</span><span>0,50 €</span></div>
+      <div class="ei"><span>Extra ice</span><span>0,50 €</span></div>
+      <div class="ei"><span>Chantilly</span><span>1,00 €</span></div>
+      <div class="ei"><span>Beurre</span><span>1,00 €</span></div>
+      <div class="ei"><span>Confiture</span><span>1,00 €</span></div>
+      <div class="ei"><span>Chicorée Cherico</span><span>0,50 €</span></div>
+    </div>
+    <div class="mg">
+      <div class="mb">
+        <div class="mb-t">Laits</div>
+        <div class="mi"><span>Vache</span><span class="free">inclus</span></div>
+        <div class="mi"><span>Avoine</span><span class="free">inclus</span></div>
+        <div class="mi"><span>Coconut</span><span>+ 0,50 €</span></div>
+        <div class="mi"><span>Soja</span><span>+ 0,50 €</span></div>
+        <div class="mi"><span>Soja vanille</span><span>+ 0,50 €</span></div>
+      </div>
+      <div class="mb">
+        <div class="mb-t">Sirops</div>
+        <div class="mi"><span>Caramel</span><span>0,50 €</span></div>
+        <div class="mi"><span>Vanille</span><span>0,50 €</span></div>
+        <div class="mi"><span>Noisette</span><span>0,50 €</span></div>
+        <div class="mb-t" style="margin-top:12px">Kids sirops</div>
+        <div class="mi"><span>Grenadine</span><span>2,50 €</span></div>
+        <div class="mi"><span>Violette</span><span>2,50 €</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BRUNCH ═══ -->
+<div id="pg-brunch" class="pg">
+  <div class="sub-hero" style="height:240px;background:radial-gradient(ellipse at 80% 20%,#6b4018,#0c0a02)">
+    <div class="sub-hero-bg">
+      <img src="https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=900&q=75"
+           loading="lazy" onerror="this.style.display='none'" alt="Brunch Léona">
+    </div>
+    <div class="sub-hero-grad"></div>
+    <div class="sub-hero-c">
+      <div class="sh-eyebrow">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Uniquement le samedi
+      </div>
+      <div class="sh-script">brunch</div>
+    </div>
+  </div>
+  <div class="bb-timing">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Samedi uniquement · 11h – 14h
+  </div>
+  <div class="bsec"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>Menu Salé</div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">L'Assiette Léona</span><span class="bi-p">17,00 €</span></div><div class="bi-d">3 oeufs brouillés BIO de la ferme, burrata crémeuse, pommes de terre rôties, salade et pain au levain.</div></div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">Toast Chèvre & Noix</span><span class="bi-p">15,00 €</span></div><div class="bi-d">Pain au levain toasté, chèvre affiné fondant, miel, noix AOP de Grenoble, roquette. Servi avec salade d'accompagnement.</div></div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">Toast Tartufata</span><span class="bi-p">17,00 €</span></div><div class="bi-d">Pain au levain toasté, 3 oeufs BIO brouillés à la tartufata, parmesan rapé minute. Servi avec salade d'accompagnement.</div></div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">Cheesy-Croque</span><span class="bi-p">15,00 €</span></div><div class="bi-d">Pain au levain, ketchup, moutarde douce, jambon et beaucoup de cheddar, avec salade d'accompagnement.</div></div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">Pancakes Bacon</span><span class="bi-p">13,00 €</span></div><div class="bi-d">3 pancakes, 2 oeufs au plat BIO de la ferme, bacon et sirop d'érable.</div></div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">Brioche Perdue Potimarron</span><span class="bi-p">17,00 €</span></div><div class="bi-d">Brioche maison façon pain perdue, potimarron rôti au sirop d'érable, beurre noisette érable servi chaud, cranberries, noix de pecan, feta & bacon caramélisé.</div></div>
+  <div class="bsp"><h4>Suppléments</h4>
+    <div class="bsi"><span>Saumon fumé</span><span style="font-weight:600;color:var(--T)">+ 4,00 €</span></div>
+    <div class="bsi"><span>Bacon</span><span style="font-weight:600;color:var(--T)">+ 3,00 €</span></div>
+    <div class="bsi"><span>Oeuf au plat</span><span style="font-weight:600;color:var(--T)">+ 1,50 €</span></div>
+  </div>
+  <div class="bsec" style="margin-top:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Menu Sucré</div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">Bol de Granola</span><span class="bi-p">8,00 €</span></div><div class="bi-d">Yaourt grec, granola maison, fruits de saison et sirop d'érable.</div></div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">Kids</span><span class="bi-p">8,00 €</span></div><div class="bi-d">2 pancakes, beurre doux et sirop d'érable. Supplément 1 oeuf au plat : +1,50 €</div></div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">Pancakes aux Fruits</span><span class="bi-p">13,00 €</span></div><div class="bi-d">3 pancakes, fruits de saison, sirop d'érable et sucre glace.</div></div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">Pancakes Mont-Blanc</span><span class="bi-p">16,00 €</span></div><div class="bi-d">3 pancakes, crème mascarpone vanille, confit de myrtilles, myrtilles fraîches, crème de marron vanillé et brisure de meringue.</div></div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">Brioche Perdue Poire Pochée</span><span class="bi-p">17,00 €</span></div><div class="bi-d">Brioche maison façon pain perdue, crème mascarpone vanille, poire pochée à la fève tonka, brisure de speculoos et sauce chocolat caramel.</div></div>
+  <div class="bi"><div class="bi-top"><span class="bi-n">Brioche Perdue Banane</span><span class="bi-p">17,00 €</span></div><div class="bi-d">Brioche maison façon pain perdue, glace vanille, banane caramélisée minute au chalumeau, beurre de cacahuète et sauce chocolat, morceaux de cacahuètes caramélisées.</div></div>
+  <div class="alg"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>Une allergie ? La liste des allergènes est disponible sur place, n'hésitez pas à la demander à notre personnel.</span></div>
+</div>
+
+<!-- ═══ CONTACT ═══ -->
+<div id="pg-contact" class="pg">
+  <div class="sub-hero" style="height:190px;background:var(--T)">
+    <div class="sub-hero-grad" style="background:linear-gradient(to top,rgba(30,10,5,.75),transparent)"></div>
+    <div class="sub-hero-c">
+      <div class="sh-eyebrow"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Woluwe-Saint-Lambert</div>
+      <div class="sh-script">nous trouver</div>
+    </div>
+  </div>
+  <div class="cp">
+    <div class="cc">
+      <div class="cc-h"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Adresse & Contact</div>
+      <div class="cc-b">
+        <div class="cr"><div class="cr-i"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="cr-t"><div class="lb">Adresse</div><div class="vl">Avenue Georges Henri 386<br>1200 Woluwe-Saint-Lambert</div></div></div>
+        <div class="cr"><div class="cr-i"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 2 2 0 012.18 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.15a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div><div class="cr-t"><div class="lb">Téléphone</div><div class="vl"><a href="tel:+32494402892">+32 494 40 28 92</a></div></div></div>
+        <div class="cr"><div class="cr-i"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="cr-t"><div class="lb">Email</div><div class="vl"><a href="mailto:le.cafe.leona@gmail.com">le.cafe.leona@gmail.com</a></div></div></div>
+        <div class="cr"><div class="cr-i"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M3 9h18M8 4v5M16 4v5"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/></svg></div><div class="cr-t"><div class="lb">Transports</div><div class="vl">Tram 7 & 25 – Arrêt Georges Henri<br>Bus 27, 28, 80</div></div></div>
+      </div>
+    </div>
+    <div class="cc">
+      <div class="cc-h"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Horaires</div>
+      <div class="cc-b">
+        <div class="hg">
+          <span class="hd">Lundi</span><span class="ht off">Fermé</span>
+          <span class="hd">Mardi</span><span class="ht" id="hT">9h00 – 17h00</span>
+          <span class="hd">Mercredi</span><span class="ht" id="hW">9h00 – 17h00</span>
+          <span class="hd">Jeudi</span><span class="ht" id="hTh">9h00 – 17h00</span>
+          <span class="hd">Vendredi</span><span class="ht" id="hF">9h00 – 17h00</span>
+          <span class="hd">Samedi</span><span class="ht" id="hSa">9h00 – 17h00 · Brunch 11h–14h</span>
+          <span class="hd">Dimanche</span><span class="ht off">Fermé</span>
+        </div>
+      </div>
+    </div>
+    <div class="mapb">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2518.5!2d4.407291!3d50.842706!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c3c500021ba955%3A0xffe322c196978baf!2sLeona%20Caf%C3%A9!5e0!3m2!1sfr!2sbe!4v1" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Léona Café"></iframe>
+    </div>
+    <div class="cc">
+      <div class="cc-h"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="opacity:.75"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>Réseaux sociaux</div>
+      <div class="slw">
+        <a class="sl" href="https://www.instagram.com/le.cafe.leona/" target="_blank"><div class="sl-i ig-g"><svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></div><div><div style="font-size:.85rem;font-weight:600">Instagram</div><div style="font-size:.73rem;opacity:.5">@le.cafe.leona · 3 100 abonnés</div></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-left:auto;opacity:.26"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <a class="sl" href="https://www.facebook.com/p/L%C3%A9ona-caf%C3%A9-61560708781211/" target="_blank"><div class="sl-i fb-g"><svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div><div><div style="font-size:.85rem;font-weight:600">Facebook</div><div style="font-size:.73rem;opacity:.5">Léona Café</div></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-left:auto;opacity:.26"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <a class="sl" href="https://www.google.com/maps/search/Leona+Cafe+Woluwe/" target="_blank"><div class="sl-i gm-g"><svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div><div><div style="font-size:.85rem;font-weight:600">Google Maps</div><div style="font-size:.73rem;opacity:.5">★★★★★ 4,8 · 197 avis</div></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-left:auto;opacity:.26"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PW MODAL -->
+<div class="ov" id="pwOv">
+  <div class="pw-b">
+    <h2>Accès Admin</h2>
+    <p class="adm-sub">Panneau de gestion · Léona Café</p>
+    <div class="fg"><label>Mot de passe</label><input type="password" id="pwIn" placeholder="••••••••" onkeydown="if(event.key==='Enter')chkPw()"></div>
+    <div style="display:flex;gap:8px;margin-top:10px"><button class="bs" onclick="chkPw()">Accéder</button><button class="bx" onclick="document.getElementById('pwOv').classList.remove('on')">Annuler</button></div>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div class="ov" id="admOv">
+  <div class="adm">
+    <h2>Panneau Admin</h2>
+    <p class="adm-sub">Léona Café · Session active</p>
+    <div class="as"><h3>Couleurs</h3><div class="cg">
+      <div class="csw on" style="background:#b5422a" onclick="sT('#b5422a','#1e1009','#faf6f0')"></div>
+      <div class="csw" style="background:#3a6e38" onclick="sT('#3a6e38','#0e200c','#f4f8f2')"></div>
+      <div class="csw" style="background:#2a4a7a" onclick="sT('#2a4a7a','#0c1a2e','#f2f5fa')"></div>
+      <div class="csw" style="background:#7a3a6a" onclick="sT('#7a3a6a','#280e22','#faf2f8')"></div>
+      <div class="csw" style="background:#1e1e1e" onclick="sT('#1e1e1e','#0a0a0a','#f8f8f8')"></div>
+    </div></div>
+    <div class="as"><h3>Horaires</h3>
+      <div class="fg2"><div class="fg"><label>Mar–Ven ouverture</label><input type="time" id="hO" value="09:00"></div><div class="fg"><label>Mar–Ven fermeture</label><input type="time" id="hC" value="17:00"></div></div>
+      <div class="fg2"><div class="fg"><label>Sam ouverture</label><input type="time" id="hSO" value="09:00"></div><div class="fg"><label>Sam fermeture</label><input type="time" id="hSC" value="17:00"></div></div>
+      <button class="bs" onclick="sH()">Mettre à jour</button>
+    </div>
+    <div class="as"><h3>Annonce héro</h3>
+      <div class="fg"><input type="text" id="ann" placeholder="Ex: Fermé le 15 août · On revient le 22 !"></div>
+      <button class="bs" onclick="sA()">Afficher</button>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px"><button class="bx" onclick="document.getElementById('admOv').classList.remove('on')">Fermer</button></div>
+  </div>
+</div>
+
+<button class="fab" onclick="showAdmin()">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+</button>
+<div class="toast" id="toast"></div>
+
+<script>
+const PW='leona2024';let unlocked=false;
+
+/* ── PAGE TRANSITIONS ── */
+function sp(id,title){
+  const curtain=document.getElementById('page-curtain');
+  curtain.classList.add('visible');
+  setTimeout(()=>{
+    document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+    document.getElementById(id).classList.add('on');
+    const nb=document.getElementById('nb'),nl=document.getElementById('nl'),nt=document.getElementById('nt'),ng=document.getElementById('ng'),nav=document.getElementById('nav');
+    nb.classList.add('show','solid-nb');nl.classList.add('dark');ng.classList.add('dark');
+    nt.textContent=title;nt.classList.add('show');nav.classList.add('solid');
+    window.scrollTo(0,0);
+    curtain.classList.remove('visible');
+  },200);
+}
+function goHome(){
+  const curtain=document.getElementById('page-curtain');
+  curtain.classList.add('visible');
+  setTimeout(()=>{
+    document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+    document.getElementById('pg-home').classList.add('on');
+    const nb=document.getElementById('nb'),nl=document.getElementById('nl'),nt=document.getElementById('nt'),ng=document.getElementById('ng'),nav=document.getElementById('nav');
+    nb.classList.remove('show','solid-nb');nl.classList.remove('dark');ng.classList.remove('dark');
+    nt.classList.remove('show');nav.classList.remove('solid');
+    window.scrollTo(0,0);
+    curtain.classList.remove('visible');
+    updateNav();
+  },200);
+}
+
+function updateNav(){
+  const home=document.getElementById('pg-home').classList.contains('on');
+  if(!home)return;
+  const nav=document.getElementById('nav'),nl=document.getElementById('nl'),ng=document.getElementById('ng');
+  const solid=window.scrollY>60;
+  nav.classList.toggle('solid',solid);
+  nl.style.color=solid?'var(--D)':'#fff';
+  ng.style.color=solid?'var(--D)':'rgba(255,255,255,.4)';
+}
+window.addEventListener('scroll',updateNav,{passive:true});
+
+/* ── SCROLL REVEAL ── */
+const ro=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');ro.unobserve(e.target);}});
+},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale').forEach(el=>ro.observe(el));
+
+/* ── STATUS ── */
+function fmt2(h,m){return h+'h'+(m?String(m).padStart(2,'0'):'')}
+function upStatus(){
+  const n=new Date(),d=n.getDay(),c=n.getHours()*60+n.getMinutes();
+  const o=+localStorage.getItem('lo')||540,cl=+localStorage.getItem('lc')||1020;
+  const so=+localStorage.getItem('lso')||540,sc=+localStorage.getItem('lsc')||1020;
+  const open=(d>=2&&d<=5&&c>=o&&c<cl)||(d===6&&c>=so&&c<sc);
+  const dot=document.getElementById('hDot'),st=document.getElementById('hSt'),ist=document.getElementById('isSt');
+  if(dot)dot.className='h-dot'+(open?'':' off');
+  if(st)st.textContent=open?'Ouvert maintenant':'Fermé actuellement';
+  if(ist)ist.innerHTML=open?'<span class="is-open">Ouvert maintenant</span>':'<span class="is-closed">Fermé actuellement</span>';
+  const mp={2:'hT',3:'hW',4:'hTh',5:'hF',6:'hSa'};
+  Object.entries(mp).forEach(([dy,id])=>{const e=document.getElementById(id);if(e)e.className='ht'+(+dy===d?' tod':'')});
+}
+upStatus();setInterval(upStatus,30000);
+
+function dTab(id,btn){
+  document.querySelectorAll('.dp').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.dt').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');btn.classList.add('on');
+}
+
+/* ── ADMIN ── */
+function showAdmin(){
+  if(unlocked){document.getElementById('admOv').classList.add('on');return;}
+  if(new URLSearchParams(location.search).get('admin')===PW){unlocked=true;document.getElementById('admOv').classList.add('on');return;}
+  document.getElementById('pwOv').classList.add('on');
+  setTimeout(()=>document.getElementById('pwIn').focus(),100);
+}
+function chkPw(){
+  const inp=document.getElementById('pwIn');
+  if(inp.value===PW){
+    unlocked=true;
+    document.getElementById('pwOv').classList.remove('on');
+    document.getElementById('admOv').classList.add('on');
+  }else{
+    inp.style.borderColor='#c0392b';
+    inp.style.boxShadow='0 0 0 3px rgba(192,57,43,.15)';
+    setTimeout(()=>{inp.style.borderColor='';inp.style.boxShadow='';},700);
+  }
+}
+['pwOv','admOv'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('on')}));
+(()=>{if(new URLSearchParams(location.search).get('admin')===PW){unlocked=true;setTimeout(()=>document.getElementById('admOv').classList.add('on'),400);}})();
+
+function sT(t,d,c){
+  document.documentElement.style.setProperty('--T',t);
+  document.documentElement.style.setProperty('--D',d);
+  document.documentElement.style.setProperty('--C',c);
+  document.querySelectorAll('.csw').forEach(s=>s.classList.remove('on'));
+  event.currentTarget.classList.add('on');
+  showToast('Couleurs mises à jour');
+}
+function fmtHour(val){
+  const p=val.split(':').map(Number);
+  return fmt2(p[0],p[1]);
+}
+function sH(){
+  const o=document.getElementById('hO').value;
+  const c=document.getElementById('hC').value;
+  const so=document.getElementById('hSO').value;
+  const sc=document.getElementById('hSC').value;
+  const op=o.split(':').map(Number),cp=c.split(':').map(Number);
+  const sop=so.split(':').map(Number),scp=sc.split(':').map(Number);
+  localStorage.setItem('lo',op[0]*60+op[1]);localStorage.setItem('lc',cp[0]*60+cp[1]);
+  localStorage.setItem('lso',sop[0]*60+sop[1]);localStorage.setItem('lsc',scp[0]*60+scp[1]);
+  const s=`${fmtHour(o)} – ${fmtHour(c)}`;
+  const ss=`${fmtHour(so)} – ${fmtHour(sc)}`;
+  ['hT','hW','hTh','hF'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=s});
+  const sa=document.getElementById('hSa');if(sa)sa.textContent=`${ss} · Brunch 11h–14h`;
+  document.getElementById('isHrs').textContent=`Mar–Sam ${fmtHour(o)}–${fmtHour(c)} · Dim & Lun fermé`;
+  document.getElementById('ftHrs').textContent=`${fmtHour(o)}–${fmtHour(c)}`;
+  upStatus();showToast('Horaires mis à jour');
+}
+function sA(){
+  const txt=document.getElementById('ann').value.trim();if(!txt)return;
+  const hc=document.querySelector('.hero-c');let a=document.getElementById('hAnn');
+  if(!a){
+    a=document.createElement('div');a.id='hAnn';
+    a.style.cssText='background:rgba(181,66,42,.85);color:#fff;padding:9px 16px;border-radius:4px;font-size:.76rem;font-weight:600;margin-bottom:16px;backdrop-filter:blur(8px);animation:fade-up .3s var(--ease-out)';
+    hc.insertBefore(a,hc.firstChild);
+  }
+  a.textContent='📢 '+txt;document.getElementById('ann').value='';showToast('Annonce affichée');
+}
+function showToast(m){
+  const t=document.getElementById('toast');t.textContent=m;t.style.display='block';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);
+}
+</script>
+</body>
+</html>

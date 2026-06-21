@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Woluwe & Saint-Gilles · Léona · Bouboule · Bar à Jeux</title>
+<meta name="description" content="Trois adresses bruxelloises : Café Léona (spécialité & brunch), Bouboule (glacier artisanal) et Le Bar à Jeux (jeux & cocktails).">
+<meta name="theme-color" content="#1a110a">
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS & RESET
+═══════════════════════════════════════════ */
+:root {
+  --cream: #faf7f2;
+  --cream-dark: #f0e9df;
+  --ink: #1a110a;
+  --ink-light: #5a3e2b;
+  --border: #e2d6c8;
+
+  /* venue accents */
+  --leona: #b5422a;
+  --leona-dark: #8c3020;
+  --leona-bg: #fdf6f3;
+
+  --boub: #e8973a;
+  --boub-dark: #c47a20;
+  --boub-bg: #fdf9f2;
+
+  --jeux: #2d6a4f;
+  --jeux-dark: #1e4d38;
+  --jeux-bg: #f2f7f4;
+
+  --sf: 'Georgia', 'Palatino Linotype', serif;
+  --ss: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ease: cubic-bezier(.16,1,.3,1);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:16px; }
+body { font-family:var(--ss); background:var(--cream); color:var(--ink); overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+img { display:block; max-width:100%; }
+button { cursor:pointer; border:none; background:none; font-family:inherit; }
+a { color:inherit; }
+
+/* ═══════════════════════════════════════════
+   TRANSITIONS
+═══════════════════════════════════════════ */
+#curtain { position:fixed; inset:0; background:var(--ink); z-index:9999; pointer-events:none; opacity:0; transition:opacity .3s var(--ease); }
+#curtain.on { opacity:1; }
+
+.pg { display:none; min-height:100vh; animation:pgIn .45s var(--ease); }
+.pg.on { display:block; }
+@keyframes pgIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+/* ═══════════════════════════════════════════
+   REVEAL
+═══════════════════════════════════════════ */
+.rev { opacity:0; transform:translateY(30px); transition:opacity .75s var(--ease), transform .75s var(--ease); }
+.rev.go { opacity:1; transform:none; }
+.rev-l { opacity:0; transform:translateX(-36px); transition:opacity .8s var(--ease), transform .8s var(--ease); }
+.rev-l.go { opacity:1; transform:none; }
+.rev-r { opacity:0; transform:translateX(36px); transition:opacity .8s var(--ease), transform .8s var(--ease); }
+.rev-r.go { opacity:1; transform:none; }
+.rev-s { opacity:0; transform:scale(.95); transition:opacity .7s var(--ease), transform .7s var(--ease); }
+.rev-s.go { opacity:1; transform:none; }
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+#nav {
+  position:fixed; top:0; width:100%; z-index:300; height:58px;
+  display:flex; align-items:center; padding:0 28px; gap:16px;
+  transition:background .35s, border-color .35s, backdrop-filter .35s;
+}
+#nav.solid {
+  background:rgba(250,247,242,.96); backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-back {
+  width:34px; height:34px; border-radius:50%; display:none; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
+  color:#fff; flex-shrink:0; transition:all .2s;
+}
+.nav-back.show { display:flex; }
+.nav-back.dk { background:var(--cream-dark); border-color:transparent; color:var(--ink); }
+.nav-back:hover { transform:scale(1.08); }
+.nav-logo { font-family:var(--sf); font-size:1.25rem; color:#fff; flex:1; cursor:pointer; transition:color .3s; letter-spacing:.01em; }
+.nav-logo.dk { color:var(--ink); }
+.nav-sub { font-size:.68rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ink); opacity:.4; flex:2; text-align:center; display:none; }
+.nav-sub.show { display:block; }
+.nav-venue-tabs { display:flex; gap:0; flex:1; justify-content:flex-end; }
+.nav-vtab {
+  font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; padding:6px 14px;
+  border-radius:20px; color:rgba(255,255,255,.55); transition:all .2s; font-weight:500;
+}
+.nav-vtab:hover { color:#fff; }
+.nav-vtab.dk { color:var(--ink-light); }
+.nav-vtab.dk:hover { color:var(--ink); }
+
+/* ═══════════════════════════════════════════
+   HOME — HERO
+═══════════════════════════════════════════ */
+.home-hero {
+  position:relative; height:100vh; min-height:620px;
+  display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden;
+}
+.hh-reel { position:absolute; inset:0; display:grid; grid-template-columns:1fr 1fr 1fr; }
+.hh-panel { position:relative; overflow:hidden; }
+.hh-panel img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform 12s ease-out; }
+.hh-panel:hover img { transform:scale(1.04); }
+.hh-panel::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(to top, rgba(10,5,1,.88) 0%, rgba(10,5,1,.35) 55%, rgba(10,5,1,.08) 100%);
+}
+.hh-divider { position:absolute; top:0; bottom:0; width:1px; background:rgba(255,255,255,.12); z-index:1; }
+.hh-divider:nth-child(4) { left:33.33%; }
+.hh-divider:nth-child(5) { left:66.66%; }
+.hh-labels { position:absolute; bottom:120px; left:0; right:0; display:grid; grid-template-columns:1fr 1fr 1fr; z-index:2; pointer-events:none; }
+.hh-label { padding:0 32px; }
+.hh-label-tag { font-size:.6rem; letter-spacing:.22em; text-transform:uppercase; color:rgba(255,255,255,.5); margin-bottom:6px; }
+.hh-label-name { font-family:var(--sf); font-size:1.5rem; color:#fff; font-weight:400; line-height:1.1; }
+.hh-label-desc { font-size:.75rem; color:rgba(255,255,255,.48); margin-top:6px; line-height:1.5; }
+.hh-bottom { position:relative; z-index:2; padding:0 32px 52px; display:flex; justify-content:space-between; align-items:flex-end; }
+.hh-heading { font-family:var(--sf); font-size:clamp(3rem,7vw,5.5rem); color:#fff; font-weight:400; line-height:.96; }
+.hh-heading em { font-style:italic; opacity:.6; }
+.hh-cta-group { display:flex; flex-direction:column; align-items:flex-end; gap:12px; }
+.hh-scroll { font-size:.68rem; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.38); display:flex; align-items:center; gap:8px; }
+.hh-scroll::after { content:''; display:block; width:1px; height:28px; background:rgba(255,255,255,.2); }
+
+/* ═══════════════════════════════════════════
+   HOME — VENUE CARDS
+═══════════════════════════════════════════ */
+.venue-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; background:var(--border); }
+.vcard {
+  position:relative; overflow:hidden; min-height:480px;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  cursor:pointer; text-align:left;
+}
+.vcard-img { position:absolute; inset:0; }
+.vcard-img img { width:100%; height:100%; object-fit:cover; transition:transform .75s var(--ease); }
+.vcard:hover .vcard-img img { transform:scale(1.05); }
+.vcard-ov { position:absolute; inset:0; transition:opacity .35s; }
+.vcard:hover .vcard-ov { opacity:.9; }
+.vcard-body { position:relative; z-index:2; padding:28px 28px 32px; color:#fff; }
+.vcard-num { font-size:.62rem; letter-spacing:.22em; text-transform:uppercase; opacity:.5; margin-bottom:10px; }
+.vcard-name { font-family:var(--sf); font-size:1.8rem; font-weight:400; line-height:1.05; margin-bottom:8px; }
+.vcard-desc { font-size:.8rem; opacity:.62; line-height:1.6; margin-bottom:20px; max-width:280px; }
+.vcard-cta {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22);
+  color:#fff; padding:9px 18px; border-radius:2px; font-size:.72rem;
+  letter-spacing:.12em; text-transform:uppercase; font-weight:500;
+  transition:all .22s; backdrop-filter:blur(4px);
+}
+.vcard:hover .vcard-cta { background:rgba(255,255,255,.2); border-color:rgba(255,255,255,.4); gap:12px; }
+
+/* ── Leona ── */
+.vc-leona .vcard-ov { background:linear-gradient(to top, rgba(139,40,20,.9) 0%, rgba(139,40,20,.25) 55%, transparent 100%); }
+/* ── Bouboule ── */
+.vc-boub .vcard-ov { background:linear-gradient(to top, rgba(160,90,10,.9) 0%, rgba(160,90,10,.25) 55%, transparent 100%); }
+/* ── Jeux ── */
+.vc-jeux .vcard-ov { background:linear-gradient(to top, rgba(20,60,40,.9) 0%, rgba(20,60,40,.25) 55%, transparent 100%); }
+
+/* ═══════════════════════════════════════════
+   HOME — INTRO STRIP
+═══════════════════════════════════════════ */
+.intro-strip { background:var(--ink); color:#fff; padding:56px 32px; display:grid; grid-template-columns:1.2fr 1fr; gap:80px; align-items:center; }
+.is-h2 { font-family:var(--sf); font-size:clamp(1.8rem,3vw,2.6rem); font-weight:400; line-height:1.15; margin-bottom:16px; }
+.is-h2 em { font-style:italic; color:rgba(255,255,255,.5); }
+.is-body { font-size:.88rem; opacity:.52; line-height:1.85; max-width:420px; }
+.is-stats { display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+.is-stat-n { font-family:var(--sf); font-size:2.6rem; font-weight:400; margin-bottom:4px; }
+.is-stat-l { font-size:.7rem; letter-spacing:.16em; text-transform:uppercase; opacity:.38; line-height:1.5; }
+.is-stat-n.leona { color:var(--leona); }
+.is-stat-n.boub { color:var(--boub); }
+.is-stat-n.jeux { color:#6fcf97; }
+
+/* ═══════════════════════════════════════════
+   HOME — VALUES
+═══════════════════════════════════════════ */
+.values { padding:88px 32px; }
+.val-eyebrow { font-size:.68rem; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-light); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.val-eyebrow::before { content:''; width:20px; height:1px; background:var(--ink-light); display:block; }
+.val-h2 { font-family:var(--sf); font-size:clamp(1.7rem,3vw,2.4rem); font-weight:400; line-height:1.1; margin-bottom:52px; }
+.val-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:32px; }
+.val-item { padding:32px; border:1px solid var(--border); border-radius:4px; transition:border-color .25s, transform .25s var(--ease); }
+.val-item:hover { border-color:var(--ink-light); transform:translateY(-3px); }
+.val-icon { font-size:1.8rem; margin-bottom:16px; }
+.val-title { font-family:var(--sf); font-size:1.05rem; font-weight:600; margin-bottom:8px; }
+.val-text { font-size:.82rem; opacity:.56; line-height:1.75; }
+
+/* ═══════════════════════════════════════════
+   VENUE HERO (sub-pages)
+═══════════════════════════════════════════ */
+.vh { position:relative; height:72vh; min-height:480px; overflow:hidden; display:flex; align-items:flex-end; }
+.vh-bg { position:absolute; inset:0; }
+.vh-bg img { width:100%; height:100%; object-fit:cover; transition:transform 10s ease-out; }
+.vh:hover .vh-bg img { transform:scale(1.03); }
+.vh-ov { position:absolute; inset:0; }
+.vh-c { position:relative; z-index:2; padding:0 40px 52px; max-width:680px; }
+.vh-pill {
+  display:inline-flex; align-items:center; gap:7px;
+  background:rgba(255,255,255,.1); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.2); padding:5px 14px; border-radius:20px;
+  font-size:.7rem; color:rgba(255,255,255,.85); font-weight:500; margin-bottom:18px; letter-spacing:.02em;
+  opacity:0; animation:revUp .6s .3s var(--ease) forwards;
+}
+.vh-title { font-family:var(--sf); font-size:clamp(3rem,8vw,5.5rem); color:#fff; line-height:.94; font-weight:400; margin-bottom:14px; opacity:0; animation:revUp .7s .5s var(--ease) forwards; }
+.vh-title em { font-style:italic; }
+.vh-sub { font-size:.9rem; color:rgba(255,255,255,.55); line-height:1.7; max-width:380px; opacity:0; animation:revUp .7s .65s var(--ease) forwards; }
+@keyframes revUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+
+/* Leona hero */
+.vh-leona .vh-bg { background:#1a0a04; }
+.vh-leona .vh-ov { background:linear-gradient(to top, rgba(10,4,1,.95) 0%, rgba(10,4,1,.4) 50%, rgba(10,4,1,.1) 100%); }
+/* Bouboule hero */
+.vh-boub .vh-bg { background:#1a0c02; }
+.vh-boub .vh-ov { background:linear-gradient(to top, rgba(12,6,0,.95) 0%, rgba(12,6,0,.45) 55%, rgba(12,6,0,.1) 100%); }
+/* Jeux hero */
+.vh-jeux .vh-bg { background:#061a10; }
+.vh-jeux .vh-ov { background:linear-gradient(to top, rgba(2,12,6,.95) 0%, rgba(2,12,6,.45) 55%, rgba(2,12,6,.1) 100%); }
+
+/* ═══════════════════════════════════════════
+   INFO BAR
+═══════════════════════════════════════════ */
+.info-bar { display:flex; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+.ib-item { flex:1; min-width:160px; padding:16px 24px; display:flex; align-items:center; gap:10px; font-size:.8rem; border-right:1px solid var(--border); transition:background .2s; }
+.ib-item:hover { background:var(--cream-dark); }
+.ib-item:last-child { border-right:none; }
+.ib-icon { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.9rem; }
+.ib-open { color:#3cb371; font-weight:700; }
+.ib-closed { color:#e05a4e; font-weight:700; }
+
+/* ═══════════════════════════════════════════
+   SECTION HEADER
+═══════════════════════════════════════════ */
+.sec { padding:72px 40px; }
+.sec-sm { padding:48px 40px; }
+.sec-eyebrow { font-size:.66rem; letter-spacing:.22em; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.sec-eyebrow::before { content:''; width:20px; height:1px; display:block; }
+.sec-h2 { font-family:var(--sf); font-size:clamp(1.6rem,3vw,2.3rem); font-weight:400; line-height:1.1; margin-bottom:8px; }
+.sec-sub { font-size:.86rem; opacity:.54; line-height:1.75; max-width:480px; margin-bottom:40px; }
+
+/* Leona accent */
+.accent-leona { color:var(--leona); }
+.accent-leona .sec-eyebrow::before { background:var(--leona); }
+/* Bouboule accent */
+.accent-boub { color:var(--boub); }
+.accent-boub .sec-eyebrow::before { background:var(--boub); }
+/* Jeux accent */
+.accent-jeux { color:var(--jeux); }
+.accent-jeux .sec-eyebrow::before { background:var(--jeux); }
+
+/* ═══════════════════════════════════════════
+   LEONA — MENU TABS
+═══════════════════════════════════════════ */
+.tabs { display:flex; overflow-x:auto; border-bottom:1px solid var(--border); scrollbar-width:none; position:sticky; top:58px; z-index:100; background:rgba(250,247,242,.97); backdrop-filter:blur(12px); }
+.tabs::-webkit-scrollbar { display:none; }
+.tab { padding:14px 22px; font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; border:none; background:none; color:var(--ink); opacity:.38; border-bottom:2px solid transparent; white-space:nowrap; cursor:pointer; transition:all .22s; flex-shrink:0; font-family:inherit; }
+.tab.on { opacity:1; border-bottom-color:currentColor; font-weight:600; }
+.tab:hover:not(.on) { opacity:.65; }
+.tab-leona.on { color:var(--leona); }
+.tab-boub.on { color:var(--boub); }
+.tab-jeux.on { color:var(--jeux); }
+
+.tabp { display:none; padding:28px 40px 48px; max-width:720px; }
+.tabp.on { display:block; }
+
+.msec { font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; font-weight:700; margin:26px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.mitem { display:flex; justify-content:space-between; align-items:flex-start; padding:13px 0; border-bottom:1px solid rgba(0,0,0,.05); transition:padding .15s; }
+.mitem:last-child { border:none; }
+.mitem:hover { padding-left:6px; }
+.mi-l { flex:1; }
+.mi-name { font-size:.9rem; font-weight:500; margin-bottom:2px; }
+.mi-desc { font-size:.74rem; opacity:.44; line-height:1.45; font-style:italic; }
+.mi-price { font-family:var(--sf); font-size:.98rem; white-space:nowrap; margin-left:20px; padding-top:1px; }
+.mi-price.leona { color:var(--leona); }
+.mi-price.boub { color:var(--boub); }
+.mi-price.jeux { color:var(--jeux); }
+
+/* ═══════════════════════════════════════════
+   COLORED LATTE CARDS
+═══════════════════════════════════════════ */
+.latte-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:8px 0 24px; }
+.latte { padding:18px; border-radius:8px; color:#fff; position:relative; overflow:hidden; transition:transform .25s var(--ease); }
+.latte:hover { transform:translateY(-3px); }
+.latte::before { content:''; position:absolute; inset:0; opacity:.2; }
+.latte.go { background:#18120a; } .latte.go::before { background:linear-gradient(135deg,#f5a623,#e06000); }
+.latte.pi { background:#180812; } .latte.pi::before { background:linear-gradient(135deg,#e91e8c,#c2185b); }
+.latte.bl { background:#060e1a; } .latte.bl::before { background:linear-gradient(135deg,#2196f3,#0d47a1); }
+.latte.bk { background:#111; }    .latte.bk::before { background:linear-gradient(135deg,#666,#000); }
+.latte.pu { background:#10081a; } .latte.pu::before { background:linear-gradient(135deg,#9c27b0,#4a148c); }
+.latte.wh { background:#1a1010; } .latte.wh::before { background:linear-gradient(135deg,#f0d0a0,#c49a60); }
+.latte-name { font-family:var(--sf); font-size:.96rem; position:relative; z-index:1; margin-bottom:4px; }
+.latte-desc { font-size:.7rem; opacity:.52; font-style:italic; line-height:1.4; position:relative; z-index:1; }
+.latte-price { font-size:.82rem; font-weight:700; margin-top:10px; opacity:.85; position:relative; z-index:1; }
+
+/* ═══════════════════════════════════════════
+   BOUBOULE — FLAVOUR GRID
+═══════════════════════════════════════════ */
+.flavour-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:32px; }
+.flavour { background:#fff; border:1px solid var(--border); border-radius:8px; padding:18px 20px; display:flex; align-items:center; gap:16px; transition:all .22s; }
+.flavour:hover { border-color:var(--boub); transform:translateX(3px); }
+.fl-dot { width:44px; height:44px; border-radius:50%; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,.12); }
+.fl-info {}
+.fl-name { font-weight:600; font-size:.88rem; margin-bottom:3px; }
+.fl-note { font-size:.73rem; opacity:.48; font-style:italic; line-height:1.4; }
+.fl-badge { display:inline-block; margin-top:4px; font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; background:var(--boub); color:#fff; padding:2px 7px; border-radius:20px; font-weight:600; }
+.fl-badge.new { background:var(--jeux); }
+.fl-badge.award { background:#c0392b; }
+
+/* ═══════════════════════════════════════════
+   BAR À JEUX — GAME CARDS
+═══════════════════════════════════════════ */
+.game-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:32px; }
+.game { background:#fff; border:1px solid var(--border); border-radius:8px; padding:18px; text-align:center; transition:all .25s var(--ease); }
+.game:hover { border-color:var(--jeux); transform:translateY(-4px); box-shadow:0 8px 24px rgba(45,106,79,.1); }
+.game-emoji { font-size:2.2rem; margin-bottom:10px; }
+.game-name { font-weight:600; font-size:.86rem; margin-bottom:4px; }
+.game-players { font-size:.72rem; opacity:.45; }
+.game-type { display:inline-block; margin-top:8px; font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; background:var(--jeux-bg); color:var(--jeux); padding:2px 8px; border-radius:20px; font-weight:600; }
+
+/* ═══════════════════════════════════════════
+   SPLIT SECTION
+═══════════════════════════════════════════ */
+.split { display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--border); }
+.split-img { position:relative; overflow:hidden; min-height:440px; }
+.split-img img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .9s var(--ease); }
+.split-img:hover img { transform:scale(1.04); }
+.split-txt { display:flex; flex-direction:column; justify-content:center; padding:64px 56px; }
+.split-txt.cream { background:var(--cream-dark); }
+.st-eyebrow { font-size:.66rem; letter-spacing:.22em; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.st-eyebrow::before { content:''; width:16px; height:1px; display:block; }
+.st-h2 { font-family:var(--sf); font-size:clamp(1.5rem,2.5vw,2rem); font-weight:400; line-height:1.15; margin-bottom:16px; }
+.st-body { font-size:.86rem; line-height:1.88; opacity:.62; max-width:380px; margin-bottom:14px; }
+.st-link { font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; text-decoration:none; border-bottom:1px solid currentColor; padding-bottom:2px; display:inline-flex; align-items:center; gap:5px; opacity:.8; transition:opacity .2s, gap .2s; }
+.st-link:hover { opacity:1; gap:8px; }
+
+/* ═══════════════════════════════════════════
+   CONTACT CARDS
+═══════════════════════════════════════════ */
+.contact-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; background:var(--border); }
+.ccard { background:var(--cream); padding:36px 32px; }
+.cc-badge { display:inline-flex; align-items:center; gap:7px; padding:4px 12px; border-radius:20px; font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; font-weight:600; color:#fff; margin-bottom:20px; }
+.cc-badge.leona { background:var(--leona); }
+.cc-badge.boub { background:var(--boub); }
+.cc-badge.jeux { background:var(--jeux); }
+.cc-name { font-family:var(--sf); font-size:1.5rem; font-weight:400; margin-bottom:20px; }
+.cc-rows { display:flex; flex-direction:column; gap:12px; }
+.cc-row { display:flex; align-items:flex-start; gap:12px; font-size:.83rem; }
+.cc-ico { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.85rem; }
+.cc-ico.leona { background:var(--leona-bg); color:var(--leona); }
+.cc-ico.boub { background:var(--boub-bg); color:var(--boub-dark); }
+.cc-ico.jeux { background:var(--jeux-bg); color:var(--jeux); }
+.cc-val { line-height:1.55; opacity:.7; }
+.cc-val a { text-decoration:none; transition:opacity .2s; }
+.cc-val a:hover { opacity:.7; }
+.cc-hours { list-style:none; margin-top:2px; }
+.cc-hours li { display:flex; justify-content:space-between; gap:8px; padding:4px 0; border-bottom:1px solid var(--border); font-size:.79rem; }
+.cc-hours li:last-child { border:none; }
+.cc-hours .off { opacity:.3; }
+.cc-hours .today { color:var(--leona); font-weight:600; }
+.social-links { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+.social-btn { display:inline-flex; align-items:center; gap:7px; padding:7px 14px; border:1px solid var(--border); border-radius:4px; font-size:.72rem; text-decoration:none; transition:all .2s; }
+.social-btn:hover { border-color:var(--ink); background:var(--cream-dark); }
+.social-btn svg { width:14px; height:14px; }
+
+/* ═══════════════════════════════════════════
+   MAP EMBED
+═══════════════════════════════════════════ */
+.map-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:2px; background:var(--border); height:260px; }
+.map-frame { overflow:hidden; }
+.map-frame iframe { width:100%; height:100%; border:none; display:block; filter:sepia(8%) saturate(.9); }
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer { background:var(--ink); color:#fff; padding:56px 40px 32px; }
+.ft { display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:48px; margin-bottom:44px; max-width:1100px; }
+.ft-brand-name { font-family:var(--sf); font-size:1.2rem; margin-bottom:10px; display:block; }
+.ft-desc { font-size:.78rem; opacity:.4; line-height:1.75; max-width:240px; }
+.ft-social { display:flex; gap:12px; margin-top:16px; }
+.ft-social a { font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:#fff; text-decoration:none; opacity:.32; transition:opacity .2s; border-bottom:1px solid rgba(255,255,255,.14); padding-bottom:1px; }
+.ft-social a:hover { opacity:.72; }
+.ft-col h5 { font-size:.62rem; letter-spacing:.16em; text-transform:uppercase; opacity:.28; margin-bottom:13px; font-weight:600; }
+.ft-col ul { list-style:none; }
+.ft-col li { margin-bottom:8px; }
+.ft-col a { color:#fff; text-decoration:none; font-size:.8rem; opacity:.45; transition:opacity .2s; }
+.ft-col a:hover { opacity:.85; }
+.ft-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+.ft-bottom { border-top:1px solid rgba(255,255,255,.07); padding-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; max-width:1100px; }
+.ft-bottom p { font-size:.68rem; opacity:.24; }
+.ft-bottom a { font-size:.68rem; opacity:.24; text-decoration:none; color:#fff; transition:opacity .2s; }
+.ft-bottom a:hover { opacity:.55; }
+
+/* ═══════════════════════════════════════════
+   ADMIN FAB + TOAST
+═══════════════════════════════════════════ */
+.fab { position:fixed; bottom:22px; right:22px; width:38px; height:38px; background:var(--ink); color:#fff; border-radius:50%; z-index:999; opacity:.1; transition:opacity .25s, transform .2s; display:flex; align-items:center; justify-content:center; }
+.fab:hover { opacity:.38; transform:rotate(22deg); }
+.toast { display:none; position:fixed; bottom:72px; right:18px; background:var(--jeux); color:#fff; padding:10px 20px; border-radius:5px; font-size:.78rem; z-index:2000; box-shadow:0 4px 16px rgba(0,0,0,.18); animation:toastIn .25s var(--ease); }
+@keyframes toastIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media(max-width:960px) {
+  .hh-reel { grid-template-columns:1fr 1fr 1fr; }
+  .venue-grid { grid-template-columns:1fr; }
+  .intro-strip { grid-template-columns:1fr; gap:40px; }
+  .val-grid { grid-template-columns:1fr 1fr; }
+  .split { grid-template-columns:1fr; }
+  .split-img { min-height:300px; }
+  .contact-grid { grid-template-columns:1fr; gap:2px; }
+  .map-row { grid-template-columns:1fr; height:auto; }
+  .map-frame { height:220px; }
+  .ft { grid-template-columns:1fr 1fr; gap:32px; }
+  .latte-grid { grid-template-columns:1fr 1fr; }
+  .game-grid { grid-template-columns:1fr 1fr; }
+  .flavour-grid { grid-template-columns:1fr; }
+}
+@media(max-width:640px) {
+  .hh-reel { grid-template-columns:1fr; }
+  .hh-panel:nth-child(2), .hh-panel:nth-child(3) { display:none; }
+  .hh-divider { display:none; }
+  .hh-labels { grid-template-columns:1fr; }
+  .hh-label:nth-child(2), .hh-label:nth-child(3) { display:none; }
+  .hh-bottom { padding:0 20px 44px; }
+  .val-grid { grid-template-columns:1fr; }
+  .latte-grid { grid-template-columns:1fr; }
+  .game-grid { grid-template-columns:1fr; }
+  .sec, .sec-sm { padding:48px 20px; }
+  .split-txt { padding:40px 24px; }
+  .vh-c { padding:0 24px 44px; }
+  .tabp { padding:20px 20px 40px; }
+  .ft { grid-template-columns:1fr; gap:24px; }
+  footer { padding:40px 20px 24px; }
+  .contact-grid { background:transparent; gap:0; }
+  .ccard { border-bottom:1px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<div id="curtain"></div>
+
+<!-- ═══ NAV ═══ -->
+<nav id="nav">
+  <button class="nav-back" id="navBack" onclick="goHome()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  </button>
+  <span class="nav-logo" id="navLogo" onclick="goHome()">Bruxelles</span>
+  <span class="nav-sub" id="navSub"></span>
+  <div class="nav-venue-tabs" id="navTabs">
+    <button class="nav-vtab" onclick="go('leona')">Léona</button>
+    <button class="nav-vtab" onclick="go('bouboule')">Bouboule</button>
+    <button class="nav-vtab" onclick="go('jeux')">Bar à Jeux</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     PAGE : HOME
+═══════════════════════════════════════════ -->
+<div id="pg-home" class="pg on">
+
+  <!-- HERO -->
+  <div class="home-hero">
+    <div class="hh-reel">
+      <div class="hh-panel">
+        <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=900&q=80" loading="eager" alt="Léona Café">
+      </div>
+      <div class="hh-panel">
+        <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=900&q=80" loading="eager" alt="Bouboule glacier">
+      </div>
+      <div class="hh-panel">
+        <img src="https://images.unsplash.com/photo-1606503153255-59d8b8b82176?w=900&q=80" loading="eager" alt="Bar à Jeux">
+      </div>
+    </div>
+    <div class="hh-divider"></div>
+    <div class="hh-divider"></div>
+    <div class="hh-labels">
+      <div class="hh-label">
+        <div class="hh-label-tag">Café de spécialité</div>
+        <div class="hh-label-name">Léona</div>
+        <div class="hh-label-desc">Boissons colorées & brunch</div>
+      </div>
+      <div class="hh-label">
+        <div class="hh-label-tag">Glacier artisanal</div>
+        <div class="hh-label-name">Bouboule</div>
+        <div class="hh-label-desc">Créations glacées de saison</div>
+      </div>
+      <div class="hh-label">
+        <div class="hh-label-tag">Bar & jeux de société</div>
+        <div class="hh-label-name">Le Bar à Jeux</div>
+        <div class="hh-label-desc">Bières, gyozas & plateau</div>
+      </div>
+    </div>
+    <div class="hh-bottom">
+      <div class="hh-heading">Trois adresses<br><em>une seule envie</em></div>
+      <div class="hh-cta-group">
+        <div class="hh-scroll">Défiler</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENUE CARDS -->
+  <div class="venue-grid">
+    <div class="vcard vc-leona rev" onclick="go('leona')">
+      <div class="vcard-img"><img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80" loading="lazy" alt="Léona"></div>
+      <div class="vcard-ov"></div>
+      <div class="vcard-body">
+        <div class="vcard-num">01</div>
+        <div class="vcard-name">Léona Café</div>
+        <div class="vcard-desc">Café de spécialité, boissons colorées maison et brunch du samedi. Av. Georges Henri 386, Woluwe.</div>
+        <div class="vcard-cta">Découvrir <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </div>
+    </div>
+    <div class="vcard vc-boub rev" style="transition-delay:.12s" onclick="go('bouboule')">
+      <div class="vcard-img"><img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&q=80" loading="lazy" alt="Bouboule"></div>
+      <div class="vcard-ov"></div>
+      <div class="vcard-body">
+        <div class="vcard-num">02</div>
+        <div class="vcard-name">Bouboule</div>
+        <div class="vcard-desc">Créations glacées artisanales et audacieuses, en chemises de marin depuis 2021. Av. Albert Élisabeth 31, Woluwe.</div>
+        <div class="vcard-cta">Découvrir <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </div>
+    </div>
+    <div class="vcard vc-jeux rev" style="transition-delay:.24s" onclick="go('jeux')">
+      <div class="vcard-img"><img src="https://images.unsplash.com/photo-1606503153255-59d8b8b82176?w=800&q=80" loading="lazy" alt="Bar à Jeux"></div>
+      <div class="vcard-ov"></div>
+      <div class="vcard-body">
+        <div class="vcard-num">03</div>
+        <div class="vcard-name">Le Bar à Jeux</div>
+        <div class="vcard-desc">Jeux de société, belles bières belges et gyozas maison. Chaussée d'Alsemberg 136, Saint-Gilles.</div>
+        <div class="vcard-cta">Découvrir <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTRO STRIP -->
+  <div class="intro-strip rev">
+    <div>
+      <h2 class="is-h2">Trois lieux,<br><em>un seul quartier</em></h2>
+      <p class="is-body">De la première gorgée de café au dernier coup de dés — trois adresses bruxelloises indépendantes, chacune avec son caractère, toutes portées par la même passion du bien-vivre.</p>
+    </div>
+    <div class="is-stats">
+      <div>
+        <div class="is-stat-n leona">4,8★</div>
+        <div class="is-stat-l">Léona<br>197 avis Google</div>
+      </div>
+      <div>
+        <div class="is-stat-n boub">2021</div>
+        <div class="is-stat-l">Bouboule<br>fondé à Woluwe</div>
+      </div>
+      <div>
+        <div class="is-stat-n jeux">300+</div>
+        <div class="is-stat-l">Bar à Jeux<br>jeux disponibles</div>
+      </div>
+      <div>
+        <div class="is-stat-n" style="color:rgba(255,255,255,.7)">BXL</div>
+        <div class="is-stat-l">Made in<br>Bruxelles</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VALUES -->
+  <div class="values">
+    <div class="val-eyebrow rev">Notre philosophie</div>
+    <h2 class="val-h2 rev">Ce qui nous unit</h2>
+    <div class="val-grid">
+      <div class="val-item rev">
+        <div class="val-icon">☕</div>
+        <div class="val-title">Artisanat & soin</div>
+        <div class="val-text">De l'espresso de spécialité à la glace Kulfi primée, chaque produit est pensé, dosé, travaillé à la main.</div>
+      </div>
+      <div class="val-item rev" style="transition-delay:.1s">
+        <div class="val-icon">🌿</div>
+        <div class="val-title">Local & saison</div>
+        <div class="val-text">Œufs BIO de la ferme, ingrédients de saison, producteurs belges privilégiés — chez nous, le terroir a sa place.</div>
+      </div>
+      <div class="val-item rev" style="transition-delay:.2s">
+        <div class="val-icon">🎲</div>
+        <div class="val-title">Convivialité</div>
+        <div class="val-text">Qu'on joue, qu'on brunche ou qu'on partage une glace, nos lieux sont faits pour être vécus ensemble.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT OVERVIEW -->
+  <div class="contact-grid">
+    <div class="ccard rev">
+      <div class="cc-badge leona">Léona Café</div>
+      <div class="cc-name">Woluwe-Saint-Lambert</div>
+      <div class="cc-rows">
+        <div class="cc-row"><div class="cc-ico leona">📍</div><div class="cc-val">Av. Georges Henri 386<br>1200 Woluwe-Saint-Lambert</div></div>
+        <div class="cc-row"><div class="cc-ico leona">🕐</div><div class="cc-val">Mar–Sam 9h–17h<br>Brunch sam 11h–14h</div></div>
+        <div class="cc-row"><div class="cc-ico leona">📞</div><div class="cc-val"><a href="tel:+32494402892">+32 494 40 28 92</a></div></div>
+      </div>
+      <div class="social-links"><a class="social-btn" href="https://www.instagram.com/le.cafe.leona/" target="_blank">Instagram @le.cafe.leona</a></div>
+    </div>
+    <div class="ccard rev" style="transition-delay:.1s">
+      <div class="cc-badge boub">Bouboule</div>
+      <div class="cc-name">Woluwe-Saint-Lambert</div>
+      <div class="cc-rows">
+        <div class="cc-row"><div class="cc-ico boub">📍</div><div class="cc-val">Av. Albert Élisabeth 31<br>1200 Woluwe-Saint-Lambert</div></div>
+        <div class="cc-row"><div class="cc-ico boub">🕐</div><div class="cc-val">Horaires saisonniers<br>Consulter l'Instagram</div></div>
+        <div class="cc-row"><div class="cc-ico boub">🍦</div><div class="cc-val">Ouvert depuis 2021<br>Glacier artisanal</div></div>
+      </div>
+      <div class="social-links"><a class="social-btn" href="https://www.instagram.com/glacierbouboule/" target="_blank">Instagram @glacierbouboule</a></div>
+    </div>
+    <div class="ccard rev" style="transition-delay:.2s">
+      <div class="cc-badge jeux">Le Bar à Jeux</div>
+      <div class="cc-name">Saint-Gilles</div>
+      <div class="cc-rows">
+        <div class="cc-row"><div class="cc-ico jeux">📍</div><div class="cc-val">Chaussée d'Alsemberg 136<br>1060 Saint-Gilles</div></div>
+        <div class="cc-row"><div class="cc-ico jeux">🕐</div><div class="cc-val">Mar–Jeu 16h–0h · Ven 16h–1h<br>Sam 14h–1h · Dim 14h–0h</div></div>
+        <div class="cc-row"><div class="cc-ico jeux">🎲</div><div class="cc-val">300+ jeux · Gyozas maison<br>Bières artisanales</div></div>
+      </div>
+      <div class="social-links"><a class="social-btn" href="https://www.instagram.com/barajeux/" target="_blank">Instagram @barajeux</a></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="ft rev">
+      <div>
+        <span class="ft-brand-name">Bruxelles · Nos adresses</span>
+        <p class="ft-desc">Trois lieux indépendants à Bruxelles — café de spécialité, glacier artisanal et bar à jeux. Chacun unique, tous bruxellois.</p>
+        <div class="ft-social">
+          <a href="https://www.instagram.com/le.cafe.leona/" target="_blank">@le.cafe.leona</a>
+          <a href="https://www.instagram.com/glacierbouboule/" target="_blank">@glacierbouboule</a>
+          <a href="https://www.instagram.com/barajeux/" target="_blank">@barajeux</a>
+        </div>
+      </div>
+      <div class="ft-col">
+        <h5>Léona Café</h5>
+        <ul>
+          <li><a href="#" onclick="go('leona');return false">Carte des boissons</a></li>
+          <li><a href="#" onclick="go('leona');return false">Brunch du samedi</a></li>
+          <li><a href="tel:+32494402892">+32 494 40 28 92</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h5>Bouboule</h5>
+        <ul>
+          <li><a href="#" onclick="go('bouboule');return false">Les parfums</a></li>
+          <li><a href="#" onclick="go('bouboule');return false">Créations spéciales</a></li>
+          <li><a href="https://www.instagram.com/glacierbouboule/" target="_blank">Instagram</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h5>Bar à Jeux</h5>
+        <ul>
+          <li><a href="#" onclick="go('jeux');return false">Les jeux</a></li>
+          <li><a href="#" onclick="go('jeux');return false">Boissons & Gyozas</a></li>
+          <li><a href="https://www.instagram.com/barajeux/" target="_blank">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ft-bottom">
+      <p>© 2025 · Léona Café · Bouboule · Le Bar à Jeux · Bruxelles</p>
+      <a href="mailto:le.cafe.leona@gmail.com">Contact</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE : LÉONA
+═══════════════════════════════════════════ -->
+<div id="pg-leona" class="pg">
+
+  <div class="vh vh-leona">
+    <div class="vh-bg"><img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&q=80" loading="lazy" alt="Léona Café"></div>
+    <div class="vh-ov"></div>
+    <div class="vh-c">
+      <div class="vh-pill"><span id="leonaDot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#5cb85c;margin-right:2px"></span> <span id="leonaSt">…</span></div>
+      <div class="vh-title">Léona<br><em>Café</em></div>
+      <div class="vh-sub">Café de spécialité, brunch du samedi et boissons colorées maison — avenue Georges Henri, Woluwe.</div>
+    </div>
+  </div>
+
+  <div class="info-bar">
+    <div class="ib-item"><div class="ib-icon">🕐</div><span>Mar–Sam <strong>9h–17h</strong> · Dim & Lun fermé</span></div>
+    <div class="ib-item"><div class="ib-icon">📍</div><span>Av. Georges Henri 386, 1200 WSL</span></div>
+    <div class="ib-item"><div class="ib-icon">☕</div><span>Brunch sam <strong>11h–14h</strong> · Walk-in</span></div>
+    <div class="ib-item"><div class="ib-icon">📞</div><a href="tel:+32494402892"><strong>+32 494 40 28 92</strong></a></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab tab-leona on" onclick="dTab('ldc',this,'leona')">Cafés & Co</button>
+    <button class="tab tab-leona" onclick="dTab('lds',this,'leona')">Spéciales</button>
+    <button class="tab tab-leona" onclick="dTab('ldt',this,'leona')">Thés</button>
+    <button class="tab tab-leona" onclick="dTab('ldf',this,'leona')">Froides</button>
+    <button class="tab tab-leona" onclick="dTab('lde',this,'leona')">Extras</button>
+    <button class="tab tab-leona" onclick="dTab('ldb',this,'leona')">Brunch</button>
+  </div>
+
+  <div id="ldc" class="tabp on">
+    <div class="msec accent-leona">Cafés</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Espresso</div></div><div class="mi-price leona">3,00 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Espresso macchiato</div></div><div class="mi-price leona">3,40 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Americano</div></div><div class="mi-price leona">3,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Cappuccino</div></div><div class="mi-price leona">4,00 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Flat white</div></div><div class="mi-price leona">4,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Café latte</div></div><div class="mi-price leona">5,00 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Café Léona</div><div class="mi-desc">La signature maison</div></div><div class="mi-price leona">5,00 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Chocolat chaud</div></div><div class="mi-price leona">5,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Choco kids</div></div><div class="mi-price leona">4,00 €</div></div>
+  </div>
+
+  <div id="lds" class="tabp">
+    <div class="msec accent-leona">Boissons colorées maison</div>
+    <div class="latte-grid">
+      <div class="latte go"><div class="latte-name">Golden Latte</div><div class="latte-desc">Curcuma, gingembre, épices</div><div class="latte-price">5,50 €</div></div>
+      <div class="latte pi"><div class="latte-name">Pink Latte</div><div class="latte-desc">Betterave, cacao, épices</div><div class="latte-price">5,50 €</div></div>
+      <div class="latte bl"><div class="latte-name">Blue Latte</div><div class="latte-desc">Spiruline, myrtilles, noix de cajou</div><div class="latte-price">5,50 €</div></div>
+      <div class="latte bk"><div class="latte-name">Black Latte</div><div class="latte-desc">Sésame noir & charbon végétal</div><div class="latte-price">5,50 €</div></div>
+      <div class="latte pu"><div class="latte-name">Purple Latte</div><div class="latte-desc">Ube violet & vanille bourbon</div><div class="latte-price">5,50 €</div></div>
+      <div class="latte wh"><div class="latte-name">Hojicha Latte</div><div class="latte-desc">Thé torréfié, notes caramel</div><div class="latte-price">5,50 €</div></div>
+    </div>
+    <div class="msec accent-leona">Chaï & Plantes</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Masala chaï latte</div></div><div class="mi-price leona">5,00 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Curcuma chaï latte</div></div><div class="mi-price leona">5,00 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Matcha latte</div></div><div class="mi-price leona">5,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Genmaicha latte</div></div><div class="mi-price leona">5,50 €</div></div>
+  </div>
+
+  <div id="ldt" class="tabp">
+    <div class="msec accent-leona">Thés & Infusions</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Thé vert à la menthe</div></div><div class="mi-price leona">4,00 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Thé noir</div><div class="mi-desc">Earl grey / English breakfast</div></div><div class="mi-price leona" style="font-size:.78rem;opacity:.5">nous consulter</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Tisane Rooibos</div></div><div class="mi-price leona" style="font-size:.78rem;opacity:.5">nous consulter</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Infusion citron miel gingembre</div></div><div class="mi-price leona" style="font-size:.78rem;opacity:.5">nous consulter</div></div>
+  </div>
+
+  <div id="ldf" class="tabp">
+    <div class="msec accent-leona">Boissons froides</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Limonade maison</div></div><div class="mi-price leona">4,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Ice tea Léona</div></div><div class="mi-price leona">4,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Soda Ritchie</div></div><div class="mi-price leona">4,00 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Kombucha Rish</div></div><div class="mi-price leona">5,00 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Spa plate / pétillante</div></div><div class="mi-price leona">3,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Jus d'orange frais</div></div><div class="mi-price leona">4,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Jus de pomme bio</div></div><div class="mi-price leona">3,80 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Bières belges</div></div><div class="mi-price leona">4,50 €</div></div>
+  </div>
+
+  <div id="lde" class="tabp">
+    <div class="msec accent-leona">Laits</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Vache / Avoine</div></div><div class="mi-price" style="color:var(--jeux)">inclus</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Coconut / Soja / Soja vanille</div></div><div class="mi-price leona">+ 0,50 €</div></div>
+    <div class="msec accent-leona">Sirops & Extras</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Sirop caramel / vanille / noisette</div></div><div class="mi-price leona">0,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Extra shot</div></div><div class="mi-price leona">0,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Chicorée Cherico</div></div><div class="mi-price leona">0,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Chantilly / Beurre / Confiture</div></div><div class="mi-price leona">1,00 €</div></div>
+    <div class="msec accent-leona">Kids Sirops</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Grenadine</div></div><div class="mi-price leona">2,50 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Violette</div></div><div class="mi-price leona">2,50 €</div></div>
+  </div>
+
+  <div id="ldb" class="tabp">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:var(--leona);color:#fff;padding:9px 20px;border-radius:2px;font-size:.77rem;font-weight:700;letter-spacing:.07em;margin-bottom:20px">⏰ Samedi uniquement · 11h – 14h · Walk-in</div>
+    <div class="msec accent-leona">Menu Salé</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">L'Assiette Léona</div><div class="mi-desc">3 oeufs brouillés BIO, burrata crémeuse, pommes de terre rôties, salade & pain au levain</div></div><div class="mi-price leona">17 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Toast Chèvre & Noix</div><div class="mi-desc">Pain levain, chèvre fondant, miel, noix AOP de Grenoble, roquette</div></div><div class="mi-price leona">15 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Toast Tartufata</div><div class="mi-desc">3 oeufs BIO brouillés à la tartufata, parmesan rapé minute</div></div><div class="mi-price leona">17 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Cheesy-Croque</div><div class="mi-desc">Pain levain, ketchup, moutarde, jambon, cheddar fondu</div></div><div class="mi-price leona">15 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Pancakes Bacon</div><div class="mi-desc">3 pancakes, 2 oeufs au plat BIO, bacon, sirop d'érable</div></div><div class="mi-price leona">13 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Brioche Perdue Potimarron</div><div class="mi-desc">Potimarron rôti, beurre noisette érable, cranberries, noix de pecan, feta & bacon caramélisé</div></div><div class="mi-price leona">17 €</div></div>
+    <div class="msec accent-leona">Menu Sucré</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Bol de Granola</div><div class="mi-desc">Yaourt grec, granola maison, fruits de saison, sirop d'érable</div></div><div class="mi-price leona">8 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Pancakes Mont-Blanc</div><div class="mi-desc">Mascarpone vanille, myrtilles fraîches, crème de marron, meringue</div></div><div class="mi-price leona">16 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Brioche Perdue Poire Pochée</div><div class="mi-desc">Mascarpone vanille, poire à la fève tonka, speculoos, sauce chocolat caramel</div></div><div class="mi-price leona">17 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Brioche Perdue Banane</div><div class="mi-desc">Glace vanille, banane caramélisée au chalumeau, beurre de cacahuète, sauce chocolat</div></div><div class="mi-price leona">17 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Kids</div><div class="mi-desc">2 pancakes, beurre doux, sirop d'érable</div></div><div class="mi-price leona">8 €</div></div>
+    <div style="background:var(--cream-dark);padding:14px 16px;border-radius:4px;font-size:.78rem;opacity:.6;display:flex;gap:9px;margin-top:8px">ℹ️ Suppléments : Saumon +4€ · Bacon +3€ · Oeuf au plat +1,50€ · Allergènes sur demande.</div>
+  </div>
+
+  <!-- SPLIT ABOUT -->
+  <div class="split">
+    <div class="split-img rev-l"><img src="https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=900&q=80" loading="lazy" alt="Léona baristas"></div>
+    <div class="split-txt cream rev-r">
+      <div class="st-eyebrow accent-leona">Notre histoire</div>
+      <h2 class="st-h2">Un café né d'une envie simple</h2>
+      <p class="st-body">Léona a ouvert ses portes en août 2024 avenue Georges Henri, avec une idée en tête : créer un café de quartier où l'on se sent bien. Tout est fait maison — des sirops colorés aux plats du jour.</p>
+      <p class="st-body">Du premier espresso du matin à la dernière part de carrot cake, chaque détail est soigné. ★★★★★ 4,8 · 197 avis Google</p>
+      <a href="https://www.instagram.com/le.cafe.leona/" target="_blank" class="st-link" style="color:var(--leona)">@le.cafe.leona ↗</a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="ft">
+      <div>
+        <span class="ft-brand-name">Léona Café</span>
+        <p class="ft-desc">Café de spécialité, boissons colorées maison et brunch du samedi à Woluwe-Saint-Lambert depuis 2024.</p>
+        <div class="ft-social"><a href="https://www.instagram.com/le.cafe.leona/" target="_blank">@le.cafe.leona</a></div>
+      </div>
+      <div class="ft-col"><h5>Menu</h5><ul>
+        <li><a href="#" onclick="dTab('ldc',document.querySelector('.tab-leona'),null)">Cafés</a></li>
+        <li><a href="#" onclick="dTab('lds',null,null)">Boissons colorées</a></li>
+        <li><a href="#" onclick="dTab('ldb',null,null)">Brunch</a></li>
+      </ul></div>
+      <div class="ft-col"><h5>Infos</h5><ul>
+        <li><a href="tel:+32494402892">+32 494 40 28 92</a></li>
+        <li><a href="mailto:le.cafe.leona@gmail.com">le.cafe.leona@gmail.com</a></li>
+        <li><a href="https://www.google.com/maps?q=Leona+Café+Woluwe" target="_blank">Google Maps</a></li>
+      </ul></div>
+      <div class="ft-col"><h5>Nos adresses</h5><ul>
+        <li><a href="#" onclick="go('bouboule');return false"><span class="ft-dot" style="background:var(--boub)"></span>Bouboule</a></li>
+        <li><a href="#" onclick="go('jeux');return false"><span class="ft-dot" style="background:var(--jeux)"></span>Bar à Jeux</a></li>
+        <li><a href="#" onclick="goHome();return false">← Accueil</a></li>
+      </ul></div>
+    </div>
+    <div class="ft-bottom">
+      <p>© 2025 Léona Café SRL · BE 1012.601.905 · Woluwe-Saint-Lambert</p>
+      <a href="mailto:le.cafe.leona@gmail.com">Mentions légales</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE : BOUBOULE
+═══════════════════════════════════════════ -->
+<div id="pg-bouboule" class="pg">
+
+  <div class="vh vh-boub">
+    <div class="vh-bg"><img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=1600&q=80" loading="lazy" alt="Bouboule glacier"></div>
+    <div class="vh-ov"></div>
+    <div class="vh-c">
+      <div class="vh-pill">🍦 Glacier artisanal · Woluwe</div>
+      <div class="vh-title">Bouboule<br><em>Créations Glacées</em></div>
+      <div class="vh-sub">Des chemises de marin et des parfums audacieux depuis 2021 — Iranian pistachio, Kulfi primé, et les saveurs de la saison.</div>
+    </div>
+  </div>
+
+  <div class="info-bar">
+    <div class="ib-item"><div class="ib-icon">📍</div><span>Av. Albert Élisabeth 31, 1200 WSL</span></div>
+    <div class="ib-item"><div class="ib-icon">📅</div><span>Ouvert depuis <strong>2021</strong></span></div>
+    <div class="ib-item"><div class="ib-icon">🏆</div><span>Kulfi flavor <strong>primé</strong></span></div>
+    <div class="ib-item"><div class="ib-icon">📱</div><a href="https://www.instagram.com/glacierbouboule/" target="_blank"><strong>@glacierbouboule</strong></a></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-eyebrow accent-boub rev">Les parfums du moment</div>
+    <h2 class="sec-h2 rev">Création de saison</h2>
+    <p class="sec-sub rev">Jimmy Patte renouvelle les parfums avec les saisons. Chaque boule est une surprise — bold, artisanale, inoubliable.</p>
+
+    <div class="flavour-grid">
+      <div class="flavour rev">
+        <div class="fl-dot" style="background:linear-gradient(135deg,#c8a96e,#a07840)"></div>
+        <div class="fl-info"><div class="fl-name">Kulfi</div><div class="fl-note">Cardamome, pistache, lait concentré</div><div class="fl-badge award">🏆 Primé</div></div>
+      </div>
+      <div class="flavour rev" style="transition-delay:.08s">
+        <div class="fl-dot" style="background:linear-gradient(135deg,#7dba6e,#3a8c2a)"></div>
+        <div class="fl-info"><div class="fl-name">Pistache Iranienne</div><div class="fl-note">Pistaches AOP d'Iran, pure & intense</div><div class="fl-badge">Signature</div></div>
+      </div>
+      <div class="flavour rev" style="transition-delay:.12s">
+        <div class="fl-dot" style="background:linear-gradient(135deg,#f5d078,#e8a020)"></div>
+        <div class="fl-info"><div class="fl-name">Apple Pie</div><div class="fl-note">Pomme caramélisée, cannelle, crumble</div><div class="fl-badge new">Saison</div></div>
+      </div>
+      <div class="flavour rev" style="transition-delay:.16s">
+        <div class="fl-dot" style="background:linear-gradient(135deg,#c46e6e,#8c2a2a)"></div>
+        <div class="fl-info"><div class="fl-name">Noisette du Piémont</div><div class="fl-note">IGP Piémont, torréfaction maison</div><div class="fl-badge">Signature</div></div>
+      </div>
+      <div class="flavour rev" style="transition-delay:.2s">
+        <div class="fl-dot" style="background:linear-gradient(135deg,#8ec4e8,#3a7ab8)"></div>
+        <div class="fl-info"><div class="fl-name">Noix de Coco Blue</div><div class="fl-note">Coco fraîche & spiruline</div><div class="fl-badge new">Nouveau</div></div>
+      </div>
+      <div class="flavour rev" style="transition-delay:.24s">
+        <div class="fl-dot" style="background:linear-gradient(135deg,#4a3020,#2a1810)"></div>
+        <div class="fl-info"><div class="fl-name">Chocolat Noir 70%</div><div class="fl-note">Cacao Vénézuélien single origin</div><div class="fl-badge">Classique</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="split" style="border-top:1px solid var(--border)">
+    <div class="split-txt rev-l" style="background:var(--boub-bg)">
+      <div class="st-eyebrow accent-boub">L'histoire</div>
+      <h2 class="st-h2">Des chemises de marin et des idées folles</h2>
+      <p class="st-body">Depuis 2021, l'équipe de Bouboule sert des glaces à une longue file de curieux depuis l'avenue Albert Élisabeth. Jimmy Patte crée des parfums audacieux en changeant d'ingrédients avec les saisons.</p>
+      <p class="st-body">Des longues files le week-end, un Kulfi primé et une carte qui ne ressemble à aucune autre à Bruxelles.</p>
+      <a href="https://www.instagram.com/glacierbouboule/" target="_blank" class="st-link" style="color:var(--boub)">@glacierbouboule ↗</a>
+    </div>
+    <div class="split-img rev-r"><img src="https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=900&q=80" loading="lazy" alt="Glacier artisanal"></div>
+  </div>
+
+  <footer>
+    <div class="ft">
+      <div>
+        <span class="ft-brand-name">Bouboule Créations Glacées</span>
+        <p class="ft-desc">Glacier artisanal à Woluwe-Saint-Lambert. Parfums audacieux, saison après saison.</p>
+        <div class="ft-social"><a href="https://www.instagram.com/glacierbouboule/" target="_blank">@glacierbouboule</a></div>
+      </div>
+      <div class="ft-col"><h5>Infos</h5><ul>
+        <li><a>Av. Albert Élisabeth 31</a></li>
+        <li><a>1200 Woluwe-Saint-Lambert</a></li>
+        <li><a href="https://www.instagram.com/glacierbouboule/" target="_blank">Instagram pour les horaires</a></li>
+      </ul></div>
+      <div class="ft-col"><h5>Nos adresses</h5><ul>
+        <li><a href="#" onclick="go('leona');return false"><span class="ft-dot" style="background:var(--leona)"></span>Léona Café</a></li>
+        <li><a href="#" onclick="go('jeux');return false"><span class="ft-dot" style="background:var(--jeux)"></span>Bar à Jeux</a></li>
+        <li><a href="#" onclick="goHome();return false">← Accueil</a></li>
+      </ul></div>
+      <div></div>
+    </div>
+    <div class="ft-bottom">
+      <p>© 2025 Bouboule · Woluwe-Saint-Lambert · Bruxelles</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE : BAR À JEUX
+═══════════════════════════════════════════ -->
+<div id="pg-jeux" class="pg">
+
+  <div class="vh vh-jeux">
+    <div class="vh-bg"><img src="https://images.unsplash.com/photo-1606503153255-59d8b8b82176?w=1600&q=80" loading="lazy" alt="Bar à Jeux"></div>
+    <div class="vh-ov"></div>
+    <div class="vh-c">
+      <div class="vh-pill">🎲 Bar à jeux · Saint-Gilles</div>
+      <div class="vh-title">Le Bar<br><em>à Jeux</em></div>
+      <div class="vh-sub">300+ jeux de société, bières artisanales belges et gyozas maison — derrière le Parc de Forest, depuis toujours.</div>
+    </div>
+  </div>
+
+  <div class="info-bar">
+    <div class="ib-item"><div class="ib-icon">📍</div><span>Chaussée d'Alsemberg 136, 1060 SGilles</span></div>
+    <div class="ib-item"><div class="ib-icon">🕐</div><span>Mar–Jeu <strong>16h–0h</strong> · Ven <strong>16h–1h</strong></span></div>
+    <div class="ib-item"><div class="ib-icon">🕐</div><span>Sam <strong>14h–1h</strong> · Dim <strong>14h–0h</strong></span></div>
+    <div class="ib-item"><div class="ib-icon">🎲</div><span><strong>300+ jeux</strong> · Fee de table</span></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab tab-jeux on" onclick="dTab('jdg',this,'jeux')">Les jeux</button>
+    <button class="tab tab-jeux" onclick="dTab('jdb',this,'jeux')">Boissons</button>
+    <button class="tab tab-jeux" onclick="dTab('jdf',this,'jeux')">Food</button>
+    <button class="tab tab-jeux" onclick="dTab('jdi',this,'jeux')">Infos</button>
+  </div>
+
+  <div id="jdg" class="tabp on">
+    <div class="msec accent-jeux">Jeux populaires</div>
+    <div class="game-grid">
+      <div class="game rev"><div class="game-emoji">🕵️</div><div class="game-name">Secret Hitler</div><div class="game-players">5–10 joueurs</div><div class="game-type">Déduction</div></div>
+      <div class="game rev" style="transition-delay:.06s"><div class="game-emoji">💣</div><div class="game-name">Time Bomb</div><div class="game-players">4–10 joueurs</div><div class="game-type">Ambiance</div></div>
+      <div class="game rev" style="transition-delay:.12s"><div class="game-emoji">🔐</div><div class="game-name">Les Unlocks</div><div class="game-players">2–6 joueurs</div><div class="game-type">Escape</div></div>
+      <div class="game rev" style="transition-delay:.18s"><div class="game-emoji">😈</div><div class="game-name">Die Fiesen 7</div><div class="game-players">2–7 joueurs</div><div class="game-type">Cartes</div></div>
+      <div class="game rev" style="transition-delay:.24s"><div class="game-emoji">🏰</div><div class="game-name">Catan</div><div class="game-players">3–4 joueurs</div><div class="game-type">Stratégie</div></div>
+      <div class="game rev" style="transition-delay:.3s"><div class="game-emoji">🎨</div><div class="game-name">Dixit</div><div class="game-players">3–6 joueurs</div><div class="game-type">Créatif</div></div>
+    </div>
+    <div style="background:var(--jeux-bg);border:1px solid var(--border);padding:16px 20px;border-radius:6px;font-size:.82rem;color:var(--jeux);font-weight:500">
+      🎲 300+ jeux disponibles, rangés le long du mur. Le personnel vous aide à choisir selon vos envies et le nombre de joueurs.
+    </div>
+  </div>
+
+  <div id="jdb" class="tabp">
+    <div class="msec accent-jeux">Bières artisanales belges</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Sélection du moment</div><div class="mi-desc">La carte tourne selon les saisons et les brasseries</div></div><div class="mi-price jeux">à partir de 4 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Bières pression</div><div class="mi-desc">Blonde, ambrée, IPA — en rotation</div></div><div class="mi-price jeux">4–5 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Bières bouteilles spéciales</div><div class="mi-desc">Lambics, triples, saisons belges</div></div><div class="mi-price jeux">5–9 €</div></div>
+    <div class="msec accent-jeux">Softs & autres</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Softs / Jus</div></div><div class="mi-price jeux">3–4 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Vins & cocktails</div></div><div class="mi-price jeux">6–9 €</div></div>
+  </div>
+
+  <div id="jdf" class="tabp">
+    <div class="msec accent-jeux">Food</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Gyozas maison</div><div class="mi-desc">Vapeur ou poêlés · farce du jour</div></div><div class="mi-price jeux">7–9 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Planches apéro</div><div class="mi-desc">Fromages, charcuteries, accompagnements</div></div><div class="mi-price jeux">10–14 €</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Snacks & grignotages</div></div><div class="mi-price jeux">3–6 €</div></div>
+    <div style="background:var(--jeux-bg);border:1px solid var(--border);padding:14px 18px;border-radius:5px;font-size:.8rem;margin-top:16px">
+      🍽️ Une fee de table est demandée pour accéder aux jeux. Elle inclut l'accès illimité à toute la ludothèque.
+    </div>
+  </div>
+
+  <div id="jdi" class="tabp">
+    <div class="msec accent-jeux">Comment ça marche</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Fee de table</div><div class="mi-desc">Payée une fois, jeux illimités pour la soirée</div></div><div class="mi-price jeux">3–4 €/pers</div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Réservation</div><div class="mi-desc">Conseillée le week-end pour les grands groupes</div></div><div class="mi-price" style="font-size:.78rem;opacity:.5">via Instagram</div></div>
+    <div class="msec accent-jeux">Adresse & Transports</div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Adresse</div><div class="mi-desc">Chaussée d'Alsemberg 136, 1060 Saint-Gilles</div></div></div>
+    <div class="mitem"><div class="mi-l"><div class="mi-name">Transports</div><div class="mi-desc">Tram 81, Bus 54 · Parc de Forest à 2min</div></div></div>
+  </div>
+
+  <div class="split" style="border-top:1px solid var(--border)">
+    <div class="split-img rev-l"><img src="https://images.unsplash.com/photo-1574534859985-77b1c9e2424ba?w=900&q=80" loading="lazy" alt="Jeux de société"></div>
+    <div class="split-txt rev-r" style="background:var(--jeux-bg)">
+      <div class="st-eyebrow accent-jeux">L'ambiance</div>
+      <h2 class="st-h2">Jouer, boire, manger — dans le bon ordre</h2>
+      <p class="st-body">Le Bar à Jeux, c'est ce bar derrière le Parc de Forest où les soirées s'étirent sans qu'on s'en aperçoive. 300+ jeux rangés contre le mur, des gyozas qui arrivent chauds, et une sélection de bières belges pour prolonger la partie.</p>
+      <p class="st-body">Le personnel vous guide dans la ludothèque selon vos envies et votre nombre.</p>
+      <a href="https://www.instagram.com/barajeux/" target="_blank" class="st-link" style="color:var(--jeux)">@barajeux ↗</a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="ft">
+      <div>
+        <span class="ft-brand-name">Le Bar à Jeux</span>
+        <p class="ft-desc">Bar à jeux de société à Saint-Gilles. 300+ jeux, bières artisanales belges et gyozas maison.</p>
+        <div class="ft-social"><a href="https://www.instagram.com/barajeux/" target="_blank">@barajeux</a></div>
+      </div>
+      <div class="ft-col"><h5>Horaires</h5><ul>
+        <li><a>Mar–Jeu : 16h–0h</a></li>
+        <li><a>Ven : 16h–1h</a></li>
+        <li><a>Sam : 14h–1h</a></li>
+        <li><a>Dim : 14h–0h</a></li>
+      </ul></div>
+      <div class="ft-col"><h5>Nos adresses</h5><ul>
+        <li><a href="#" onclick="go('leona');return false"><span class="ft-dot" style="background:var(--leona)"></span>Léona Café</a></li>
+        <li><a href="#" onclick="go('bouboule');return false"><span class="ft-dot" style="background:var(--boub)"></span>Bouboule</a></li>
+        <li><a href="#" onclick="goHome();return false">← Accueil</a></li>
+      </ul></div>
+      <div></div>
+    </div>
+    <div class="ft-bottom">
+      <p>© 2025 Le Bar à Jeux · Chaussée d'Alsemberg 136 · Saint-Gilles</p>
+    </div>
+  </footer>
+</div>
+
+<button class="fab" onclick="alert('Admin — bientôt disponible')">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+</button>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── NAVIGATION ── */
+function go(venue) {
+  const ids = { leona:'pg-leona', bouboule:'pg-bouboule', jeux:'pg-jeux' };
+  const names = { leona:'Léona Café', bouboule:'Bouboule', jeux:'Le Bar à Jeux' };
+  const c = document.getElementById('curtain');
+  c.classList.add('on');
+  setTimeout(() => {
+    document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+    document.getElementById(ids[venue]).classList.add('on');
+    window.scrollTo(0,0);
+    const back = document.getElementById('navBack');
+    const logo = document.getElementById('navLogo');
+    const sub  = document.getElementById('navSub');
+    const tabs = document.getElementById('navTabs');
+    const nav  = document.getElementById('nav');
+    back.classList.add('show','dk'); logo.classList.add('dk');
+    tabs.querySelectorAll('.nav-vtab').forEach(t => t.classList.add('dk'));
+    sub.textContent = names[venue]; sub.classList.add('show');
+    nav.classList.add('solid');
+    c.classList.remove('on');
+    initReveal();
+    if (venue === 'leona') upLeonaStatus();
+  }, 220);
+}
+
+function goHome() {
+  const c = document.getElementById('curtain');
+  c.classList.add('on');
+  setTimeout(() => {
+    document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+    document.getElementById('pg-home').classList.add('on');
+    window.scrollTo(0,0);
+    const back = document.getElementById('navBack');
+    const logo = document.getElementById('navLogo');
+    const sub  = document.getElementById('navSub');
+    const tabs = document.getElementById('navTabs');
+    const nav  = document.getElementById('nav');
+    back.classList.remove('show','dk'); logo.classList.remove('dk');
+    tabs.querySelectorAll('.nav-vtab').forEach(t => t.classList.remove('dk'));
+    sub.classList.remove('show');
+    nav.classList.remove('solid');
+    c.classList.remove('on');
+    updateHomeNav();
+    initReveal();
+  }, 220);
+}
+
+/* ── HOME NAV SCROLL ── */
+function updateHomeNav() {
+  const home = document.getElementById('pg-home').classList.contains('on');
+  if (!home) return;
+  const nav = document.getElementById('nav');
+  const logo = document.getElementById('navLogo');
+  const tabs = document.getElementById('navTabs');
+  const solid = window.scrollY > 80;
+  nav.classList.toggle('solid', solid);
+  logo.style.color = solid ? 'var(--ink)' : '#fff';
+  tabs.querySelectorAll('.nav-vtab').forEach(t => {
+    t.style.color = solid ? 'var(--ink-light)' : 'rgba(255,255,255,.55)';
+  });
+}
+window.addEventListener('scroll', updateHomeNav, { passive: true });
+
+/* ── TABS ── */
+function dTab(id, btn, venue) {
+  const prefix = { leona:'l', bouboule:'b', jeux:'j' }[venue] || 'l';
+  document.querySelectorAll(`#pg-${venue || 'leona'} .tabp`).forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if (btn) btn.classList.add('on');
+}
+
+/* ── SCROLL REVEAL ── */
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('go'); ro.unobserve(e.target); } });
+}, { threshold: .1, rootMargin: '0px 0px -36px 0px' });
+
+function initReveal() {
+  document.querySelectorAll('.rev, .rev-l, .rev-r, .rev-s').forEach(el => {
+    if (!el.classList.contains('go')) ro.observe(el);
+  });
+}
+initReveal();
+
+/* ── LÉONA STATUS ── */
+function upLeonaStatus() {
+  const n = new Date(), d = n.getDay(), c = n.getHours() * 60 + n.getMinutes();
+  const open = (d >= 2 && d <= 6) && c >= 540 && c < 1020;
+  const dot = document.getElementById('leonaDot');
+  const st  = document.getElementById('leonaSt');
+  if (dot) dot.style.background = open ? '#5cb85c' : '#e05a4e';
+  if (st)  st.textContent = open ? 'Ouvert maintenant' : 'Fermé actuellement';
+}
+upLeonaStatus();
+
+/* ── TOAST ── */
+function showToast(m) {
+  const t = document.getElementById('toast');
+  t.textContent = m; t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', 3000);
+}
+</script>
+</body>
+</html>
