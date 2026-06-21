@@ -994,6 +994,7 @@ const gS={
   _endDeath(){ if(--this.lives<=0){ this.phase='GAMEOVER'; this._goT=300; } else this._reset(); },
   update(){
     music.tick();
+    if(this.phase==='PAUSE') return;
     if(this.phase==='INTRO'){ if(--this._iT<=0){ this.phase='PLAY'; music.start(); } return; }
     if(this.phase==='DEAD'){ mario.update(tilemap,this); return; }
     if(this.phase==='GAMEOVER'){ if(--this._goT<=0) this._newGame(); return; }
@@ -1192,8 +1193,12 @@ const enemies=[];
 gS.mario=mario;
 ld.spawns.forEach(sp=>{ if(sp.type==='g') enemies.push(new Goomba(sp.col*TILE,sp.row*TILE)); else enemies.push(new Koopa(sp.col*TILE,sp.row*TILE)); });
 
-// M = mute toggle
-document.addEventListener('keydown',e=>{ if(e.code==='KeyM'){ sfx.muted=!sfx.muted; music.muted=!music.muted; } });
+// M = mute / P = pause
+document.addEventListener('keydown',e=>{
+  if(e.code==='KeyM'){ sfx.muted=!sfx.muted; music.muted=!music.muted; }
+  if((e.code==='KeyP'||e.code==='Escape')&&gS.phase==='PLAY')  { gS.phase='PAUSE'; music.muted=true; }
+  else if((e.code==='KeyP'||e.code==='Escape')&&gS.phase==='PAUSE'){ gS.phase='PLAY'; music.muted=sfx.muted; }
+});
 
 // ─── TOUCH CONTROLS ──────────────────────────────────────────────────────────
 (function(){
