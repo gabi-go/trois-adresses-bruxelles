@@ -265,10 +265,15 @@ SPR.mush1up={ pal:['','#005800','#00c800','#f8f8f8','#f8c070'], px:[
 ]};
 
 // ── Coin HUD (8×8) ───────────────────────────────────────────────────────────
-SPR.coinHUD={ pal:['','#a07000','#f8c000','#f8f000'], px:[
-  '01110000','12221000','12321000','12321000',
-  '12321000','12221000','01110000','00000000',
-]};
+// 4-frame coin spin animation
+const COINPAL=['','#a07000','#f8c000','#f8f000'];
+SPR.coinHUD={ pal:COINPAL, px:['01110000','12221000','12321000','12321000','12321000','12221000','01110000','00000000'] };
+// Narrowing frames to simulate spin
+const COIN1={ pal:COINPAL, px:['00110000','01221000','01321000','01321000','01321000','01221000','00110000','00000000'] };
+const COIN2={ pal:COINPAL, px:['00100000','01210000','01310000','01310000','01310000','01210000','00100000','00000000'] };
+const COIN3={ pal:COINPAL, px:['00110000','01221000','01321000','01321000','01321000','01221000','00110000','00000000'] };
+const COIN_FRAMES=[SPR.coinHUD,COIN1,COIN2,COIN1];
+function sprCoin(sx,sy){ spr(COIN_FRAMES[Math.floor(frameTick/6)%4],sx,sy); }
 
 // ── Fireball (8×8) ────────────────────────────────────────────────────────────
 SPR.fb={ pal:['','#f87000','#f8e000','#f8f8a0'], px:[
@@ -753,7 +758,7 @@ function updateParts(){
 function drawParts(cx){
   for(const p of parts){
     const sx=p.x-cx;
-    if(p.t==='coin')  spr(SPR.coinHUD,sx-4,p.y);
+    if(p.t==='coin')  sprCoin(sx-4,p.y);
     else if(p.t==='pts'){ ctx.fillStyle='#fff'; ctx.font='bold 7px monospace'; ctx.fillText(p.v,sx-8,p.y); }
     else if(p.t==='brk'){ ctx.fillStyle=TC.brick; ctx.fillRect(sx-3,p.y-3,6,6); }
     else if(p.t==='dust'){ ctx.fillStyle=`rgba(200,160,80,${p.life/25})`; ctx.fillRect(sx-2,p.y-2,4,4); }
@@ -1409,6 +1414,8 @@ const gS={
 
     // Fireball vs enemy
     for(const f of fbs){ if(!f.alive) continue; for(const e of enemies){ if(!e.alive) continue; if(f.x+8>e.left&&f.x<e.right&&f.y+8>e.top&&f.y<e.bottom){ f.alive=false; if(e instanceof Goomba) e.kick(); else if(e instanceof Koopa&&!e.sh) e.kick(); this.addScore(200); addScore(e.x,e.y,200); } } }
+    // Mario fireball vs Bowser fireball (cancel each other)
+    for(const mf of fbs){ if(!mf.alive||mf.bowser) continue; for(const bf of fbs){ if(!bf.alive||!bf.bowser) continue; if(Math.abs(mf.x-bf.x)<10&&Math.abs(mf.y-bf.y)<10){ mf.alive=false; bf.alive=false; addStomp(mf.x,mf.y); } } }
     // Obj vs Mario
     for(const o of objs){
       if(!o.alive||o.em>0) continue;
@@ -1468,7 +1475,7 @@ function drawHUD(){
   }
 
   // Coins
-  spr(SPR.coinHUD,88,10);
+  sprCoin(88,10);
   ctx.fillText('×'+String(gS.coins).padStart(2,'0'),98,19);
 
   // Lives
@@ -1504,13 +1511,24 @@ function drawGameOver(){
   ctx.textAlign='left';
 }
 function drawClear(){
-  ctx.fillStyle='rgba(0,0,0,0.68)'; ctx.fillRect(0,24,NW,68);
+  ctx.fillStyle='rgba(0,0,0,0.68)'; ctx.fillRect(0,24,NW,gS.lv===4?88:68);
   ctx.fillStyle='#fff'; ctx.font='bold 8px monospace'; ctx.textAlign='center';
-  ctx.fillText('COURSE CLEAR!',NW/2,38);
-  ctx.fillText('SCORE  '+String(gS.score).padStart(6,'0'),NW/2,50);
-  ctx.fillStyle=gS._bonusRemain>0?'#f8c000':'#fff';
-  ctx.fillText('TIME BONUS  '+String(gS._bonusRemain||0).padStart(3,'0')+'  ×50',NW/2,64);
-  ctx.fillText('+'+String((gS._bonusRemain||0)*50).padStart(5,'0'),NW/2,76);
+  if(gS.lv===4){
+    ctx.fillStyle='#f8c000'; ctx.font='bold 10px monospace';
+    ctx.fillText('BOWSER DEFEATED!',NW/2,40);
+    ctx.fillStyle='#fff'; ctx.font='bold 8px monospace';
+    ctx.fillText('Thank you Mario!',NW/2,54);
+    ctx.fillText('SCORE  '+String(gS.score).padStart(6,'0'),NW/2,66);
+    ctx.fillStyle=gS._bonusRemain>0?'#f8c000':'#fff';
+    ctx.fillText('TIME BONUS  +'+String((gS._bonusRemain||0)*50).padStart(5,'0'),NW/2,80);
+    ctx.fillText('But our princess is in another castle!',NW/2,94);
+  } else {
+    ctx.fillText('COURSE CLEAR!',NW/2,38);
+    ctx.fillText('SCORE  '+String(gS.score).padStart(6,'0'),NW/2,50);
+    ctx.fillStyle=gS._bonusRemain>0?'#f8c000':'#fff';
+    ctx.fillText('TIME BONUS  '+String(gS._bonusRemain||0).padStart(3,'0')+'  ×50',NW/2,64);
+    ctx.fillText('+'+String((gS._bonusRemain||0)*50).padStart(5,'0'),NW/2,76);
+  }
   ctx.textAlign='left';
 }
 
