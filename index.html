@@ -20,7 +20,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 ul{list-style:none}
 
 /* ── PAGE TRANSITIONS ── */
-#curtain{position:fixed;inset:0;background:#fff;z-index:9000;pointer-events:none;opacity:0;transition:opacity .3s ease}
+#curtain{position:fixed;inset:0;background:#fff;z-index:9000;pointer-events:none;opacity:0;transition:opacity .45s cubic-bezier(.4,0,.2,1)}
 #curtain.show{opacity:1;pointer-events:all}
 .pg{display:none}
 .pg.on{display:block}
@@ -397,15 +397,15 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 }
 
 /* ── ANIMATIONS / SCROLL REVEAL ── */
-.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
-.reveal.up{transform:translateY(28px)}
-.reveal.left{transform:translateX(-32px)}
-.reveal.right{transform:translateX(32px)}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal.up{transform:translateY(24px)}
+.reveal.left{transform:translateX(-28px)}
+.reveal.right{transform:translateX(28px)}
 .reveal.visible{opacity:1;transform:none}
-.reveal-delay-1{transition-delay:.1s}
-.reveal-delay-2{transition-delay:.2s}
-.reveal-delay-3{transition-delay:.3s}
-.reveal-delay-4{transition-delay:.4s}
+.reveal-delay-1{transition-delay:.08s}
+.reveal-delay-2{transition-delay:.16s}
+.reveal-delay-3{transition-delay:.24s}
+.reveal-delay-4{transition-delay:.32s}
 
 /* ── LÉONA — LATTE CARDS (colored grid) ── */
 .latte-section{padding:64px 40px;background:#faf8f5}
@@ -426,14 +426,16 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 .latte-card{
   position:relative;aspect-ratio:2/3;overflow:hidden;
   cursor:default;
-  transition:transform .4s ease;
+  transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1);
 }
-.latte-card:hover{transform:translateY(-6px)}
+.latte-card:hover{transform:translateY(-8px);box-shadow:0 20px 48px rgba(0,0,0,.18)}
 .latte-card-bg{
   position:absolute;inset:0;
-  transition:transform .5s ease;
+  transition:transform .6s cubic-bezier(.22,1,.36,1);
 }
-.latte-card:hover .latte-card-bg{transform:scale(1.05)}
+.latte-card-bg img{width:100%;height:100%;object-fit:cover;display:block}
+.latte-card-tint{position:absolute;inset:0}
+.latte-card:hover .latte-card-bg{transform:scale(1.07)}
 .latte-card-content{
   position:absolute;inset:0;
   display:flex;flex-direction:column;justify-content:flex-end;
@@ -936,7 +938,10 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
     </div>
     <div class="latte-grid">
       <div class="latte-card reveal reveal-delay-1">
-        <div class="latte-card-bg" style="background:linear-gradient(160deg,#c8921a,#f5d060)"></div>
+        <div class="latte-card-bg">
+          <img src="https://images.unsplash.com/photo-1641763960090-94c5066f81c9?w=600&q=85&auto=format&fit=crop" alt="Golden Latte curcuma" loading="lazy">
+          <div class="latte-card-tint" style="background:linear-gradient(160deg,rgba(180,120,10,.55),rgba(240,200,60,.25))"></div>
+        </div>
         <div class="latte-card-content">
           <div class="latte-card-name">Golden<br>Latte</div>
           <div class="latte-card-ing">Curcuma · Gingembre · Épices</div>
@@ -944,7 +949,10 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
       </div>
       <div class="latte-card reveal reveal-delay-2">
-        <div class="latte-card-bg" style="background:linear-gradient(160deg,#c0395a,#f0849a)"></div>
+        <div class="latte-card-bg">
+          <img src="https://images.unsplash.com/photo-1770947257992-04c3cde0328c?w=600&q=85&auto=format&fit=crop" alt="Pink Latte betterave" loading="lazy">
+          <div class="latte-card-tint" style="background:linear-gradient(160deg,rgba(180,40,80,.45),rgba(240,100,140,.2))"></div>
+        </div>
         <div class="latte-card-content">
           <div class="latte-card-name">Pink<br>Latte</div>
           <div class="latte-card-ing">Betterave · Cacao · Épices</div>
@@ -952,7 +960,10 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
       </div>
       <div class="latte-card reveal reveal-delay-3">
-        <div class="latte-card-bg" style="background:linear-gradient(160deg,#2a5fad,#5ba8e8)"></div>
+        <div class="latte-card-bg">
+          <img src="https://images.unsplash.com/photo-1594234883183-f7828f736973?w=600&q=85&auto=format&fit=crop" alt="Blue Latte spiruline" loading="lazy">
+          <div class="latte-card-tint" style="background:linear-gradient(160deg,rgba(20,70,180,.50),rgba(60,140,230,.2))"></div>
+        </div>
         <div class="latte-card-content">
           <div class="latte-card-name">Blue<br>Latte</div>
           <div class="latte-card-ing">Spiruline · Myrtilles · Coco</div>
@@ -960,7 +971,10 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
       </div>
       <div class="latte-card reveal reveal-delay-4">
-        <div class="latte-card-bg" style="background:linear-gradient(160deg,#1a1a1a,#4a4a4a)"></div>
+        <div class="latte-card-bg">
+          <img src="https://images.unsplash.com/photo-1582202737800-8ab9a8cc6e6a?w=600&q=85&auto=format&fit=crop" alt="Black Latte charbon" loading="lazy">
+          <div class="latte-card-tint" style="background:linear-gradient(160deg,rgba(10,10,10,.60),rgba(50,50,50,.25))"></div>
+        </div>
         <div class="latte-card-content">
           <div class="latte-card-name">Black<br>Latte</div>
           <div class="latte-card-ing">Sésame noir · Charbon végétal</div>
@@ -968,7 +982,10 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
       </div>
       <div class="latte-card reveal reveal-delay-1">
-        <div class="latte-card-bg" style="background:linear-gradient(160deg,#7b3fa0,#c47de0)"></div>
+        <div class="latte-card-bg">
+          <img src="https://images.unsplash.com/photo-1717239323110-7bfef913f6ea?w=600&q=85&auto=format&fit=crop" alt="Purple Latte ube" loading="lazy">
+          <div class="latte-card-tint" style="background:linear-gradient(160deg,rgba(100,30,160,.50),rgba(180,100,220,.2))"></div>
+        </div>
         <div class="latte-card-content">
           <div class="latte-card-name">Purple<br>Latte</div>
           <div class="latte-card-ing">Ube violet · Vanille bourbon</div>
@@ -1742,10 +1759,10 @@ function go(id) {
     // update real-time status on Léona page
     if (id === 'leona') setLeonaStatus();
     // re-init scroll reveal for new page
-    setTimeout(initReveal, 50);
+    setTimeout(initReveal, 80);
 
-    setTimeout(function() { c.classList.remove('show'); }, 50);
-  }, 300);
+    setTimeout(function() { c.classList.remove('show'); }, 80);
+  }, 380);
 }
 
 /* ── MENU TABS ── */
