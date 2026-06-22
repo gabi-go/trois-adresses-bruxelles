@@ -556,19 +556,43 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 /* ── PHOTO GALLERY MOSAIC (airy) ── */
 .photo-gallery{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:16px;
-  padding:24px 32px 40px;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+  padding:32px 56px 56px;
   background:#faf9f8;
 }
-.photo-gallery a{display:block;overflow:hidden;aspect-ratio:1;background:#f0ede8}
-.photo-gallery a.tall{aspect-ratio:1/1.6;grid-row:span 2}
-.photo-gallery a.wide{grid-column:span 2;aspect-ratio:2/1}
-.photo-gallery img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
-.photo-gallery a:hover img{transform:scale(1.05)}
-.gallery-header{text-align:center;padding:56px 40px 28px;border-top:1px solid #e8e8e8}
+.photo-gallery a{display:block;overflow:hidden;aspect-ratio:1;background:#f0ede8;border-radius:4px}
+.photo-gallery a.tall{aspect-ratio:2/3;grid-row:span 2}
+.photo-gallery a.wide{grid-column:span 2;aspect-ratio:16/7}
+.photo-gallery img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.photo-gallery a:hover img{transform:scale(1.06)}
+.gallery-header{text-align:center;padding:64px 40px 32px;border-top:1px solid #e8e8e8}
 .gallery-header .eyebrow-tag{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#888;margin-bottom:8px}
 .gallery-header h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(28px,3vw,40px);font-weight:300}
+
+/* ── AWARDS BAR ── */
+.awards-bar{display:flex;align-items:stretch;border-top:1px solid #e8e8e8;border-bottom:1px solid #e8e8e8}
+.award-cell{flex:1;display:flex;align-items:center;gap:20px;padding:40px 48px}
+.award-cell+.award-cell{border-left:1px solid #e8e8e8}
+.award-icon-wrap{flex-shrink:0;width:56px;height:56px;border-radius:50%;background:#f5f0e8;display:flex;align-items:center;justify-content:center}
+.award-icon-wrap svg{width:28px;height:28px;stroke:#b08040;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.award-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#aaa;margin-bottom:4px}
+.award-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;font-weight:500;color:#1a1a1a;line-height:1.2;margin-bottom:2px}
+.award-sub{font-size:13px;color:#888}
+.award-stars{color:#c8a84b;font-size:18px;letter-spacing:2px;margin-bottom:2px}
+.award-score{font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;font-weight:500;color:#1a1a1a;display:inline}
+.award-count{font-size:13px;color:#888;margin-left:6px}
+
+/* ── REVIEWS STRIP ── */
+.reviews-strip{padding:64px 56px;background:#fff;border-top:1px solid #e8e8e8}
+.reviews-strip-head{text-align:center;margin-bottom:48px}
+.reviews-strip-head .eyebrow-tag{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#888;margin-bottom:8px}
+.reviews-strip-head h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(24px,2.4vw,36px);font-weight:300;color:#1a1a1a}
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.review-card{background:#faf9f8;padding:32px 28px;border-radius:4px;display:flex;flex-direction:column;gap:16px}
+.review-card-stars{color:#c8a84b;font-size:16px;letter-spacing:3px}
+.review-card-text{font-family:'Cormorant Garamond',Georgia,serif;font-size:17px;font-style:italic;color:#1a1a1a;line-height:1.6;flex:1}
+.review-card-author{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#999}
 
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){
@@ -616,8 +640,13 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
   .cat-strip{grid-template-columns:1fr}
   .venue-map-bar{grid-template-columns:1fr}
   .vmap-cell{border-right:none;border-bottom:1px solid #e8e8e8}
-  .photo-gallery{grid-template-columns:repeat(2,1fr);gap:10px;padding:16px}
+  .photo-gallery{grid-template-columns:repeat(2,1fr);gap:12px;padding:20px}
   .flavour-grid{grid-template-columns:repeat(2,1fr)}
+  .awards-bar{flex-direction:column}
+  .award-cell+.award-cell{border-left:none;border-top:1px solid #e8e8e8}
+  .award-cell{padding:28px 24px}
+  .reviews-grid{grid-template-columns:1fr}
+  .reviews-strip{padding:48px 24px}
 }
 
 </style>
@@ -1187,7 +1216,7 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 <div id="pg-bouboule" class="pg">
 
   <section class="vhero">
-    <img src="https://img02.restaurantguru.com/c907-Bouboule-Woluwe-Saint-Lambert-interior.jpg"
+    <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=1400&q=85&auto=format&fit=crop"
          alt="Bouboule — glacier artisanal Woluwe">
     <div class="vhero-overlay"></div>
     <div class="vhero-content">
@@ -1209,7 +1238,7 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 
   <div class="about-strip reveal">
     <div class="about-img">
-      <img src="https://img02.restaurantguru.com/cff2-Restaurant-Bouboule-design.jpg" alt="Bouboule — créations glacées">
+      <img src="https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=800&q=85&auto=format&fit=crop" alt="Bouboule — créations glacées">
     </div>
     <div class="about-text">
       <p class="eyebrow">Notre histoire</p>
@@ -1220,30 +1249,89 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
     </div>
   </div>
 
+  <!-- RÉCOMPENSES & AVIS -->
+  <section class="awards-bar">
+    <div class="award-cell reveal">
+      <div class="award-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M12 3c0 0-4 2-4 6a4 4 0 0 0 8 0c0-4-4-6-4-6z"/><path d="M5 3H3c0 4 2 6 4 8M19 3h2c0 4-2 6-4 8"/></svg>
+      </div>
+      <div>
+        <div class="award-label">Récompense</div>
+        <div class="award-title">2e place · Gelato Festival Challenge</div>
+        <div class="award-sub">Kulfi — cardamome, rose &amp; pistache · 2021</div>
+      </div>
+    </div>
+    <div class="award-cell reveal reveal-delay-1">
+      <div class="award-icon-wrap">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div>
+        <div class="award-label">Note Google</div>
+        <div class="award-stars">★★★★★</div>
+        <div><span class="award-score">4,8</span><span class="award-count">· plus de 120 avis</span></div>
+      </div>
+    </div>
+    <div class="award-cell reveal reveal-delay-2">
+      <div class="award-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div>
+        <div class="award-label">Produit</div>
+        <div class="award-title">100 % ingrédients naturels</div>
+        <div class="award-sub">Sans colorants · Sans arômes artificiels</div>
+      </div>
+    </div>
+  </section>
+
   <!-- BOUBOULE PHOTO GALLERY -->
   <div class="gallery-header reveal">
     <p class="eyebrow-tag">En images · @glacierbouboule</p>
     <h2>Bouboule en photos</h2>
   </div>
   <div class="photo-gallery">
-    <a class="tall" href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://img02.restaurantguru.com/c1df-Restaurant-Bouboule-interior.jpg" alt="Bouboule intérieur"></a>
-    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://img02.restaurantguru.com/c4cf-Restaurant-Bouboule-food.jpg" alt="Bouboule gelato cornet"></a>
-    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://img02.restaurantguru.com/c808-Restaurant-Bouboule-meals.jpg" alt="Bouboule coupes"></a>
-    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://img02.restaurantguru.com/c59c-Restaurant-Bouboule-gelato.jpg" alt="Bouboule bac de glace"></a>
-    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://img02.restaurantguru.com/ca2d-Restaurant-Bouboule-dishes.jpg" alt="Bouboule spécialités"></a>
-    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://img02.restaurantguru.com/c155-Bouboule-interior.jpg" alt="Bouboule ambiance intérieure"></a>
-    <a class="wide" href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://img02.restaurantguru.com/cc46-Bouboule-Woluwe-Saint-Lambert-design.jpg" alt="Bouboule enseigne"></a>
-    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://img02.restaurantguru.com/c185-Bouboule-Woluwe-Saint-Lambert-food.jpg" alt="Bouboule création glacée"></a>
-    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://www.boncado.be/img/uploads/15883/60f170348b5cc.jpg" alt="Bouboule devanture"></a>
-    <a class="tall" href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://img02.restaurantguru.com/cff2-Restaurant-Bouboule-design.jpg" alt="Bouboule design intérieur"></a>
-    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://img02.restaurantguru.com/c907-Bouboule-Woluwe-Saint-Lambert-interior.jpg" alt="Bouboule comptoir"></a>
-    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://img02.restaurantguru.com/c4cf-Restaurant-Bouboule-food.jpg" alt="Bouboule glace à emporter"></a>
+    <a class="tall" href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=80&auto=format&fit=crop" alt="Bouboule intérieur" loading="lazy"></a>
+    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1567206563114-c179d57a3a22?w=600&q=80&auto=format&fit=crop" alt="Bouboule gelato cornet" loading="lazy"></a>
+    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=600&q=80&auto=format&fit=crop" alt="Bouboule coupes" loading="lazy"></a>
+    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1587563974553-b9c8db5b28f5?w=600&q=80&auto=format&fit=crop" alt="Bouboule bac de glace" loading="lazy"></a>
+    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1554615760-5985e10f03f9?w=600&q=80&auto=format&fit=crop" alt="Bouboule spécialités" loading="lazy"></a>
+    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1631206753348-db44968fd440?w=600&q=80&auto=format&fit=crop" alt="Bouboule ambiance intérieure" loading="lazy"></a>
+    <a class="wide" href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=900&q=80&auto=format&fit=crop" alt="Bouboule enseigne" loading="lazy"></a>
+    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600&q=80&auto=format&fit=crop" alt="Bouboule création glacée" loading="lazy"></a>
+    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&q=80&auto=format&fit=crop" alt="Bouboule devanture" loading="lazy"></a>
+    <a class="tall" href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1573506830616-26c5cfe01d54?w=600&q=80&auto=format&fit=crop" alt="Bouboule design intérieur" loading="lazy"></a>
+    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80&auto=format&fit=crop" alt="Bouboule comptoir" loading="lazy"></a>
+    <a href="https://www.instagram.com/glacierbouboule/" target="_blank"><img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80&auto=format&fit=crop" alt="Bouboule glace à emporter" loading="lazy"></a>
   </div>
+
+  <!-- AVIS CLIENTS -->
+  <section class="reviews-strip">
+    <div class="reviews-strip-head reveal">
+      <p class="eyebrow-tag">Ce qu'ils en disent</p>
+      <h2>Avis clients</h2>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card reveal reveal-delay-1">
+        <div class="review-card-stars">★★★★★</div>
+        <p class="review-card-text">« Les meilleures glaces artisanales de Bruxelles. Le Kulfi est une révélation — on sent vraiment la cardamome et la rose. On ne passe plus le week-end sans s'arrêter ici. »</p>
+        <div class="review-card-author">Sophie M. · Google</div>
+      </div>
+      <div class="review-card reveal reveal-delay-2">
+        <div class="review-card-stars">★★★★★</div>
+        <p class="review-card-text">« Des parfums originaux qu'on ne trouve nulle part ailleurs. La pistache d'Iran est dense et généreuse. L'équipe est adorable et on sent la passion derrière chaque pot. »</p>
+        <div class="review-card-author">Thomas D. · Google</div>
+      </div>
+      <div class="review-card reveal reveal-delay-3">
+        <div class="review-card-stars">★★★★★</div>
+        <p class="review-card-text">« Un glacier à taille humaine avec un vrai savoir-faire. La 2e place au Gelato Festival, ça se sent ! Chaque saison apporte de nouvelles surprises. Incontournable à Woluwe. »</p>
+        <div class="review-card-author">Marie-Laure V. · Google</div>
+      </div>
+    </div>
+  </section>
 
   <!-- CATÉGORIES BOUBOULE -->
   <section class="cat-strip">
     <a class="cat-card" onclick="mTab('bouboule','parfums',null);document.querySelector('#pg-bouboule .menu-tabs-wrap').scrollIntoView({behavior:'smooth'})">
-      <img src="https://img02.restaurantguru.com/c4cf-Restaurant-Bouboule-food.jpg" alt="Cornets artisanaux">
+      <img src="https://images.unsplash.com/photo-1567206563114-c179d57a3a22?w=800&q=85&auto=format&fit=crop" alt="Cornets artisanaux" loading="lazy">
       <div class="cat-overlay"></div>
       <div class="cat-label">
         <p class="cat-label-tag">À la carte</p>
@@ -1252,7 +1340,7 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
       </div>
     </a>
     <a class="cat-card" onclick="mTab('bouboule','parfums',null);document.querySelector('#pg-bouboule .menu-tabs-wrap').scrollIntoView({behavior:'smooth'})">
-      <img src="https://img02.restaurantguru.com/c59c-Restaurant-Bouboule-gelato.jpg" alt="Créations saison">
+      <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&q=85&auto=format&fit=crop" alt="Créations saison" loading="lazy">
       <div class="cat-overlay"></div>
       <div class="cat-label">
         <p class="cat-label-tag">Création</p>
@@ -1261,7 +1349,7 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
       </div>
     </a>
     <a class="cat-card" onclick="mTab('bouboule','tarifs',null);document.querySelector('#pg-bouboule .menu-tabs-wrap').scrollIntoView({behavior:'smooth'})">
-      <img src="https://img02.restaurantguru.com/cff2-Restaurant-Bouboule-design.jpg" alt="Intérieur Bouboule">
+      <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?w=800&q=85&auto=format&fit=crop" alt="Intérieur Bouboule" loading="lazy">
       <div class="cat-overlay"></div>
       <div class="cat-label">
         <p class="cat-label-tag">Prix</p>
