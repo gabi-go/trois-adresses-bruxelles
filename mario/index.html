@@ -79,7 +79,7 @@ function txt(str,x,y,col='#fff',sz='bold 8px monospace'){
 
 // ── Small Mario (12×16) ──────────────────────────────────────────────────────
 // 1=#2c1800 2=#b53120 3=#f8a840 4=#3040c8
-const MP=['','#2c1800','#b53120','#f8a840','#3040c8'];
+const MP=['','#3a1408','#e02818','#fcb878','#2038d8'];
 const MSHEAD=[   // rows 0-8 shared by all small mario frames
   '000222000000',  // hat top (3 red px)
   '002222200000',  // hat wider
@@ -170,7 +170,7 @@ function sk(key){
 
 // ── Goomba (16×16) — pixel-exact SMB1 faithful ───────────────────────────────
 // 1=#1c0c00 2=#c86820 3=#e8c090 4=#f8f8f8
-const GP=['','#1c0c00','#c86820','#e8c090','#f8f8f8'];
+const GP=['','#2a1205','#cc7430','#f0d2a0','#ffffff'];
 const GBASE=[
   '0000000000000000',  //  0
   '0000111111100000',  //  1 cap outline
@@ -202,7 +202,7 @@ Object.assign(SPR,{
 
 // ── Koopa Troopa (16×24) ─────────────────────────────────────────────────────
 // 1=#001800 2=#00a020 3=#d8c800 4=#f8f8f8 5=#005810
-const KP=['','#001800','#00a020','#d8c800','#f8f8f8','#005810'];
+const KP=['','#063808','#2cc83c','#f0e040','#ffffff','#0a7818'];
 const KBASE=[
   '0000033330000000',  //  0 head
   '0000333333000000',  //  1
@@ -292,7 +292,18 @@ const COIN1={ pal:COINPAL, px:['00110000','01221000','01321000','01321000','0132
 const COIN2={ pal:COINPAL, px:['00100000','01210000','01310000','01310000','01310000','01210000','00100000','00000000'] };
 const COIN3={ pal:COINPAL, px:['00110000','01221000','01321000','01321000','01321000','01221000','00110000','00000000'] };
 const COIN_FRAMES=[SPR.coinHUD,COIN1,COIN2,COIN1];
-function sprCoin(sx,sy){ spr(COIN_FRAMES[Math.floor(frameTick/6)%4],sx,sy); }
+// Glossy vector coin with a spinning (width-squash) animation, ~8px tall
+function sprCoin(sx,sy){
+  const cxp=sx+4, cyp=sy+4;
+  const spin=Math.abs(Math.cos(frameTick*0.14)); // 1 = face-on, 0 = edge-on
+  const rx=Math.max(0.8,4*spin), ry=4;
+  // rim
+  ctx.fillStyle='#a87000'; ctx.beginPath(); ctx.ellipse(cxp,cyp,rx,ry,0,0,Math.PI*2); ctx.fill();
+  // gold face
+  ctx.fillStyle='#f8c000'; ctx.beginPath(); ctx.ellipse(cxp,cyp,Math.max(0.4,rx-1),ry-1,0,0,Math.PI*2); ctx.fill();
+  // inner sheen
+  if(spin>0.45){ ctx.fillStyle='#fff4a0'; ctx.beginPath(); ctx.ellipse(cxp-rx*0.25,cyp-1,Math.max(0.3,rx*0.4),1.6,0,0,Math.PI*2); ctx.fill(); }
+}
 
 // ── Fireball (8×8) ────────────────────────────────────────────────────────────
 SPR.fb={ pal:['','#f87000','#f8e000','#f8f8a0'], px:[
@@ -939,7 +950,9 @@ class Goomba extends Enemy{
   kick(){ this.dying=true; this.dieV=-3; }
   draw(cx){
     if(!this.alive) return;
-    spr(this.sqT>0?SPR.gS:this.ft===0?SPR.g1:SPR.g2, this.x-cx-1, this.y-2);
+    const sx=this.x-cx-1;
+    spr(this.sqT>0?SPR.gS:this.ft===0?SPR.g1:SPR.g2, sx, this.y-2);
+    if(this.sqT===0){ ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.fillRect(sx+4,this.y,4,1); ctx.fillRect(sx+3,this.y+1,2,1); }
   }
 }
 
@@ -974,7 +987,11 @@ class Koopa extends Enemy{
   kick(){ this.sh=true; this.shSlide=true; this.h=14; this.y+=8; this.vx=3; }
   draw(cx){
     if(!this.alive) return;
-    spr(this.sh?SPR.kS:this.ft===0?SPR.k1:SPR.k2, this.x-cx-1, this.y-2, !this.fR);
+    const sx=this.x-cx-1;
+    spr(this.sh?SPR.kS:this.ft===0?SPR.k1:SPR.k2, sx, this.y-2, !this.fR);
+    // shell sheen
+    const shy=this.sh?this.y+1:this.y+6;
+    ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.fillRect(sx+5,shy,4,1);
   }
 }
 
@@ -1690,15 +1707,48 @@ function drawClear(){
 
 // ─── SCENERY ─────────────────────────────────────────────────────────────────
 function drawCloud(x,y){
-  ctx.fillStyle='rgba(0,0,0,0.12)'; ctx.fillRect(x+4,y+14,46,8);
-  ctx.fillStyle='#e8e8e8';
-  ctx.fillRect(x,y+10,48,10);
-  ctx.beginPath(); ctx.arc(x+10,y+10,10,0,Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(x+24,y+4,14,0,Math.PI*2);  ctx.fill();
-  ctx.beginPath(); ctx.arc(x+38,y+10,10,0,Math.PI*2); ctx.fill();
+  // soft shadow base
+  ctx.fillStyle='rgba(60,90,140,0.10)'; ctx.beginPath(); ctx.ellipse(x+26,y+18,30,7,0,0,Math.PI*2); ctx.fill();
+  // bottom shaded layer (cool tint)
+  ctx.fillStyle='#cfe0f2';
+  ctx.beginPath(); ctx.arc(x+10,y+12,10,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+24,y+8,14,0,Math.PI*2);  ctx.fill();
+  ctx.beginPath(); ctx.arc(x+40,y+12,11,0,Math.PI*2); ctx.fill();
+  ctx.fillRect(x+8,y+10,34,8);
+  // mid body
+  ctx.fillStyle='#eef4fb';
+  ctx.beginPath(); ctx.arc(x+11,y+10,8,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+24,y+5,12,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+38,y+10,8,0,Math.PI*2); ctx.fill();
+  ctx.fillRect(x+10,y+6,28,7);
+  // bright top highlight (sun from upper-left)
   ctx.fillStyle='#ffffff';
-  ctx.beginPath(); ctx.arc(x+20,y+2,8,0,Math.PI*2); ctx.fill();
-  ctx.fillRect(x+10,y+8,20,4);
+  ctx.beginPath(); ctx.arc(x+22,y+2,8,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+12,y+7,5,0,Math.PI*2); ctx.fill();
+  ctx.fillRect(x+12,y+3,22,4);
+}
+
+// Soft contact shadow ellipse under an entity (modern grounding)
+function groundShadow(cxScreen,by,w){
+  if(gS.lv===2||gS.lv===4) return; // skip in dark levels
+  ctx.fillStyle='rgba(20,40,20,0.22)';
+  ctx.beginPath(); ctx.ellipse(cxScreen,by,w*0.5,3,0,0,Math.PI*2); ctx.fill();
+}
+
+// Diagonal sun light beams (god rays) — additive soft shafts
+function drawLightRays(cx){
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
+  ctx.globalAlpha=0.06;
+  ctx.fillStyle='#fffbe0';
+  for(let i=0;i<5;i++){
+    const bx=((i*150 - cx*0.15)%(NW+260))-80;
+    ctx.beginPath();
+    ctx.moveTo(bx,24); ctx.lineTo(bx+34,24);
+    ctx.lineTo(bx+34+90,NH); ctx.lineTo(bx+90,NH);
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
 }
 function drawHill(cx,cy,r){
   const C=curTC();
@@ -1803,6 +1853,9 @@ function drawScenery(cx){
     for(const c of clouds){ const sx=c.x-cx*.5; if(sx<-60||sx>NW+60) continue; drawCloud(sx,c.y); }
     return;
   }
+  // ── Soft sun beams ──
+  drawLightRays(cx);
+
   // ── Far pastel capsule hills (deep parallax 0.3) ──
   const w2=gS.world>=2;
   const palA=w2?['#d89060','#f0b888']:['#9cd8a0','#c0f0c4']; // green / sandy
@@ -2000,11 +2053,13 @@ function render(){
   drawGrassDeco(cx);
   drawFlag(cx);
   drawObjs(cx); drawFBs(cx); drawPlants(cx); drawFirebars(cx);
+  for(const e of enemies){ if(e.alive&&e.onGnd!==false) groundShadow(e.x-cx+e.w/2,e.y+e.h+1,e.w); }
   for(const e of enemies) e.draw(cx);
   // Bowser & axe (level 4)
   if(bowser&&bowser.alive) bowser.draw(cx);
   if(axeActive){ const as=axeX-cx; spr(SPR.axe,as,axeY); ctx.fillStyle='#f8d000'; ctx.fillRect(as+3,axeY-8,2,8); } // axe on a chain
   drawParts(cx);
+  if(!mario.dead&&!mario.pole) groundShadow(mario.x-cx+mario.w/2,mario.y+mario.h+1,mario.w+2);
   mario.draw(cx);
   drawHUD();
   if(gS.phase==='CLEAR') drawClear();
