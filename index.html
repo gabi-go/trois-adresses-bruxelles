@@ -215,38 +215,57 @@ ul{list-style:none}
 .blog-card p{font-size:13px;color:#666;line-height:1.6;margin-top:8px}
 
 /* ── FOOTER (dark, multi-column, exact lartisanal.be) ── */
-footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
+footer{background:#111;color:#fff;padding:0 0 0}
+.footer-top-bar{height:3px;background:linear-gradient(90deg,#c8853a,#d4a574,#c8853a)}
+.footer-inner{padding:64px 48px 40px;max-width:1440px;margin:0 auto}
 .footer-grid{
-  display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;
-  gap:48px;max-width:1200px;margin:0 auto 48px;
+  display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;
+  gap:48px;margin-bottom:56px;
 }
 .footer-col h4{
-  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-  color:#999;margin-bottom:20px;font-weight:400;
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:#666;margin-bottom:20px;font-weight:400;
 }
-.footer-col p,.footer-col a{font-size:13px;line-height:2;color:#ccc;display:block}
-.footer-col a:hover{color:#fff}
+.footer-col p,.footer-col a{font-size:13px;line-height:2.2;color:#aaa;display:block}
+.footer-col a:hover{color:#fff;transition:color .2s}
 .footer-logo{
   font-family:'Cormorant Garamond',Georgia,serif;
-  font-size:22px;font-weight:300;color:#fff;margin-bottom:16px;display:block;
+  font-size:28px;font-weight:300;color:#fff;margin-bottom:6px;display:block;letter-spacing:.02em;
 }
+.footer-tagline{font-size:12px;color:#555;letter-spacing:.06em;margin-bottom:20px;display:block}
+.footer-contact{margin-top:20px}
+.footer-contact a{color:#888;font-size:12px;text-decoration:none;display:flex;align-items:center;gap:6px}
+.footer-contact a:hover{color:#fff}
+.footer-contact svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0}
+.footer-social-icons{display:flex;gap:12px;margin-top:16px}
+.footer-social-icon{width:36px;height:36px;border:1px solid #333;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s}
+.footer-social-icon:hover{border-color:#fff;background:rgba(255,255,255,.06)}
+.footer-social-icon svg{width:16px;height:16px;stroke:#aaa;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.footer-social-icon:hover svg{stroke:#fff}
 .footer-bottom{
-  border-top:1px solid #333;padding-top:24px;
+  border-top:1px solid #222;padding-top:24px;
   display:flex;align-items:center;justify-content:space-between;
-  max-width:1200px;margin:0 auto;
-  font-size:12px;color:#666;
+  font-size:11px;color:#444;letter-spacing:.04em;
 }
-.footer-social{display:flex;gap:20px}
-.footer-social a{color:#666;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
-.footer-social a:hover{color:#fff}
+.footer-bottom-links{display:flex;gap:24px}
+.footer-bottom-links a{color:#444;text-transform:uppercase;font-size:10px;letter-spacing:.1em}
+.footer-bottom-links a:hover{color:#fff}
 
 /* ── VENUE PAGE HERO ── */
-.vhero{position:relative;height:70vh;min-height:420px;overflow:hidden}
-.vhero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
-.vhero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.1) 0%,rgba(0,0,0,.55) 100%)}
+.vhero{position:relative;height:75vh;min-height:460px;overflow:hidden}
+.vhero-slides{position:absolute;inset:0}
+.vhero-slide{position:absolute;inset:0;opacity:0;transition:opacity 1.4s cubic-bezier(.4,0,.2,1)}
+.vhero-slide.act{opacity:1}
+.vhero-slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform 8s linear}
+.vhero-slide.act img{transform:scale(1.04)}
+.vhero-slide img.no-scale{transform:none!important}
+.vhero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.1) 0%,rgba(0,0,0,.55) 100%);z-index:1}
+.vhero-dots{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}
+.vhero-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.35);cursor:pointer;transition:all .4s cubic-bezier(.22,1,.36,1);border:none;padding:0}
+.vhero-dot.act{width:22px;background:#fff}
 .vhero-content{
   position:absolute;bottom:0;left:0;right:0;
-  padding:40px 48px;color:#fff;
+  padding:40px 48px;color:#fff;z-index:2;
 }
 .vhero-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.8;margin-bottom:12px}
 .vhero-title{
@@ -405,14 +424,14 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 }
 
 /* ── ANIMATIONS / SCROLL REVEAL ── */
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
-.reveal.up{transform:translateY(24px)}
-.reveal.left{transform:translateX(-28px)}
-.reveal.right{transform:translateX(28px)}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .75s cubic-bezier(.16,1,.3,1),transform .75s cubic-bezier(.16,1,.3,1);will-change:opacity,transform}
+.reveal.up{transform:translateY(16px)}
+.reveal.left{transform:translateX(-20px)}
+.reveal.right{transform:translateX(20px)}
 .reveal.visible{opacity:1;transform:none}
-.reveal-delay-1{transition-delay:.08s}
-.reveal-delay-2{transition-delay:.16s}
-.reveal-delay-3{transition-delay:.24s}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
 .reveal-delay-4{transition-delay:.32s}
 
 /* ── LÉONA — LATTE CARDS (colored grid) ── */
@@ -597,7 +616,8 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 /* ── RESPONSIVE ── */
 @media(max-width:1024px){
   .coll-grid{grid-template-columns:repeat(2,1fr)}
-  .footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:28px}
+  .footer-inner{padding:48px 32px 32px}
   .quality-sec{grid-template-columns:1fr;gap:32px}
   .about-strip{grid-template-columns:1fr}
   .address-cards{grid-template-columns:1fr}
@@ -621,6 +641,8 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
   .coll-grid{grid-template-columns:1fr;gap:16px}
   .blog-grid{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
+  .footer-inner{padding:40px 20px 28px}
+  .footer-bottom{flex-direction:column;gap:12px;text-align:center}
   .collections{padding:0 16px 48px}
   .blog-sec{padding:48px 16px 64px}
   .vhero-content{padding:24px}
@@ -836,38 +858,48 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 
   <!-- FOOTER -->
   <footer>
-    <div class="footer-grid">
-      <div class="footer-col">
-        <span class="footer-logo">Trois Adresses · Bruxelles</span>
-        <p>Trois établissements bruxellois indépendants réunis par une même passion du bien-vivre local.</p>
-        <p style="margin-top:16px;color:#666;font-size:12px">Avenue Georges Henri 386, 1200 WSL<br>Chaussée d'Alsemberg 136, 1060 Saint-Gilles</p>
+    <div class="footer-top-bar"></div>
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <span class="footer-logo">Trois Adresses</span>
+          <span class="footer-tagline">Bruxelles · Bien vivre local</span>
+          <p>Trois établissements bruxellois indépendants réunis par une même passion du bien-vivre local.</p>
+          <div class="footer-social-icons" style="margin-top:24px">
+            <a class="footer-social-icon" href="https://www.instagram.com/leonacafe_bxl/" target="_blank" aria-label="Instagram Léona"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+            <a class="footer-social-icon" href="https://www.instagram.com/glacierbouboule/" target="_blank" aria-label="Instagram Bouboule"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+            <a class="footer-social-icon" href="https://www.instagram.com/barajeux/" target="_blank" aria-label="Instagram Bar à Jeux"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Nos adresses</h4>
+          <a onclick="go('leona')">Léona Café</a>
+          <a onclick="go('bouboule')">Bouboule</a>
+          <a onclick="go('jeux')">Le Bar à Jeux</a>
+        </div>
+        <div class="footer-col">
+          <h4>Horaires</h4>
+          <p style="color:#666;font-size:12px">Léona Café</p>
+          <p style="margin-bottom:12px">Mar–Sam · 9h–17h</p>
+          <p style="color:#666;font-size:12px">Bouboule</p>
+          <p style="margin-bottom:12px">Mer–Dim · 12h–19h</p>
+          <p style="color:#666;font-size:12px">Le Bar à Jeux</p>
+          <p>Jeu–Dim · 16h–00h</p>
+        </div>
+        <div class="footer-col">
+          <h4>Instagram</h4>
+          <a href="https://www.instagram.com/leonacafe_bxl/" target="_blank">@leonacafe_bxl</a>
+          <a href="https://www.instagram.com/glacierbouboule/" target="_blank">@glacierbouboule</a>
+          <a href="https://www.instagram.com/barajeux/" target="_blank">@barajeux</a>
+        </div>
       </div>
-      <div class="footer-col">
-        <h4>Nos adresses</h4>
-        <a onclick="go('leona')">Léona Café</a>
-        <a onclick="go('bouboule')">Bouboule</a>
-        <a onclick="go('jeux')">Le Bar à Jeux</a>
-      </div>
-      <div class="footer-col">
-        <h4>Informations</h4>
-        <a href="#">Notre histoire</a>
-        <a href="https://www.instagram.com/leonacafe_bxl/" target="_blank">Instagram Léona</a>
-        <a href="https://www.instagram.com/glacierbouboule/" target="_blank">Instagram Bouboule</a>
-        <a href="https://www.instagram.com/barajeux/" target="_blank">Instagram Bar à Jeux</a>
-      </div>
-      <div class="footer-col">
-        <h4>Horaires</h4>
-        <p>Léona Café<br><span style="color:#666">Mar–Sam · 9h–17h</span></p>
-        <p style="margin-top:12px">Bouboule<br><span style="color:#666">Mer–Dim · 12h–19h</span></p>
-        <p style="margin-top:12px">Le Bar à Jeux<br><span style="color:#666">Jeu–Dim · 16h–00h</span></p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2024 Trois Adresses · Bruxelles</span>
-      <div class="footer-social">
-        <a href="https://www.instagram.com/leonacafe_bxl/" target="_blank">Instagram Léona</a>
-        <a href="https://www.instagram.com/glacierbouboule/" target="_blank">Instagram Bouboule</a>
-        <a href="https://www.instagram.com/barajeux/" target="_blank">Instagram Bar à Jeux</a>
+      <div class="footer-bottom">
+        <span>© 2024 Trois Adresses · Bruxelles</span>
+        <div class="footer-bottom-links">
+          <a onclick="go('leona')">Léona</a>
+          <a onclick="go('bouboule')">Bouboule</a>
+          <a onclick="go('jeux')">Bar à Jeux</a>
+        </div>
       </div>
     </div>
   </footer>
@@ -881,14 +913,28 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 <div id="pg-leona" class="pg">
 
   <!-- HERO — full bleed, no white space -->
-  <section class="vhero">
-    <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/31/ac/79/cf/caption.jpg"
-         alt="Léona Café — comptoir à Woluwe-Saint-Lambert">
-    <div class="vhero-overlay" style="background:linear-gradient(160deg,rgba(0,0,0,.25) 0%,rgba(26,8,2,.65) 100%)"></div>
+  <section class="vhero" id="hero-leona">
+    <div class="vhero-slides">
+      <div class="vhero-slide act">
+        <img src="https://images.unsplash.com/photo-1559305616-3f99cd43e353?w=1400&q=85&auto=format&fit=crop" alt="Léona Café — façade">
+      </div>
+      <div class="vhero-slide">
+        <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?w=1400&q=85&auto=format&fit=crop" alt="Léona Café — latte art" loading="lazy">
+      </div>
+      <div class="vhero-slide">
+        <img src="https://images.unsplash.com/photo-1525351484163-7529414344d8?w=1400&q=85&auto=format&fit=crop" alt="Léona Café — brunch" loading="lazy">
+      </div>
+    </div>
+    <div class="vhero-overlay" style="background:linear-gradient(160deg,rgba(0,0,0,.2) 0%,rgba(20,6,2,.7) 100%)"></div>
     <div class="vhero-content">
       <p class="vhero-eyebrow">Café de spécialité · Woluwe-Saint-Lambert</p>
       <div class="vhero-title" style="font-size:clamp(56px,8vw,110px)">Léona<br><em>Café</em></div>
-      <p style="color:rgba(255,255,255,.7);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-top:20px">★ 4,8 &nbsp;·&nbsp; 197 avis Google &nbsp;·&nbsp; Ouvert depuis 2024</p>
+      <p style="color:rgba(255,255,255,.65);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-top:20px">★ 4,8 &nbsp;·&nbsp; 197 avis Google &nbsp;·&nbsp; Ouvert depuis 2024</p>
+    </div>
+    <div class="vhero-dots">
+      <button class="vhero-dot act" onclick="heroGo('leona',0)"></button>
+      <button class="vhero-dot" onclick="heroGo('leona',1)"></button>
+      <button class="vhero-dot" onclick="heroGo('leona',2)"></button>
     </div>
   </section>
 
@@ -1176,34 +1222,47 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 
   <!-- FOOTER -->
   <footer>
-    <div class="footer-grid">
-      <div class="footer-col">
-        <span class="footer-logo">Léona Café</span>
-        <p>Avenue Georges Henri 386<br>1200 Woluwe-Saint-Lambert<br>+32 494 40 28 92</p>
-        <p style="margin-top:12px;color:#666;font-size:12px">Mar–Sam · 9h–17h<br>Brunch sam 11h–14h · Walk-in</p>
+    <div class="footer-top-bar"></div>
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <span class="footer-logo">Léona Café</span>
+          <span class="footer-tagline">Café de spécialité · Woluwe-Saint-Lambert</span>
+          <p>Avenue Georges Henri 386<br>1200 Woluwe-Saint-Lambert</p>
+          <div class="footer-contact" style="margin-top:12px">
+            <a href="tel:+3249440289">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              +32 494 40 28 92
+            </a>
+          </div>
+          <div class="footer-social-icons">
+            <a class="footer-social-icon" href="https://www.instagram.com/leonacafe_bxl/" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>La carte</h4>
+          <a onclick="mTab('leona','cafes',null)">Cafés &amp; Co</a>
+          <a onclick="mTab('leona','colorees',null)">Boissons colorées</a>
+          <a onclick="mTab('leona','thes',null)">Thés &amp; Infusions</a>
+          <a onclick="mTab('leona','froides',null)">Boissons froides</a>
+          <a onclick="mTab('leona','brunch',null)">Brunch</a>
+        </div>
+        <div class="footer-col">
+          <h4>Nos adresses</h4>
+          <a onclick="go('home')">Toutes les adresses</a>
+          <a onclick="go('bouboule')">Bouboule</a>
+          <a onclick="go('jeux')">Le Bar à Jeux</a>
+        </div>
+        <div class="footer-col">
+          <h4>Horaires</h4>
+          <p>Mar–Sam · 9h–17h</p>
+          <p style="margin-top:8px;color:#666;font-size:12px">Brunch sam 11h–14h<br>Walk-in uniquement</p>
+        </div>
       </div>
-      <div class="footer-col">
-        <h4>La carte</h4>
-        <a onclick="mTab('leona','cafes',null)">Cafés &amp; Co</a>
-        <a onclick="mTab('leona','colorees',null)">Boissons colorées</a>
-        <a onclick="mTab('leona','thes',null)">Thés &amp; Infusions</a>
-        <a onclick="mTab('leona','froides',null)">Boissons froides</a>
-        <a onclick="mTab('leona','brunch',null)">Brunch</a>
+      <div class="footer-bottom">
+        <span>© 2024 Léona Café</span>
+        <div class="footer-bottom-links"><a onclick="go('home')">Toutes les adresses</a></div>
       </div>
-      <div class="footer-col">
-        <h4>Nos adresses</h4>
-        <a onclick="go('home')">Toutes les adresses</a>
-        <a onclick="go('bouboule')">Bouboule</a>
-        <a onclick="go('jeux')">Le Bar à Jeux</a>
-      </div>
-      <div class="footer-col">
-        <h4>Suivre</h4>
-        <a href="https://www.instagram.com/leonacafe_bxl/" target="_blank">Instagram</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2024 Léona Café</span>
-      <div class="footer-social"><a onclick="go('home')">Toutes les adresses</a></div>
     </div>
   </footer>
 
@@ -1215,13 +1274,28 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 ══════════════════════════════════════════ -->
 <div id="pg-bouboule" class="pg">
 
-  <section class="vhero">
-    <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=1400&q=85&auto=format&fit=crop"
-         alt="Bouboule — glacier artisanal Woluwe">
+  <section class="vhero" id="hero-bouboule">
+    <div class="vhero-slides">
+      <div class="vhero-slide act">
+        <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=1400&q=85&auto=format&fit=crop" alt="Bouboule — glacier artisanal">
+      </div>
+      <div class="vhero-slide">
+        <img src="https://images.unsplash.com/photo-1567206563114-c179d57a3a22?w=1400&q=85&auto=format&fit=crop" alt="Bouboule — cornet gelato" loading="lazy">
+      </div>
+      <div class="vhero-slide">
+        <img src="https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=1400&q=85&auto=format&fit=crop" alt="Bouboule — bacs de glace" loading="lazy">
+      </div>
+    </div>
     <div class="vhero-overlay"></div>
     <div class="vhero-content">
       <p class="vhero-eyebrow">Glacier artisanal · Woluwe-Saint-Lambert</p>
       <div class="vhero-title">Bouboule</div>
+      <p style="color:rgba(255,255,255,.65);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-top:20px">★ 4,8 &nbsp;·&nbsp; 120+ avis Google &nbsp;·&nbsp; 2e Gelato Festival 2021</p>
+    </div>
+    <div class="vhero-dots">
+      <button class="vhero-dot act" onclick="heroGo('bouboule',0)"></button>
+      <button class="vhero-dot" onclick="heroGo('bouboule',1)"></button>
+      <button class="vhero-dot" onclick="heroGo('bouboule',2)"></button>
     </div>
   </section>
 
@@ -1576,31 +1650,39 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
   </section>
 
   <footer>
-    <div class="footer-grid">
-      <div class="footer-col">
-        <span class="footer-logo">Bouboule</span>
-        <p>Avenue Albert Élisabeth<br>1200 Woluwe-Saint-Lambert</p>
-        <p style="margin-top:12px;color:#666;font-size:12px">Mercredi–Dimanche · 12h–19h</p>
+    <div class="footer-top-bar"></div>
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <span class="footer-logo">Bouboule</span>
+          <span class="footer-tagline">Glacier artisanal · Woluwe-Saint-Lambert</span>
+          <p>Avenue Albert Élisabeth<br>1200 Woluwe-Saint-Lambert</p>
+          <div class="footer-social-icons">
+            <a class="footer-social-icon" href="https://www.instagram.com/glacierbouboule/" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+            <a class="footer-social-icon" href="https://www.facebook.com/bouboule" target="_blank" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>La carte</h4>
+          <a onclick="mTab('bouboule','parfums',null)">Parfums du moment</a>
+          <a onclick="mTab('bouboule','tarifs',null)">Tarifs</a>
+        </div>
+        <div class="footer-col">
+          <h4>Nos adresses</h4>
+          <a onclick="go('home')">Toutes les adresses</a>
+          <a onclick="go('leona')">Léona Café</a>
+          <a onclick="go('jeux')">Le Bar à Jeux</a>
+        </div>
+        <div class="footer-col">
+          <h4>Horaires</h4>
+          <p>Mer–Dim · 12h–19h</p>
+          <p style="margin-top:8px;color:#666;font-size:12px">2e place Gelato Festival 2021</p>
+        </div>
       </div>
-      <div class="footer-col">
-        <h4>La carte</h4>
-        <a onclick="mTab('bouboule','parfums',null)">Parfums du moment</a>
-        <a onclick="mTab('bouboule','tarifs',null)">Tarifs</a>
+      <div class="footer-bottom">
+        <span>© 2024 Bouboule</span>
+        <div class="footer-bottom-links"><a onclick="go('home')">Toutes les adresses</a></div>
       </div>
-      <div class="footer-col">
-        <h4>Nos adresses</h4>
-        <a onclick="go('home')">Toutes les adresses</a>
-        <a onclick="go('leona')">Léona Café</a>
-        <a onclick="go('jeux')">Le Bar à Jeux</a>
-      </div>
-      <div class="footer-col">
-        <h4>Suivre</h4>
-        <a href="https://www.instagram.com/glacierbouboule/" target="_blank">Instagram</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2024 Bouboule</span>
-      <div class="footer-social"><a onclick="go('home')">Toutes les adresses</a></div>
     </div>
   </footer>
 
@@ -1612,13 +1694,28 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
 ══════════════════════════════════════════ -->
 <div id="pg-jeux" class="pg">
 
-  <section class="vhero">
-    <img src="https://img02.restaurantguru.com/cbc3-Restaurant-Le-Bar-a-Jeux-interior.jpg"
-         alt="Le Bar à Jeux — intérieur Saint-Gilles">
+  <section class="vhero" id="hero-jeux">
+    <div class="vhero-slides">
+      <div class="vhero-slide act">
+        <img src="https://images.unsplash.com/photo-1629760946220-5693ee4c46ac?w=1400&q=85&auto=format&fit=crop" alt="Le Bar à Jeux — jeux de société">
+      </div>
+      <div class="vhero-slide">
+        <img src="https://images.unsplash.com/photo-1510626176961-4b57d4fbad03?w=1400&q=85&auto=format&fit=crop" alt="Le Bar à Jeux — bar ambiance" loading="lazy">
+      </div>
+      <div class="vhero-slide">
+        <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1400&q=85&auto=format&fit=crop" alt="Le Bar à Jeux — soirée" loading="lazy">
+      </div>
+    </div>
     <div class="vhero-overlay"></div>
     <div class="vhero-content">
       <p class="vhero-eyebrow">Bar &amp; Jeux de société · Saint-Gilles</p>
       <div class="vhero-title">Le Bar<br><em>à Jeux</em></div>
+      <p style="color:rgba(255,255,255,.65);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-top:20px">★ 4,6 &nbsp;·&nbsp; 200+ jeux disponibles &nbsp;·&nbsp; Gyozas maison</p>
+    </div>
+    <div class="vhero-dots">
+      <button class="vhero-dot act" onclick="heroGo('jeux',0)"></button>
+      <button class="vhero-dot" onclick="heroGo('jeux',1)"></button>
+      <button class="vhero-dot" onclick="heroGo('jeux',2)"></button>
     </div>
   </section>
 
@@ -1825,32 +1922,39 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
   </section>
 
   <footer>
-    <div class="footer-grid">
-      <div class="footer-col">
-        <span class="footer-logo">Le Bar à Jeux</span>
-        <p>Chaussée d'Alsemberg 136<br>1060 Saint-Gilles</p>
-        <p style="margin-top:12px;color:#666;font-size:12px">Jeudi–Dimanche · 16h–00h</p>
+    <div class="footer-top-bar"></div>
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <span class="footer-logo">Le Bar à Jeux</span>
+          <span class="footer-tagline">Bar &amp; Jeux de société · Saint-Gilles</span>
+          <p>Chaussée d'Alsemberg 136<br>1060 Saint-Gilles</p>
+          <div class="footer-social-icons">
+            <a class="footer-social-icon" href="https://www.instagram.com/barajeux/" target="_blank" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>La carte</h4>
+          <a onclick="mTab('jeux','jeux',null)">Jeux disponibles</a>
+          <a onclick="mTab('jeux','bieres',null)">Bières &amp; Boissons</a>
+          <a onclick="mTab('jeux','food',null)">À manger</a>
+        </div>
+        <div class="footer-col">
+          <h4>Nos adresses</h4>
+          <a onclick="go('home')">Toutes les adresses</a>
+          <a onclick="go('leona')">Léona Café</a>
+          <a onclick="go('bouboule')">Bouboule</a>
+        </div>
+        <div class="footer-col">
+          <h4>Horaires</h4>
+          <p>Jeu–Dim · 16h–00h</p>
+          <p style="margin-top:8px;color:#666;font-size:12px">+200 jeux · Gyozas maison<br>Bières artisanales belges</p>
+        </div>
       </div>
-      <div class="footer-col">
-        <h4>La carte</h4>
-        <a onclick="mTab('jeux','jeux',null)">Jeux disponibles</a>
-        <a onclick="mTab('jeux','bieres',null)">Bières &amp; Boissons</a>
-        <a onclick="mTab('jeux','food',null)">À manger</a>
+      <div class="footer-bottom">
+        <span>© 2024 Le Bar à Jeux</span>
+        <div class="footer-bottom-links"><a onclick="go('home')">Toutes les adresses</a></div>
       </div>
-      <div class="footer-col">
-        <h4>Nos adresses</h4>
-        <a onclick="go('home')">Toutes les adresses</a>
-        <a onclick="go('leona')">Léona Café</a>
-        <a onclick="go('bouboule')">Bouboule</a>
-      </div>
-      <div class="footer-col">
-        <h4>Suivre</h4>
-        <a href="https://www.instagram.com/barajeux/" target="_blank">Instagram</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2024 Le Bar à Jeux</span>
-      <div class="footer-social"><a onclick="go('home')">Toutes les adresses</a></div>
     </div>
   </footer>
 
@@ -1931,7 +2035,7 @@ var revealIO = new IntersectionObserver(function(entries) {
       revealIO.unobserve(e.target);
     }
   });
-}, { threshold: 0.1 });
+}, { threshold: 0, rootMargin: '0px 0px -72px 0px' });
 
 function initReveal() {
   document.querySelectorAll('.reveal').forEach(function(el) {
@@ -1939,6 +2043,53 @@ function initReveal() {
     revealIO.observe(el);
   });
 }
+
+/* ── HERO SLIDESHOW ── */
+var heroTimers = {};
+var heroIndexes = {};
+
+function heroGo(name, idx) {
+  var hero = document.getElementById('hero-' + name);
+  if (!hero) return;
+  var slides = hero.querySelectorAll('.vhero-slide');
+  var dots = hero.querySelectorAll('.vhero-dot');
+  var cur = heroIndexes[name] || 0;
+  if (slides[cur]) slides[cur].classList.remove('act');
+  if (dots[cur]) dots[cur].classList.remove('act');
+  heroIndexes[name] = idx % slides.length;
+  if (slides[heroIndexes[name]]) slides[heroIndexes[name]].classList.add('act');
+  if (dots[heroIndexes[name]]) dots[heroIndexes[name]].classList.add('act');
+}
+
+function startHero(name) {
+  stopHero(name);
+  heroIndexes[name] = 0;
+  heroTimers[name] = setInterval(function() {
+    heroIndexes[name] = ((heroIndexes[name] || 0) + 1);
+    heroGo(name, heroIndexes[name]);
+  }, 4800);
+}
+
+function stopHero(name) {
+  if (heroTimers[name]) { clearInterval(heroTimers[name]); delete heroTimers[name]; }
+}
+
+/* ── NAVIGATION (updated) ── */
+var _origGo = go;
+// wrap go to manage slideshows
+(function(){
+  var pageHero = { leona: 'leona', bouboule: 'bouboule', jeux: 'jeux' };
+  var _go = go;
+  go = function(id) {
+    // stop current hero
+    Object.keys(pageHero).forEach(stopHero);
+    _go(id);
+    // start new hero after curtain
+    setTimeout(function() {
+      if (pageHero[id]) startHero(id);
+    }, 500);
+  };
+})();
 
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', function() {
