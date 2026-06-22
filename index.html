@@ -325,7 +325,10 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
   aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;
   position:relative;overflow:hidden;
 }
-.flavour-thumb svg{width:44px;height:44px;stroke:rgba(255,255,255,.55);fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.flavour-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.flavour-card:hover .flavour-thumb img{transform:scale(1.07)}
+.flavour-tint{position:absolute;inset:0;z-index:1}
+.flavour-thumb svg{position:relative;z-index:2;width:44px;height:44px;stroke:rgba(255,255,255,.7);fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
 .flavour-card-body{padding:16px 18px 20px}
 .flavour-name{font-size:15px;font-weight:400;color:#1a1a1a}
 .flavour-desc{font-size:12px;color:#999;margin-top:4px;line-height:1.5}
@@ -364,9 +367,14 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
   display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));
   gap:16px;padding-top:40px;
 }
-.game-card{padding:22px 20px;border:1px solid #e8e8e8;transition:box-shadow .25s ease}
-.game-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.07)}
-.game-icon{width:32px;height:32px;margin-bottom:14px}
+.game-card{border:1px solid #e8e8e8;overflow:hidden;transition:box-shadow .35s cubic-bezier(.22,1,.36,1)}
+.game-card:hover{box-shadow:0 8px 28px rgba(0,0,0,.10)}
+.game-thumb{aspect-ratio:4/3;position:relative;overflow:hidden}
+.game-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.game-card:hover .game-thumb img{transform:scale(1.07)}
+.game-tint{position:absolute;inset:0;z-index:1}
+.game-card-body{padding:16px 18px 18px}
+.game-icon{width:28px;height:28px;margin-bottom:10px}
 .game-icon svg{width:100%;height:100%;stroke:#1a1a1a;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .game-name{font-size:15px;font-weight:400}
 .game-meta{font-size:12px;color:#999;margin-top:4px}
@@ -1277,7 +1285,9 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
       <div class="flavour-grid">
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#7bbf78,#b4e0b0)">
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1603736029103-dafad0eb0906?w=400&q=80&auto=format&fit=crop" alt="Pistache gelato" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(80,160,70,.45)"></div>
             <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
@@ -1288,7 +1298,9 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#c49a55,#e8cfa0)">
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1515037028865-0a2a82603f7c?w=400&q=80&auto=format&fit=crop" alt="Sarrasin gelato" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(150,100,30,.50)"></div>
             <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
@@ -1299,7 +1311,9 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#9cc855,#d4f0a0)">
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1618581260815-9371027b9516?w=400&q=80&auto=format&fit=crop" alt="Yuzu thé vert gelato" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(110,190,50,.45)"></div>
             <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
@@ -1310,7 +1324,9 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#d94070,#f09ab0)">
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1532678465554-94846274c297?w=400&q=80&auto=format&fit=crop" alt="Framboise gelato" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(200,40,80,.45)"></div>
             <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
@@ -1321,8 +1337,10 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#e8d8b0,#fdf4e0)">
-            <svg viewBox="0 0 24 24" style="stroke:rgba(0,0,0,.25)"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1646321155308-96c1b84e4685?w=400&q=80&auto=format&fit=crop" alt="Vanille gelato" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(210,185,140,.35)"></div>
+            <svg viewBox="0 0 24 24" style="stroke:rgba(255,255,255,.8)"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
             <div class="flavour-name">Vanille Madagascar</div>
@@ -1332,7 +1350,9 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#5560c0,#9090e0)">
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1515037028865-0a2a82603f7c?w=400&q=80&auto=format&fit=crop" alt="Myrtille gelato" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(60,70,200,.50)"></div>
             <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
@@ -1343,7 +1363,9 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#3a2518,#7a5040)">
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1562790879-dfde82829db0?w=400&q=80&auto=format&fit=crop" alt="Chocolat noir gelato" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(15,8,5,.55)"></div>
             <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
@@ -1354,8 +1376,10 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#e8d020,#fef0a0)">
-            <svg viewBox="0 0 24 24" style="stroke:rgba(0,0,0,.3)"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1618581260815-9371027b9516?w=400&q=80&auto=format&fit=crop" alt="Citron sorbet" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(210,190,0,.40)"></div>
+            <svg viewBox="0 0 24 24" style="stroke:rgba(255,255,255,.8)"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
             <div class="flavour-name">Citron</div>
@@ -1365,7 +1389,9 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#6a4025,#b07850)">
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1603736029103-dafad0eb0906?w=400&q=80&auto=format&fit=crop" alt="Café gelato" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(70,35,15,.55)"></div>
             <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
@@ -1376,7 +1402,9 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#48c8a0,#a0e8d0)">
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1646321155308-96c1b84e4685?w=400&q=80&auto=format&fit=crop" alt="Menthe gelato" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(30,170,120,.45)"></div>
             <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
@@ -1387,7 +1415,9 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#d08040,#f0c090)">
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1515037028865-0a2a82603f7c?w=400&q=80&auto=format&fit=crop" alt="Caramel beurre salé gelato" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(195,100,20,.45)"></div>
             <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
@@ -1398,7 +1428,9 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
         </div>
 
         <div class="flavour-card">
-          <div class="flavour-thumb" style="background:linear-gradient(145deg,#c8507a,#e8a0c0)">
+          <div class="flavour-thumb">
+            <img src="https://images.unsplash.com/photo-1532678465554-94846274c297?w=400&q=80&auto=format&fit=crop" alt="Kulfi gelato" loading="lazy">
+            <div class="flavour-tint" style="background:rgba(190,55,110,.42)"></div>
             <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9.5 14l-1 7h7l-1-7" stroke-linejoin="round"/></svg>
           </div>
           <div class="flavour-card-body">
@@ -1588,52 +1620,52 @@ footer{background:#1a1a1a;color:#fff;padding:64px 48px 40px}
       <div class="msec-title">Sélection de jeux — +200 titres disponibles</div>
       <div class="game-grid">
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.2" fill="#1a1a1a" stroke="none"/><circle cx="16" cy="8" r="1.2" fill="#1a1a1a" stroke="none"/><circle cx="8" cy="16" r="1.2" fill="#1a1a1a" stroke="none"/><circle cx="16" cy="16" r="1.2" fill="#1a1a1a" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="#1a1a1a" stroke="none"/></svg></div>
-          <div class="game-name">Catan</div><div class="game-meta">3–4 joueurs · Stratégie</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1629760946220-5693ee4c46ac?w=400&q=80&auto=format&fit=crop" alt="Catan" loading="lazy"><div class="game-tint" style="background:rgba(180,80,20,.45)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8" cy="8" r="1.2" fill="#1a1a1a" stroke="none"/><circle cx="16" cy="8" r="1.2" fill="#1a1a1a" stroke="none"/><circle cx="8" cy="16" r="1.2" fill="#1a1a1a" stroke="none"/><circle cx="16" cy="16" r="1.2" fill="#1a1a1a" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="#1a1a1a" stroke="none"/></svg></div><div class="game-name">Catan</div><div class="game-meta">3–4 joueurs · Stratégie</div></div>
         </div>
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="14" height="18" rx="2"/><path d="M8 2h10a2 2 0 0 1 2 2v14"/></svg></div>
-          <div class="game-name">Dixit</div><div class="game-meta">3–6 joueurs · Créativité</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1541278107931-e006523892df?w=400&q=80&auto=format&fit=crop" alt="Dixit" loading="lazy"><div class="game-tint" style="background:rgba(120,60,180,.42)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="14" height="18" rx="2"/><path d="M8 2h10a2 2 0 0 1 2 2v14"/></svg></div><div class="game-name">Dixit</div><div class="game-meta">3–6 joueurs · Créativité</div></div>
         </div>
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-          <div class="game-name">Azul</div><div class="game-meta">2–4 joueurs · Abstrait</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1632501641765-e568d28b0015?w=400&q=80&auto=format&fit=crop" alt="Azul" loading="lazy"><div class="game-tint" style="background:rgba(20,90,200,.42)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div><div class="game-name">Azul</div><div class="game-meta">2–4 joueurs · Abstrait</div></div>
         </div>
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-          <div class="game-name">7 Wonders</div><div class="game-meta">2–7 joueurs · Stratégie</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1659480142923-0cd01191e0e9?w=400&q=80&auto=format&fit=crop" alt="7 Wonders" loading="lazy"><div class="game-tint" style="background:rgba(170,130,0,.45)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="game-name">7 Wonders</div><div class="game-meta">2–7 joueurs · Stratégie</div></div>
         </div>
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><polygon points="6 3 18 3 22 9 12 21 2 9"/><polyline points="2 9 12 9 18 3"/><line x1="12" y1="9" x2="12" y2="21"/></svg></div>
-          <div class="game-name">Splendor</div><div class="game-meta">2–4 joueurs · Gestion</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1622975696911-c1c444035f43?w=400&q=80&auto=format&fit=crop" alt="Splendor" loading="lazy"><div class="game-tint" style="background:rgba(20,130,80,.42)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><polygon points="6 3 18 3 22 9 12 21 2 9"/><polyline points="2 9 12 9 18 3"/><line x1="12" y1="9" x2="12" y2="21"/></svg></div><div class="game-name">Splendor</div><div class="game-meta">2–4 joueurs · Gestion</div></div>
         </div>
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg></div>
-          <div class="game-name">Wingspan</div><div class="game-meta">1–5 joueurs · Moteur</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1629760946220-5693ee4c46ac?w=400&q=80&auto=format&fit=crop" alt="Wingspan" loading="lazy"><div class="game-tint" style="background:rgba(40,140,60,.42)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg></div><div class="game-name">Wingspan</div><div class="game-meta">1–5 joueurs · Moteur</div></div>
         </div>
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>
-          <div class="game-name">Ticket to Ride</div><div class="game-meta">2–5 joueurs · Réseau</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1585504198199-20277593b94f?w=400&q=80&auto=format&fit=crop" alt="Ticket to Ride" loading="lazy"><div class="game-tint" style="background:rgba(180,20,30,.42)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div><div class="game-name">Ticket to Ride</div><div class="game-meta">2–5 joueurs · Réseau</div></div>
         </div>
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
-          <div class="game-name">Mysterium</div><div class="game-meta">2–7 joueurs · Coopératif</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1541278107931-e006523892df?w=400&q=80&auto=format&fit=crop" alt="Mysterium" loading="lazy"><div class="game-tint" style="background:rgba(50,20,100,.55)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="game-name">Mysterium</div><div class="game-meta">2–7 joueurs · Coopératif</div></div>
         </div>
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-          <div class="game-name">Ghost Blitz</div><div class="game-meta">2–8 joueurs · Rapidité</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1589804845133-49b5e06cc415?w=400&q=80&auto=format&fit=crop" alt="Ghost Blitz" loading="lazy"><div class="game-tint" style="background:rgba(200,30,30,.42)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="game-name">Ghost Blitz</div><div class="game-meta">2–8 joueurs · Rapidité</div></div>
         </div>
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-          <div class="game-name">Codenames</div><div class="game-meta">4+ joueurs · Déduction</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1622975696911-c1c444035f43?w=400&q=80&auto=format&fit=crop" alt="Codenames" loading="lazy"><div class="game-tint" style="background:rgba(10,40,130,.48)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="game-name">Codenames</div><div class="game-meta">4+ joueurs · Déduction</div></div>
         </div>
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="14" height="18" rx="2"/><path d="M8 2h10a2 2 0 0 1 2 2v14"/><line x1="6" y1="10" x2="10" y2="10"/><line x1="6" y1="14" x2="10" y2="14"/></svg></div>
-          <div class="game-name">Uno</div><div class="game-meta">2–10 joueurs · Classique</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1501003878151-d3cb87799705?w=400&q=80&auto=format&fit=crop" alt="Uno" loading="lazy"><div class="game-tint" style="background:rgba(210,40,20,.42)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="14" height="18" rx="2"/><path d="M8 2h10a2 2 0 0 1 2 2v14"/><line x1="6" y1="10" x2="10" y2="10"/><line x1="6" y1="14" x2="10" y2="14"/></svg></div><div class="game-name">Uno</div><div class="game-meta">2–10 joueurs · Classique</div></div>
         </div>
         <div class="game-card">
-          <div class="game-icon"><svg viewBox="0 0 24 24"><path d="M8 2h8v4l-2 2h-4L8 6V2z"/><rect x="7" y="8" width="10" height="4" rx="1"/><path d="M10 12v6"/><path d="M14 12v6"/><rect x="6" y="18" width="12" height="2"/><rect x="4" y="20" width="16" height="2"/></svg></div>
-          <div class="game-name">Échecs</div><div class="game-meta">2 joueurs · Classique</div>
+          <div class="game-thumb"><img src="https://images.unsplash.com/photo-1585504198199-20277593b94f?w=400&q=80&auto=format&fit=crop" alt="Échecs" loading="lazy"><div class="game-tint" style="background:rgba(20,20,20,.50)"></div></div>
+          <div class="game-card-body"><div class="game-icon"><svg viewBox="0 0 24 24"><path d="M8 2h8v4l-2 2h-4L8 6V2z"/><rect x="7" y="8" width="10" height="4" rx="1"/><path d="M10 12v6"/><path d="M14 12v6"/><rect x="6" y="18" width="12" height="2"/><rect x="4" y="20" width="16" height="2"/></svg></div><div class="game-name">Échecs</div><div class="game-meta">2 joueurs · Classique</div></div>
         </div>
       </div>
     </div>
