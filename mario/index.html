@@ -1729,6 +1729,41 @@ function drawBush(x,y){
   ctx.beginPath(); ctx.arc(x+20,y+2,4,0,Math.PI*2); ctx.fill();
 }
 
+// Tall rounded pastel hill (capsule) — soft distant background, NSMB-style
+function drawBgHill(cx,baseY,w,h,col,colL){
+  const r=w/2;
+  ctx.fillStyle=col;
+  ctx.beginPath();
+  ctx.moveTo(cx-r,baseY);
+  ctx.lineTo(cx-r,baseY-h+r);
+  ctx.arc(cx,baseY-h+r,r,Math.PI,0);
+  ctx.lineTo(cx+r,baseY);
+  ctx.closePath(); ctx.fill();
+  // soft diagonal highlight stripes
+  ctx.fillStyle=colL;
+  for(let i=0;i<3;i++){ const yy=baseY-h+r+8+i*14; ctx.fillRect(cx-r+3,yy,w-6,4); }
+  // rounded top sheen
+  ctx.fillStyle=colL;
+  ctx.beginPath(); ctx.arc(cx-r*0.3,baseY-h+r,r*0.5,Math.PI,0); ctx.fill();
+}
+
+// Decorative red-cap mushroom prop on the grass
+function drawDecoMush(x,y){
+  ctx.fillStyle='#9c4030'; ctx.fillRect(x+5,y+6,4,5);       // stem shadow
+  ctx.fillStyle='#f8e0c0'; ctx.fillRect(x+4,y+6,4,5);       // stem
+  ctx.fillStyle='#e02828'; ctx.beginPath(); ctx.arc(x+6,y+5,7,Math.PI,0); ctx.fill(); // cap
+  ctx.fillRect(x-1,y+4,14,2);
+  ctx.fillStyle='#f8f8f8'; ctx.fillRect(x+2,y+1,2,2); ctx.fillRect(x+8,y+2,3,2); // spots
+}
+
+// Tiny flower cluster
+function drawFlower(x,y,col){
+  ctx.fillStyle='#1c9c1c'; ctx.fillRect(x+2,y+4,1,4); // stem
+  ctx.fillStyle=col;
+  ctx.fillRect(x+1,y+2,3,1); ctx.fillRect(x,y+3,5,1); ctx.fillRect(x+1,y+4,3,1);
+  ctx.fillStyle='#f8e840'; ctx.fillRect(x+2,y+3,1,1); // center
+}
+
 function drawWater(){
   // Animated water for level 3 (fills from row 12 down)
   const wy=12*TILE;
@@ -1768,6 +1803,16 @@ function drawScenery(cx){
     for(const c of clouds){ const sx=c.x-cx*.5; if(sx<-60||sx>NW+60) continue; drawCloud(sx,c.y); }
     return;
   }
+  // ── Far pastel capsule hills (deep parallax 0.3) ──
+  const w2=gS.world>=2;
+  const palA=w2?['#d89060','#f0b888']:['#9cd8a0','#c0f0c4']; // green / sandy
+  const palB=w2?['#c8a8d8','#e8d0f0']:['#a8c8f0','#d0e4f8']; // blue/lilac
+  const palC=w2?['#f0c878','#f8e0a8']:['#f0b0b8','#f8d4d8']; // pink/peach
+  const bgHills=[{x:70,w:64,h:120,p:palA},{x:200,w:48,h:90,p:palB},{x:330,w:72,h:150,p:palC},
+                 {x:470,w:56,h:110,p:palA},{x:600,w:64,h:130,p:palB},{x:760,w:48,h:95,p:palC},
+                 {x:900,w:72,h:140,p:palA},{x:1040,w:56,h:105,p:palB}];
+  for(const h of bgHills){ const sx=h.x-cx*0.3; if(sx<-h.w||sx>NW+h.w) continue; drawBgHill(sx,NH-28,h.w,h.h,h.p[0],h.p[1]); }
+
   // Cloud positions (x in world coords, parallax 0.5)
   const clouds=[{x:48,y:36},{x:128,y:28},{x:192,y:40},{x:320,y:32},{x:400,y:38},{x:512,y:28},{x:640,y:36},{x:784,y:30},{x:928,y:38}];
   for(const c of clouds){ const sx=c.x-cx*.5; if(sx<-60||sx>NW+60) continue; drawCloud(sx,c.y); }
@@ -1779,6 +1824,29 @@ function drawScenery(cx){
   // Bushes
   const bushes=[{x:96},{x:224},{x:352},{x:480},{x:608},{x:736}];
   for(const b of bushes){ const sx=b.x-cx; if(sx<-48||sx>NW+48) continue; drawBush(sx,NH-32); }
+}
+
+// Foreground grass decorations — drawn after tiles, only on surface tiles
+function drawGrassDeco(cx){
+  if(gS.lv===2||gS.lv===4) return;
+  const fcol=['#f868a8','#f8a838','#a868f8','#f85858'];
+  const c0=Math.max(0,Math.floor(cx/TILE)), c1=c0+17;
+  for(let c=c0;c<=c1;c++){
+    // place a prop on a surface tile based on a deterministic hash
+    if(!solid(tilemap.get(c,tilemapSurfaceRow(c))) ) continue;
+    const r=tilemapSurfaceRow(c);
+    if(r<0) continue;
+    const h=(c*2654435761)>>>0; // cheap hash
+    const sx=c*TILE-cx, sy=r*TILE;
+    if(h%17===0) drawDecoMush(sx+1,sy-12);
+    else if(h%11===0) drawFlower(sx+5,sy-8,fcol[h%4]);
+    else if(h%23===0) drawBush(sx-8,sy-26);
+  }
+}
+// Find the topmost solid (surface) row of a column, or -1
+function tilemapSurfaceRow(c){
+  for(let r=0;r<tilemap.h;r++){ if(solid(tilemap.get(c,r))) return r; }
+  return -1;
 }
 
 // Flagpole flag animation
@@ -1929,6 +1997,7 @@ function render(){
 
   drawScenery(cx);
   tilemap.draw(cx);
+  drawGrassDeco(cx);
   drawFlag(cx);
   drawObjs(cx); drawFBs(cx); drawPlants(cx); drawFirebars(cx);
   for(const e of enemies) e.draw(cx);
