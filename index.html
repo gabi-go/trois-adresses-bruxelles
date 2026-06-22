@@ -2091,10 +2091,37 @@ var _origGo = go;
   };
 })();
 
+/* ── VENUE MODE (URL param ?v=leona|bouboule|jeux) ── */
+function initVenueMode() {
+  var params = new URLSearchParams(window.location.search);
+  var v = params.get('v');
+  if (!v || !['leona','bouboule','jeux'].includes(v)) return;
+
+  // navigate directly to venue (skip curtain on first load)
+  var cur = document.querySelector('.pg.on');
+  if (cur) cur.classList.remove('on');
+  var pg = document.getElementById('pg-' + v);
+  if (pg) pg.classList.add('on');
+
+  // hide announce bar and top nav (no cross-venue links needed)
+  var announce = document.getElementById('announce');
+  if (announce) announce.style.display = 'none';
+  var navLeft = document.querySelector('.nav-left');
+  if (navLeft) navLeft.style.visibility = 'hidden';
+
+  // hide back bar entirely in venue mode
+  document.getElementById('back-bar').style.display = 'none';
+
+  // start hero slideshow
+  setTimeout(function(){ startHero(v); }, 100);
+  setTimeout(initReveal, 120);
+}
+
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('back-bar').style.display = 'none';
   initReveal();
+  initVenueMode();
 });
 </script>
 
