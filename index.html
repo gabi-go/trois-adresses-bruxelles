@@ -83,6 +83,22 @@ ul{list-style:none}
 .nav-left a:hover,.nav-right a:hover{opacity:.5}
 .nav-icon{width:20px;height:20px;stroke:#1a1a1a;fill:none;stroke-width:1.5;stroke-linecap:round}
 
+/* Mobile hamburger + drawer */
+#nav-burger{display:none;width:44px;height:44px;background:none;border:0;cursor:pointer;
+  flex-direction:column;justify-content:center;align-items:center;gap:5px;justify-self:end}
+#nav-burger span{display:block;width:22px;height:2px;background:#1a1a1a;transition:transform .3s,opacity .3s}
+#nav-burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+#nav-burger.open span:nth-child(2){opacity:0}
+#nav-burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+#nav-drawer{position:fixed;inset:0;z-index:90;background:rgba(255,255,255,.98);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;
+  opacity:0;visibility:hidden;transition:opacity .3s}
+#nav-drawer.open{opacity:1;visibility:visible}
+#nav-drawer a{font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;
+  color:#1a1a1a;padding:14px 24px;min-height:44px;display:flex;align-items:center}
+#nav-drawer .drawer-ig{font-family:'Jost',sans-serif;font-size:13px;letter-spacing:.08em;
+  text-transform:uppercase;margin-top:20px}
+
 /* Back bar (venue pages) */
 #back-bar{
   display:none;
@@ -399,6 +415,12 @@ footer{background:#111;color:#fff;padding:0 0 0}
 /* ── VENUE MAP + SOCIAL ── */
 .venue-map{border-top:1px solid #e8e8e8}
 .venue-map iframe{display:block;width:100%;height:400px;border:0;filter:grayscale(10%) contrast(1.04)}
+.map-facade{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;height:400px;border:0;cursor:pointer;
+  background:linear-gradient(135deg,#eceee9,#e3e6e1);color:#3a3a3a;font-family:'Jost',sans-serif}
+.map-facade svg{width:30px;height:30px;stroke:#b5422a;stroke-width:1.6;fill:none}
+.map-facade .map-facade-cta{font-size:13px;letter-spacing:.08em;text-transform:uppercase;border:1px solid #3a3a3a;padding:11px 26px;border-radius:2px;transition:background .2s,color .2s;min-height:44px;display:inline-flex;align-items:center}
+.map-facade:hover .map-facade-cta{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.map-facade small{font-size:11px;color:#777;letter-spacing:.04em}
 .venue-map-bar{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #e8e8e8}
 .vmap-cell{padding:28px 32px;border-right:1px solid #e8e8e8;font-size:13px;color:#555;line-height:1.75}
 .vmap-cell:last-child{border-right:none}
@@ -664,6 +686,7 @@ footer{background:#111;color:#fff;padding:0 0 0}
   .nav-logo{justify-self:start}
   .nav-right{gap:14px}
   .nav-right a{display:none}
+  #nav-burger{display:flex}
   .trust-bar{font-size:10px;padding:12px 16px}
   .coll-grid{grid-template-columns:1fr;gap:16px}
   .blog-grid{grid-template-columns:1fr}
@@ -772,8 +795,20 @@ a:focus-visible,button:focus-visible,[onclick]:focus-visible{outline:2px solid #
       <a href="https://www.instagram.com/leonacafe_bxl/" target="_blank" rel="noopener noreferrer">Instagram</a>
       <a href="#" onclick="go('home');return false">Nos adresses</a>
     </nav>
+    <button id="nav-burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav-drawer" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
+
+<!-- ── MOBILE MENU DRAWER ── -->
+<div id="nav-drawer" aria-label="Menu mobile">
+  <a href="#" onclick="go('home');closeMenu();return false">Accueil</a>
+  <a href="#" onclick="go('leona');closeMenu();return false">Léona Café</a>
+  <a href="#" onclick="go('bouboule');closeMenu();return false">Bouboule</a>
+  <a href="#" onclick="go('jeux');closeMenu();return false">Le Bar à Jeux</a>
+  <a class="drawer-ig" href="https://www.instagram.com/leonacafe_bxl/" target="_blank" rel="noopener noreferrer">Instagram</a>
+</div>
 
 <!-- ── BACK BAR (shown on venue pages) ── -->
 <div id="back-bar">
@@ -1265,10 +1300,13 @@ a:focus-visible,button:focus-visible,[onclick]:focus-visible{outline:2px solid #
 
   <!-- MAP + SOCIAL — LÉONA -->
   <section class="venue-map">
-    <iframe
-      src="https://maps.google.com/maps?q=Avenue+Georges+Henri+386,+1200+Woluwe-Saint-Lambert&output=embed&z=16"
-      loading="lazy" title="Léona Café — carte">
-    </iframe>
+    <button class="map-facade" onclick="loadMap(this)"
+      data-map="https://maps.google.com/maps?q=Avenue+Georges+Henri+386,+1200+Woluwe-Saint-Lambert&output=embed&z=16"
+      data-title="Léona Café — carte" aria-label="Afficher la carte Google Maps de Léona Café">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="map-facade-cta">Afficher la carte</span>
+      <small>Avenue Georges Henri 386, 1200 Woluwe-Saint-Lambert</small>
+    </button>
     <div class="venue-map-bar">
       <div class="vmap-cell">
         <strong>Adresse</strong>
@@ -1695,10 +1733,13 @@ a:focus-visible,button:focus-visible,[onclick]:focus-visible{outline:2px solid #
 
   <!-- MAP + SOCIAL — BOUBOULE -->
   <section class="venue-map">
-    <iframe
-      src="https://maps.google.com/maps?q=Avenue+Albert+Elisabeth,+1200+Woluwe-Saint-Lambert&output=embed&z=16"
-      loading="lazy" title="Bouboule — carte">
-    </iframe>
+    <button class="map-facade" onclick="loadMap(this)"
+      data-map="https://maps.google.com/maps?q=Avenue+Albert+Elisabeth,+1200+Woluwe-Saint-Lambert&output=embed&z=16"
+      data-title="Bouboule — carte" aria-label="Afficher la carte Google Maps de Bouboule">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="map-facade-cta">Afficher la carte</span>
+      <small>Avenue Albert Élisabeth, 1200 Woluwe-Saint-Lambert</small>
+    </button>
     <div class="venue-map-bar">
       <div class="vmap-cell">
         <strong>Adresse</strong>
@@ -1968,10 +2009,13 @@ a:focus-visible,button:focus-visible,[onclick]:focus-visible{outline:2px solid #
 
   <!-- MAP + SOCIAL — BAR À JEUX -->
   <section class="venue-map">
-    <iframe
-      src="https://maps.google.com/maps?q=Chaussée+d%27Alsemberg+136,+1060+Saint-Gilles,+Bruxelles&output=embed&z=16"
-      loading="lazy" title="Le Bar à Jeux — carte">
-    </iframe>
+    <button class="map-facade" onclick="loadMap(this)"
+      data-map="https://maps.google.com/maps?q=Chaussée+d%27Alsemberg+136,+1060+Saint-Gilles,+Bruxelles&output=embed&z=16"
+      data-title="Le Bar à Jeux — carte" aria-label="Afficher la carte Google Maps du Bar à Jeux">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="map-facade-cta">Afficher la carte</span>
+      <small>Chaussée d'Alsemberg 136, 1060 Saint-Gilles</small>
+    </button>
     <div class="venue-map-bar">
       <div class="vmap-cell">
         <strong>Adresse</strong>
@@ -2058,8 +2102,8 @@ function go(id) {
 
     // update real-time open/closed status on venue pages
     setVenueStatus(id);
-    // re-init scroll reveal for new page
-    setTimeout(initReveal, 80);
+    // re-init scroll reveal + responsive images for the now-visible page
+    setTimeout(function(){ initReveal(); enhanceImages(next); }, 80);
 
     setTimeout(function() { c.classList.remove('show'); }, 80);
   }, 380);
@@ -2226,13 +2270,15 @@ function initVenueMode() {
   if (announce) announce.style.display = 'none';
   var navLeft = document.querySelector('.nav-left');
   if (navLeft) navLeft.style.display = 'none';
+  var burger = document.getElementById('nav-burger');
+  if (burger) burger.style.display = 'none';
 
   // hide back bar entirely in venue mode
   document.getElementById('back-bar').style.display = 'none';
 
   // start hero slideshow
   setTimeout(function(){ startHero(v); }, 100);
-  setTimeout(initReveal, 120);
+  setTimeout(function(){ initReveal(); enhanceImages(pg); }, 120);
 }
 
 /* ── KEYBOARD ACCESSIBILITY ──
@@ -2265,6 +2311,70 @@ function guardImages() {
   });
 }
 
+/* ── RESPONSIVE IMAGES ──
+   Build a srcset for every Unsplash image and set `sizes` from the real
+   rendered width, so phones don't download desktop-sized files. Heroes are
+   full-bleed (100vw); other images use their measured width. Re-run when a
+   page becomes visible (hidden pages measure 0 until shown). */
+function enhanceImages(root) {
+  var scope = root || document;
+  scope.querySelectorAll('img[src*="images.unsplash.com"]').forEach(function(img) {
+    if (img.dataset.srcset === 'done') return;
+    var base = img.src.split('?')[0];
+    var isHero = img.closest('.vhero-slide') || img.closest('.hero');
+    var sizesVal;
+    if (isHero) {
+      sizesVal = '100vw';
+    } else {
+      var w = img.clientWidth || (img.parentElement && img.parentElement.clientWidth) || 0;
+      if (!w) return; // not laid out yet (hidden page) — try again when shown
+      sizesVal = Math.ceil(w) + 'px';
+    }
+    var widths = [400, 600, 800, 1000, 1200, 1600];
+    img.srcset = widths.map(function(x) {
+      return base + '?w=' + x + '&q=80&auto=format&fit=crop ' + x + 'w';
+    }).join(', ');
+    img.sizes = sizesVal;
+    img.dataset.srcset = 'done';
+  });
+}
+
+/* ── MOBILE MENU ── */
+function toggleMenu() {
+  var drawer = document.getElementById('nav-drawer');
+  var burger = document.getElementById('nav-burger');
+  var open = drawer.classList.toggle('open');
+  burger.classList.toggle('open', open);
+  burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  burger.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function closeMenu() {
+  var drawer = document.getElementById('nav-drawer');
+  if (!drawer.classList.contains('open')) return;
+  drawer.classList.remove('open');
+  var burger = document.getElementById('nav-burger');
+  burger.classList.remove('open');
+  burger.setAttribute('aria-expanded', 'false');
+  burger.setAttribute('aria-label', 'Ouvrir le menu');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeMenu();
+});
+
+/* ── MAPS CLICK-TO-LOAD ──
+   Don't load Google Maps iframes until the user asks — saves 3 third-party
+   iframe loads per session and improves privacy + initial load. */
+function loadMap(btn) {
+  var iframe = document.createElement('iframe');
+  iframe.src = btn.getAttribute('data-map');
+  iframe.title = btn.getAttribute('data-title') || 'Carte';
+  iframe.loading = 'lazy';
+  iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+  btn.replaceWith(iframe);
+}
+
 /* ── DYNAMIC COPYRIGHT YEAR ── */
 function updateYear() {
   var y = new Date().getFullYear();
@@ -2277,6 +2387,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initReveal();
   enhanceClickables();
   guardImages();
+  enhanceImages();
   updateYear();
   refreshAllStatus();
   setInterval(refreshAllStatus, 60000); // keep status fresh without re-navigation
