@@ -5,9 +5,36 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Trois Adresses · Bruxelles — Léona, Bouboule, Le Bar à Jeux</title>
 <meta name="description" content="Trois adresses bruxelloises : Léona Café (spécialité & brunch), Bouboule (glacier artisanal) et Le Bar à Jeux (jeux & bières).">
+<link rel="canonical" href="https://gabi-go.github.io/trois-adresses-bruxelles/">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#1a1a1a">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_BE">
+<meta property="og:site_name" content="Trois Adresses · Bruxelles">
+<meta property="og:title" content="Trois Adresses · Bruxelles — Léona, Bouboule, Le Bar à Jeux">
+<meta property="og:description" content="Trois adresses bruxelloises indépendantes : Léona Café (spécialité & brunch), Bouboule (glacier artisanal) et Le Bar à Jeux (jeux & bières).">
+<meta property="og:url" content="https://gabi-go.github.io/trois-adresses-bruxelles/">
+<meta property="og:image" content="https://images.unsplash.com/photo-1559305616-3f99cd43e353?w=1200&q=85&auto=format&fit=crop">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Trois Adresses · Bruxelles">
+<meta name="twitter:description" content="Léona Café, Bouboule (glacier) et Le Bar à Jeux — trois adresses indépendantes à Bruxelles.">
+<meta name="twitter:image" content="https://images.unsplash.com/photo-1559305616-3f99cd43e353?w=1200&q=85&auto=format&fit=crop">
+
+<!-- Favicon (inline SVG, no extra request) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231a1a1a'/%3E%3Ctext x='50' y='70' font-family='Georgia,serif' font-size='58' fill='%23fff' text-anchor='middle'%3E3%3C/text%3E%3C/svg%3E">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://dynamic-media-cdn.tripadvisor.com">
+<link rel="preconnect" href="https://images.unsplash.com">
+<!-- LCP hero image preload -->
+<link rel="preload" as="image" href="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/31/ac/79/cd/caption.jpg">
+<!-- Non-blocking font load -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
 
 /* ── RESET ── */
@@ -633,8 +660,8 @@ footer{background:#111;color:#fff;padding:0 0 0}
 }
 @media(max-width:768px){
   .nav-top{padding:0 20px;height:56px}
-  .nav-left{gap:16px}
-  .nav-left a{font-size:11px}
+  .nav-left{display:none}
+  .nav-logo{justify-self:start}
   .nav-right{gap:14px}
   .nav-right a{display:none}
   .trust-bar{font-size:10px;padding:12px 16px}
@@ -669,9 +696,61 @@ footer{background:#111;color:#fff;padding:0 0 0}
   .award-cell{padding:28px 24px}
   .reviews-grid{grid-template-columns:1fr}
   .reviews-strip{padding:48px 24px}
+  /* mobile legibility bumps */
+  .trust-bar{font-size:11px}
+  .footer-col h4{font-size:11px}
+  .footer-bottom-links a{font-size:11px;color:#9a9a9a}
+  .award-label,.vmap-cell strong,.cat-label-tag,.group-title,.latte-card-ing{font-size:11px}
+  /* gallery mosaic: flatten spans on 2-col mobile to avoid grid gaps/overflow */
+  .photo-gallery a.tall{aspect-ratio:1;grid-row:span 1}
+  .photo-gallery a.wide{grid-column:span 2;aspect-ratio:16/9}
+  /* reduce horizontal padding sources of overflow */
+  .vinfo-cell{padding:18px 20px}
+  .vmap-cell{padding:24px 20px}
+  .award-cell{padding:24px 20px}
+  .review-card{padding:24px 20px}
+}
+@media(max-width:480px){
+  .coll-img{aspect-ratio:4/3}
+  .cat-card{aspect-ratio:16/10}
+  .stat-row{gap:18px}
+  .quality-badge{padding:22px 18px}
+  .hero-content{padding:28px 20px}
+  .address-card{padding:22px 18px}
+  section[style*="padding:80px 40px"]{padding:56px 18px!important}
 }
 
+/* ── ACCESSIBILITY ── */
+:focus-visible{outline:2px solid #b5422a;outline-offset:3px;border-radius:2px}
+a:focus-visible,button:focus-visible,[onclick]:focus-visible{outline:2px solid #b5422a;outline-offset:3px}
+.vhero-content :focus-visible,.hero :focus-visible{outline-color:#fff}
+
+/* Enlarge slideshow dot hit area to 44px while keeping the visual dot small */
+.vhero-dot{position:relative}
+.vhero-dot::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px}
+
+/* Guarantee touch targets on key links */
+.footer-col a{min-height:40px;display:flex;align-items:center}
+.footer-col a[href^="http"]{display:inline-flex}
+#back-bar a{min-height:44px;display:inline-flex;align-items:center;gap:8px}
+.btn-hero{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+
+/* Contrast fixes (were ~2.8:1, now AA) */
+.coll-sub{color:#6e6e6e}
+.mi-desc,.flavour-desc,.game-meta,.blog-date,.group-title{color:#6b6b6b}
+.award-label{color:#8a8a8a}
+.award-stars,.review-card-stars{color:#9a7b16}
+.footer-col h4{color:#9a9a9a}
+.footer-bottom,.footer-bottom-links a{color:#8a8a8a}
+
+/* Clickable cards reachable by keyboard get a pointer + focus affordance */
+[onclick]{cursor:pointer}
+
+/* No-JS fallback: don't hide content behind scroll-reveal */
+.no-js .reveal{opacity:1!important;transform:none!important}
+
 </style>
+<noscript><style>.reveal{opacity:1!important;transform:none!important}.pg{display:block!important}</style></noscript>
 </head>
 <body>
 
@@ -683,24 +762,23 @@ footer{background:#111;color:#fff;padding:0 0 0}
 <!-- ── NAV ── -->
 <header id="nav">
   <div class="nav-top">
-    <nav class="nav-left">
-      <a onclick="go('leona')">Léona Café</a>
-      <a onclick="go('bouboule')">Bouboule</a>
-      <a onclick="go('jeux')">Le Bar à Jeux</a>
+    <nav class="nav-left" aria-label="Navigation des adresses">
+      <a href="#" onclick="go('leona');return false">Léona Café</a>
+      <a href="#" onclick="go('bouboule');return false">Bouboule</a>
+      <a href="#" onclick="go('jeux');return false">Le Bar à Jeux</a>
     </nav>
-    <a class="nav-logo" onclick="go('home')">Trois Adresses · Bruxelles</a>
-    <nav class="nav-right">
-      <a href="https://www.instagram.com/leonacafe_bxl/" target="_blank" rel="noopener">Instagram</a>
-      <a onclick="go('home')">Nos adresses</a>
-      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <a class="nav-logo" href="#" onclick="go('home');return false">Trois Adresses · Bruxelles</a>
+    <nav class="nav-right" aria-label="Navigation secondaire">
+      <a href="https://www.instagram.com/leonacafe_bxl/" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="#" onclick="go('home');return false">Nos adresses</a>
     </nav>
   </div>
 </header>
 
 <!-- ── BACK BAR (shown on venue pages) ── -->
 <div id="back-bar">
-  <a onclick="go('home')">
-    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  <a href="#" onclick="go('home');return false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
     Toutes les adresses
   </a>
 </div>
@@ -890,7 +968,7 @@ footer{background:#111;color:#fff;padding:0 0 0}
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2024 Trois Adresses · Bruxelles</span>
+        <span>© <span class="js-year">2024</span> Trois Adresses · Bruxelles</span>
         <div class="footer-bottom-links">
           <a onclick="go('leona')">Léona</a>
           <a onclick="go('bouboule')">Bouboule</a>
@@ -924,13 +1002,13 @@ footer{background:#111;color:#fff;padding:0 0 0}
     <div class="vhero-overlay" style="background:linear-gradient(160deg,rgba(0,0,0,.2) 0%,rgba(20,6,2,.7) 100%)"></div>
     <div class="vhero-content">
       <p class="vhero-eyebrow">Café de spécialité · Woluwe-Saint-Lambert</p>
-      <div class="vhero-title" style="font-size:clamp(56px,8vw,110px)">Léona<br><em>Café</em></div>
+      <h1 class="vhero-title" style="font-size:clamp(56px,8vw,110px)">Léona<br><em>Café</em></h1>
       <p style="color:rgba(255,255,255,.65);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-top:20px">★ 4,8 &nbsp;·&nbsp; 197 avis Google &nbsp;·&nbsp; Ouvert depuis 2024</p>
     </div>
-    <div class="vhero-dots">
-      <button class="vhero-dot act" onclick="heroGo('leona',0)"></button>
-      <button class="vhero-dot" onclick="heroGo('leona',1)"></button>
-      <button class="vhero-dot" onclick="heroGo('leona',2)"></button>
+    <div class="vhero-dots" role="tablist" aria-label="Photos du diaporama">
+      <button class="vhero-dot act" onclick="heroGo('leona',0)" aria-label="Photo 1" aria-current="true"></button>
+      <button class="vhero-dot" onclick="heroGo('leona',1)" aria-label="Photo 2"></button>
+      <button class="vhero-dot" onclick="heroGo('leona',2)" aria-label="Photo 3"></button>
     </div>
   </section>
 
@@ -1256,7 +1334,7 @@ footer{background:#111;color:#fff;padding:0 0 0}
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2024 Léona Café</span>
+        <span>© <span class="js-year">2024</span> Léona Café</span>
         <div class="footer-bottom-links"><a onclick="go('home')">Toutes les adresses</a></div>
       </div>
     </div>
@@ -1285,13 +1363,13 @@ footer{background:#111;color:#fff;padding:0 0 0}
     <div class="vhero-overlay"></div>
     <div class="vhero-content">
       <p class="vhero-eyebrow">Glacier artisanal · Woluwe-Saint-Lambert</p>
-      <div class="vhero-title">Bouboule</div>
+      <h1 class="vhero-title">Bouboule</h1>
       <p style="color:rgba(255,255,255,.65);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-top:20px">★ 4,8 &nbsp;·&nbsp; 120+ avis Google &nbsp;·&nbsp; 2e Gelato Festival 2021</p>
     </div>
-    <div class="vhero-dots">
-      <button class="vhero-dot act" onclick="heroGo('bouboule',0)"></button>
-      <button class="vhero-dot" onclick="heroGo('bouboule',1)"></button>
-      <button class="vhero-dot" onclick="heroGo('bouboule',2)"></button>
+    <div class="vhero-dots" role="tablist" aria-label="Photos du diaporama">
+      <button class="vhero-dot act" onclick="heroGo('bouboule',0)" aria-label="Photo 1" aria-current="true"></button>
+      <button class="vhero-dot" onclick="heroGo('bouboule',1)" aria-label="Photo 2"></button>
+      <button class="vhero-dot" onclick="heroGo('bouboule',2)" aria-label="Photo 3"></button>
     </div>
   </section>
 
@@ -1303,6 +1381,7 @@ footer{background:#111;color:#fff;padding:0 0 0}
     <div class="vinfo-cell">
       <strong>Horaires</strong>
       Mercredi–Dimanche · 12h–19h
+      <span id="bouboule-status" style="display:block;margin-top:4px"></span>
     </div>
   </div>
 
@@ -1676,7 +1755,7 @@ footer{background:#111;color:#fff;padding:0 0 0}
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2024 Bouboule</span>
+        <span>© <span class="js-year">2024</span> Bouboule</span>
         <div class="footer-bottom-links"><a onclick="go('home')">Toutes les adresses</a></div>
       </div>
     </div>
@@ -1705,13 +1784,13 @@ footer{background:#111;color:#fff;padding:0 0 0}
     <div class="vhero-overlay"></div>
     <div class="vhero-content">
       <p class="vhero-eyebrow">Bar &amp; Jeux de société · Saint-Gilles</p>
-      <div class="vhero-title">Le Bar<br><em>à Jeux</em></div>
+      <h1 class="vhero-title">Le Bar<br><em>à Jeux</em></h1>
       <p style="color:rgba(255,255,255,.65);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-top:20px">★ 4,6 &nbsp;·&nbsp; 200+ jeux disponibles &nbsp;·&nbsp; Gyozas maison</p>
     </div>
-    <div class="vhero-dots">
-      <button class="vhero-dot act" onclick="heroGo('jeux',0)"></button>
-      <button class="vhero-dot" onclick="heroGo('jeux',1)"></button>
-      <button class="vhero-dot" onclick="heroGo('jeux',2)"></button>
+    <div class="vhero-dots" role="tablist" aria-label="Photos du diaporama">
+      <button class="vhero-dot act" onclick="heroGo('jeux',0)" aria-label="Photo 1" aria-current="true"></button>
+      <button class="vhero-dot" onclick="heroGo('jeux',1)" aria-label="Photo 2"></button>
+      <button class="vhero-dot" onclick="heroGo('jeux',2)" aria-label="Photo 3"></button>
     </div>
   </section>
 
@@ -1723,6 +1802,7 @@ footer{background:#111;color:#fff;padding:0 0 0}
     <div class="vinfo-cell">
       <strong>Horaires</strong>
       Jeudi–Dimanche · 16h–00h · +200 jeux disponibles
+      <span id="jeux-status" style="display:block;margin-top:4px"></span>
     </div>
   </div>
 
@@ -1948,7 +2028,7 @@ footer{background:#111;color:#fff;padding:0 0 0}
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2024 Le Bar à Jeux</span>
+        <span>© <span class="js-year">2024</span> Le Bar à Jeux</span>
         <div class="footer-bottom-links"><a onclick="go('home')">Toutes les adresses</a></div>
       </div>
     </div>
@@ -1976,8 +2056,8 @@ function go(id) {
     // show/hide back bar
     bb.style.display = (id === 'home') ? 'none' : 'block';
 
-    // update real-time status on Léona page
-    if (id === 'leona') setLeonaStatus();
+    // update real-time open/closed status on venue pages
+    setVenueStatus(id);
     // re-init scroll reveal for new page
     setTimeout(initReveal, 80);
 
@@ -2007,20 +2087,40 @@ function mTab(venue, section, btn) {
   if (tw) tw.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-/* ── LÉONA STATUS ── */
-function setLeonaStatus() {
-  var el = document.getElementById('leona-status');
-  if (!el) return;
-  var now = new Date();
-  var day = now.getDay(); // 0=Sun,1=Mon,...,6=Sat
-  var h = now.getHours();
-  var m = now.getMinutes();
-  var t = h * 60 + m;
-  // Open Tue–Sat (2–6) 9h–17h
-  var open = day >= 2 && day <= 6 && t >= 540 && t < 1020;
+/* ── OPEN / CLOSED STATUS (live, Brussels time) ── */
+// day: 0=Sun..6=Sat ; open/close in minutes-from-midnight
+var VENUE_HOURS = {
+  leona:    { days: [2,3,4,5,6], open: 540,  close: 1020 }, // Tue–Sat 9h–17h
+  bouboule: { days: [3,4,5,6,0], open: 720,  close: 1140 }, // Wed–Sun 12h–19h
+  jeux:     { days: [4,5,6,0],   open: 960,  close: 1440 }  // Thu–Sun 16h–00h
+};
+function brusselsNow() {
+  // Convert current time to Europe/Brussels regardless of visitor timezone.
+  try {
+    var parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/Brussels', weekday: 'short', hour: '2-digit',
+      minute: '2-digit', hour12: false
+    }).formatToParts(new Date());
+    var map = {}; parts.forEach(function(p){ map[p.type] = p.value; });
+    var dayMap = { Sun:0, Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6 };
+    return { day: dayMap[map.weekday], t: parseInt(map.hour,10)*60 + parseInt(map.minute,10) };
+  } catch (e) {
+    var n = new Date();
+    return { day: n.getDay(), t: n.getHours()*60 + n.getMinutes() };
+  }
+}
+function setVenueStatus(venue) {
+  var el = document.getElementById(venue + '-status');
+  var cfg = VENUE_HOURS[venue];
+  if (!el || !cfg) return;
+  var now = brusselsNow();
+  var open = cfg.days.indexOf(now.day) !== -1 && now.t >= cfg.open && now.t < cfg.close;
   el.innerHTML = open
     ? '<span class="status-open">● Ouvert actuellement</span>'
     : '<span class="status-closed">● Fermé actuellement</span>';
+}
+function refreshAllStatus() {
+  ['leona','bouboule','jeux'].forEach(setVenueStatus);
 }
 
 /* ── SCROLL REVEAL ── */
@@ -2034,8 +2134,12 @@ var revealIO = new IntersectionObserver(function(entries) {
 }, { threshold: 0, rootMargin: '0px 0px -72px 0px' });
 
 function initReveal() {
-  document.querySelectorAll('.reveal').forEach(function(el) {
-    el.classList.remove('visible');
+  // Scope to the active page only — avoids observing hidden pages
+  // (memory leak) and avoids stripping .visible from already-shown
+  // elements (which caused a flash on re-navigation).
+  var page = document.querySelector('.pg.on');
+  if (!page) return;
+  page.querySelectorAll('.reveal:not(.visible)').forEach(function(el) {
     revealIO.observe(el);
   });
 }
@@ -2049,20 +2153,21 @@ function heroGo(name, idx) {
   if (!hero) return;
   var slides = hero.querySelectorAll('.vhero-slide');
   var dots = hero.querySelectorAll('.vhero-dot');
+  if (!slides.length) return;
   var cur = heroIndexes[name] || 0;
   if (slides[cur]) slides[cur].classList.remove('act');
-  if (dots[cur]) dots[cur].classList.remove('act');
-  heroIndexes[name] = idx % slides.length;
+  if (dots[cur]) { dots[cur].classList.remove('act'); dots[cur].removeAttribute('aria-current'); }
+  heroIndexes[name] = ((idx % slides.length) + slides.length) % slides.length;
   if (slides[heroIndexes[name]]) slides[heroIndexes[name]].classList.add('act');
-  if (dots[heroIndexes[name]]) dots[heroIndexes[name]].classList.add('act');
+  if (dots[heroIndexes[name]]) { dots[heroIndexes[name]].classList.add('act'); dots[heroIndexes[name]].setAttribute('aria-current', 'true'); }
 }
 
 function startHero(name) {
   stopHero(name);
   heroIndexes[name] = 0;
+  heroGo(name, 0); // sync DOM to slide 0 immediately (avoids a "dead" first tick)
   heroTimers[name] = setInterval(function() {
-    heroIndexes[name] = ((heroIndexes[name] || 0) + 1);
-    heroGo(name, heroIndexes[name]);
+    heroGo(name, (heroIndexes[name] || 0) + 1);
   }, 4800);
 }
 
@@ -2070,8 +2175,25 @@ function stopHero(name) {
   if (heroTimers[name]) { clearInterval(heroTimers[name]); delete heroTimers[name]; }
 }
 
+// Pause every running slideshow while the tab is hidden; resume on return.
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) {
+    Object.keys(heroTimers).forEach(stopHero);
+  } else {
+    // restart slideshows for whichever hero is on the active page
+    ['leona','bouboule','jeux'].forEach(function(n) {
+      if (document.getElementById('pg-' + n) && document.getElementById('pg-' + n).classList.contains('on') && !heroTimers[n]) {
+        // resume from current slide rather than resetting
+        var keep = heroIndexes[n] || 0;
+        stopHero(n);
+        heroTimers[n] = setInterval(function() { heroGo(n, (heroIndexes[n] || 0) + 1); }, 4800);
+        heroGo(n, keep);
+      }
+    });
+  }
+});
+
 /* ── NAVIGATION (updated) ── */
-var _origGo = go;
 // wrap go to manage slideshows
 (function(){
   var pageHero = { leona: 'leona', bouboule: 'bouboule', jeux: 'jeux' };
@@ -2103,7 +2225,7 @@ function initVenueMode() {
   var announce = document.getElementById('announce');
   if (announce) announce.style.display = 'none';
   var navLeft = document.querySelector('.nav-left');
-  if (navLeft) navLeft.style.visibility = 'hidden';
+  if (navLeft) navLeft.style.display = 'none';
 
   // hide back bar entirely in venue mode
   document.getElementById('back-bar').style.display = 'none';
@@ -2113,12 +2235,147 @@ function initVenueMode() {
   setTimeout(initReveal, 120);
 }
 
+/* ── KEYBOARD ACCESSIBILITY ──
+   Make every clickable element that uses onclick (cards, footer links, etc.)
+   focusable and activatable with Enter/Space, without editing each one. */
+function enhanceClickables() {
+  document.querySelectorAll('[onclick]').forEach(function(el) {
+    var tag = el.tagName.toLowerCase();
+    if (tag === 'a' || tag === 'button') return; // already keyboard-native
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+    if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+    el.addEventListener('keydown', function(ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        el.click();
+      }
+    });
+  });
+}
+
+/* ── IMAGE FALLBACK ──
+   If an image fails to load (CDN down / 404), fade its container instead of
+   showing a broken-image icon. */
+function guardImages() {
+  document.querySelectorAll('img').forEach(function(img) {
+    img.addEventListener('error', function() {
+      img.style.opacity = '0';
+      img.style.background = '#ece8e3';
+    });
+  });
+}
+
+/* ── DYNAMIC COPYRIGHT YEAR ── */
+function updateYear() {
+  var y = new Date().getFullYear();
+  document.querySelectorAll('.js-year').forEach(function(el) { el.textContent = y; });
+}
+
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('back-bar').style.display = 'none';
   initReveal();
+  enhanceClickables();
+  guardImages();
+  updateYear();
+  refreshAllStatus();
+  setInterval(refreshAllStatus, 60000); // keep status fresh without re-navigation
   initVenueMode();
 });
+</script>
+
+<!-- ── STRUCTURED DATA (SEO) ── -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "CafeOrCoffeeShop",
+    "name": "Léona Café",
+    "description": "Café de spécialité et brunch à Woluwe-Saint-Lambert, Bruxelles.",
+    "image": "https://images.unsplash.com/photo-1559305616-3f99cd43e353?w=1200&q=85&auto=format&fit=crop",
+    "url": "https://gabi-go.github.io/trois-adresses-bruxelles/?v=leona",
+    "telephone": "+32494402892",
+    "servesCuisine": ["Café de spécialité", "Brunch"],
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Avenue Georges Henri 386",
+      "postalCode": "1200",
+      "addressLocality": "Woluwe-Saint-Lambert",
+      "addressRegion": "Bruxelles",
+      "addressCountry": "BE"
+    },
+    "openingHoursSpecification": [{
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      "opens": "09:00",
+      "closes": "17:00"
+    }],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "197"
+    },
+    "sameAs": ["https://www.instagram.com/leonacafe_bxl/"]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "IceCreamShop",
+    "name": "Bouboule",
+    "description": "Glacier artisanal à Woluwe-Saint-Lambert : parfums maison, sélectionné au Gelato Festival.",
+    "image": "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=1200&q=85&auto=format&fit=crop",
+    "url": "https://gabi-go.github.io/trois-adresses-bruxelles/?v=bouboule",
+    "servesCuisine": ["Glaces artisanales", "Gelato"],
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Avenue Albert Élisabeth",
+      "postalCode": "1200",
+      "addressLocality": "Woluwe-Saint-Lambert",
+      "addressRegion": "Bruxelles",
+      "addressCountry": "BE"
+    },
+    "openingHoursSpecification": [{
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      "opens": "12:00",
+      "closes": "19:00"
+    }],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "120"
+    },
+    "sameAs": ["https://www.instagram.com/glacierbouboule/"]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BarOrPub",
+    "name": "Le Bar à Jeux",
+    "description": "Bar à jeux à Saint-Gilles : plus de 200 jeux de société, bières artisanales belges et gyozas maison.",
+    "image": "https://images.unsplash.com/photo-1629760946220-5693ee4c46ac?w=1200&q=85&auto=format&fit=crop",
+    "url": "https://gabi-go.github.io/trois-adresses-bruxelles/?v=jeux",
+    "servesCuisine": ["Bières artisanales", "Cuisine maison"],
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Chaussée d'Alsemberg 136",
+      "postalCode": "1060",
+      "addressLocality": "Saint-Gilles",
+      "addressRegion": "Bruxelles",
+      "addressCountry": "BE"
+    },
+    "openingHoursSpecification": [{
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Thursday", "Friday", "Saturday", "Sunday"],
+      "opens": "16:00",
+      "closes": "23:59"
+    }],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.6",
+      "reviewCount": "80"
+    },
+    "sameAs": ["https://www.instagram.com/barajeux/"]
+  }
+]
 </script>
 
 </body>
